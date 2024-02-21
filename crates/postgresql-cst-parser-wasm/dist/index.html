@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>My Rust + Webpack project!</title>
+</head>
+
+<body>
+  <script type="module">
+    import init, { parse_sql } from "./js/postgresql_cst_parser_wasm.js";
+    init();
+
+    window.do_parse = function () {
+      const sql = document.getElementById("sql").value;
+      const result = parse_sql(sql);
+      document.getElementById("result").value = result;
+    }
+  </script>
+  <textarea id="sql" rows="50" cols="50">SELECT
+    a
+,   b -- comment
+FROM
+    TBL
+;</textarea>
+  <textarea id="result" rows="50" cols="50"></textarea>
+  <input type="button" value="parse" onclick="do_parse()" />
+</body>
+
+</html>

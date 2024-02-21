@@ -1,0 +1,15 @@
+[package]
+name = "postgresql-cst-parser"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/tanzaku/postgresql-cst-parser"
+description = "PostgreSQL cst parser"
+documentation = ""
+license-file = "../../LICENSE"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1.10.2"
+cstree = { version = "0.12.0", features = ["derive"] }
+miniz_oxide = "0.7.1"

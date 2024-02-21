@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "crates/lexer-generator",
+    "crates/parser-generator",
+    "crates/postgresql-cst-parser",
+    "crates/postgresql-cst-parser-wasm",
+]
+
+default-members = ["crates/postgresql-cst-parser"]
+
+[workspace.package]
+exclude = ["crates/lexer-generator", "crates/parser-generator", "crates/postgresql-cst-parser-wasm"]
