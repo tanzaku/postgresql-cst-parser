@@ -23,6 +23,9 @@ let resolved_root = postgresql_cst_parser::parse("SELECT 1;");
 dbg!(resolved_root);
 ```
 
+If you would like to experience this parser in action, you can try it out directly online [here](https://tanzaku.github.io/postgresql-cst-parser/). Enter your own code to see how the parser operates in real-time.
+
+
 ## Implementation
 
 The implementation uses a modified version of PostgreSQL's [scan.l](https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/parser/scan.l) and [gram.y](https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/parser/gram.y) based on patches from [libpg_query](https://github.com/pganalyze/libpg_query/tree/16-latest/patches). `scan.l` has been rewritten for Rust, and a syntax parsing table has been created based on `scan.l` and `gram.y` to construct the parser.

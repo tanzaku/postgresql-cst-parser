@@ -23,6 +23,8 @@ let resolved_root = postgresql_cst_parser::parse("SELECT 1;");
 dbg!(resolved_root);
 ```
 
+さらに、このパーサーを実際に体験してみたい場合は、[こちら](https://tanzaku.github.io/postgresql-cst-parser/)でオンラインで直接試すことができます。実際のコードを入力し、パーサーがどのように動作するかを確認してみましょう。
+
 ## 実装方法
 
 実装には、PostgreSQL の [scan.l](https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/parser/scan.l) と [gram.y](https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/parser/gram.y) に対する [libpg_query の patch](https://github.com/pganalyze/libpg_query/tree/16-latest/patches)を適用したものを使用しています。`scan.l` は Rust 用に書き換えられ、`scan.l` と `gram.y` を基にして構文解析表を作成し、パーサーを構築しています。
