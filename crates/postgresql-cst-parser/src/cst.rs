@@ -58,7 +58,9 @@ impl Parser {
         peekable: &mut std::iter::Peekable<std::vec::IntoIter<(SyntaxKind, usize, usize, &str)>>,
     ) {
         while let Some((kind, start, _, text)) = peekable.peek() {
+            // TODO: Consider whether the presence or absence of an equals sign changes the position of comments. Determine which option is preferable
             if *start >= node.start_byte_pos {
+                // if *start > node.start_byte_pos {
                 break;
             }
             self.builder.token(*kind, text);
@@ -201,8 +203,8 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
             token: None,
             component_id: end_rule_id(),
             children: Vec::new(),
-            start_byte_pos: input.len(),
-            end_byte_pos: input.len(),
+            start_byte_pos: 0,
+            end_byte_pos: 0,
         },
     ));
 
@@ -290,10 +292,18 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
 
                 let reduced_component_id = rule_name_to_component_id(&rule.name);
 
-                let start_byte_pos = children
-                    .first()
-                    .map(|t| t.start_byte_pos)
-                    .unwrap_or_else(|| stack.last().unwrap().1.end_byte_pos);
+                let start_byte_pos =
+                    children
+                        .first()
+                        .map(|t| t.start_byte_pos)
+                        .unwrap_or_else(|| {
+                            // Adopt the larger of the end position of the previous token or the end of the space.
+                            extras
+                                .last()
+                                .map(|e| e.2)
+                                .unwrap_or_default()
+                                .max(stack.last().unwrap().1.end_byte_pos)
+                        });
 
                 let end_byte_pos = children
                     .last()

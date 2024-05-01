@@ -1,0 +1,250 @@
+Root@0..318
+  parse_toplevel@0..317
+    stmtmulti@0..317
+      stmtmulti@0..316
+        toplevel_stmt@0..316
+          stmt@0..316
+            MergeStmt@0..316
+              opt_with_clause@0..0
+              MERGE@0..5 "MERGE"
+              Whitespace@5..6 " "
+              INTO@6..10 "INTO"
+              Whitespace@10..11 " "
+              relation_expr_opt_alias@11..21
+                relation_expr@11..19
+                  qualified_name@11..19
+                    ColId@11..19
+                      IDENT@11..19 "products"
+                Whitespace@19..20 " "
+                ColId@20..21
+                  IDENT@20..21 "p"
+              Whitespace@21..22 " "
+              USING@22..27 "USING"
+              Whitespace@27..28 " "
+              table_ref@28..45
+                relation_expr@28..43
+                  qualified_name@28..43
+                    ColId@28..43
+                      IDENT@28..43 "stock_movements"
+                Whitespace@43..44 " "
+                opt_alias_clause@44..45
+                  alias_clause@44..45
+                    ColId@44..45
+                      IDENT@44..45 "s"
+              Whitespace@45..46 " "
+              ON@46..48 "ON"
+              Whitespace@48..49 " "
+              a_expr@49..68
+                a_expr@49..53
+                  c_expr@49..53
+                    columnref@49..53
+                      ColId@49..50
+                        IDENT@49..50 "p"
+                      indirection@50..53
+                        indirection_el@50..53
+                          Dot@50..51 "."
+                          attr_name@51..53
+                            ColLabel@51..53
+                              IDENT@51..53 "id"
+                Whitespace@53..54 " "
+                Equals@54..55 "="
+                Whitespace@55..56 " "
+                a_expr@56..68
+                  c_expr@56..68
+                    columnref@56..68
+                      ColId@56..57
+                        IDENT@56..57 "s"
+                      indirection@57..68
+                        indirection_el@57..68
+                          Dot@57..58 "."
+                          attr_name@58..68
+                            ColLabel@58..68
+                              IDENT@58..68 "product_id"
+              Whitespace@68..73 "\n    "
+              merge_when_list@73..316
+                merge_when_list@73..166
+                  merge_when_clause@73..166
+                    WHEN@73..77 "WHEN"
+                    Whitespace@77..78 " "
+                    MATCHED@78..85 "MATCHED"
+                    opt_merge_when_condition@85..85
+                    Whitespace@85..86 " "
+                    THEN@86..90 "THEN"
+                    Whitespace@90..99 "\n        "
+                    merge_update@99..166
+                      UPDATE@99..105 "UPDATE"
+                      Whitespace@105..106 " "
+                      SET@106..109 "SET"
+                      Whitespace@109..118 "\n        "
+                      set_clause_list@118..166
+                        set_clause@118..166
+                          set_target@118..134
+                            ColId@118..119
+                              IDENT@118..119 "p"
+                            opt_indirection@119..134
+                              opt_indirection@119..119
+                              indirection_el@119..134
+                                Dot@119..120 "."
+                                attr_name@120..134
+                                  ColLabel@120..134
+                                    IDENT@120..134 "stock_quantity"
+                          Whitespace@134..135 " "
+                          Equals@135..136 "="
+                          Whitespace@136..137 " "
+                          a_expr@137..166
+                            a_expr@137..153
+                              c_expr@137..153
+                                columnref@137..153
+                                  ColId@137..138
+                                    IDENT@137..138 "p"
+                                  indirection@138..153
+                                    indirection_el@138..153
+                                      Dot@138..139 "."
+                                      attr_name@139..153
+                                        ColLabel@139..153
+                                          IDENT@139..153 "stock_quantity"
+                            Whitespace@153..154 " "
+                            Plus@154..155 "+"
+                            Whitespace@155..156 " "
+                            a_expr@156..166
+                              c_expr@156..166
+                                columnref@156..166
+                                  ColId@156..157
+                                    IDENT@156..157 "s"
+                                  indirection@157..166
+                                    indirection_el@157..166
+                                      Dot@157..158 "."
+                                      attr_name@158..166
+                                        ColLabel@158..166
+                                          IDENT@158..166 "quantity"
+                Whitespace@166..171 "\n    "
+                merge_when_clause@171..316
+                  WHEN@171..175 "WHEN"
+                  Whitespace@175..176 " "
+                  NOT@176..179 "NOT"
+                  Whitespace@179..180 " "
+                  MATCHED@180..187 "MATCHED"
+                  opt_merge_when_condition@187..187
+                  Whitespace@187..188 " "
+                  THEN@188..192 "THEN"
+                  Whitespace@192..201 "\n        "
+                  merge_insert@201..316
+                    INSERT@201..207 "INSERT"
+                    Whitespace@207..208 " "
+                    LParen@208..209 "("
+                    insert_column_list@209..248
+                      insert_column_list@209..230
+                        insert_column_list@209..221
+                          insert_column_list@209..213
+                            insert_column_item@209..213
+                              ColId@209..210
+                                IDENT@209..210 "p"
+                              opt_indirection@210..213
+                                opt_indirection@210..210
+                                indirection_el@210..213
+                                  Dot@210..211 "."
+                                  attr_name@211..213
+                                    ColLabel@211..213
+                                      IDENT@211..213 "id"
+                          Comma@213..214 ","
+                          Whitespace@214..215 " "
+                          insert_column_item@215..221
+                            ColId@215..216
+                              IDENT@215..216 "p"
+                            opt_indirection@216..221
+                              opt_indirection@216..216
+                              indirection_el@216..221
+                                Dot@216..217 "."
+                                attr_name@217..221
+                                  ColLabel@217..221
+                                    unreserved_keyword@217..221
+                                      NAME_P@217..221 "name"
+                        Comma@221..222 ","
+                        Whitespace@222..223 " "
+                        insert_column_item@223..230
+                          ColId@223..224
+                            IDENT@223..224 "p"
+                          opt_indirection@224..230
+                            opt_indirection@224..224
+                            indirection_el@224..230
+                              Dot@224..225 "."
+                              attr_name@225..230
+                                ColLabel@225..230
+                                  IDENT@225..230 "price"
+                      Comma@230..231 ","
+                      Whitespace@231..232 " "
+                      insert_column_item@232..248
+                        ColId@232..233
+                          IDENT@232..233 "p"
+                        opt_indirection@233..248
+                          opt_indirection@233..233
+                          indirection_el@233..248
+                            Dot@233..234 "."
+                            attr_name@234..248
+                              ColLabel@234..248
+                                IDENT@234..248 "stock_quantity"
+                    RParen@248..249 ")"
+                    Whitespace@249..258 "\n        "
+                    merge_values_clause@258..316
+                      VALUES@258..264 "VALUES"
+                      Whitespace@264..265 " "
+                      LParen@265..266 "("
+                      expr_list@266..315
+                        expr_list@266..303
+                          expr_list@266..294
+                            expr_list@266..278
+                              a_expr@266..278
+                                c_expr@266..278
+                                  columnref@266..278
+                                    ColId@266..267
+                                      IDENT@266..267 "s"
+                                    indirection@267..278
+                                      indirection_el@267..278
+                                        Dot@267..268 "."
+                                        attr_name@268..278
+                                          ColLabel@268..278
+                                            IDENT@268..278 "product_id"
+                            Comma@278..279 ","
+                            Whitespace@279..280 " "
+                            a_expr@280..294
+                              c_expr@280..294
+                                columnref@280..294
+                                  ColId@280..281
+                                    IDENT@280..281 "s"
+                                  indirection@281..294
+                                    indirection_el@281..294
+                                      Dot@281..282 "."
+                                      attr_name@282..294
+                                        ColLabel@282..294
+                                          IDENT@282..294 "product_name"
+                          Comma@294..295 ","
+                          Whitespace@295..296 " "
+                          a_expr@296..303
+                            c_expr@296..303
+                              columnref@296..303
+                                ColId@296..297
+                                  IDENT@296..297 "s"
+                                indirection@297..303
+                                  indirection_el@297..303
+                                    Dot@297..298 "."
+                                    attr_name@298..303
+                                      ColLabel@298..303
+                                        IDENT@298..303 "price"
+                        Comma@303..304 ","
+                        Whitespace@304..305 " "
+                        a_expr@305..315
+                          c_expr@305..315
+                            columnref@305..315
+                              ColId@305..306
+                                IDENT@305..306 "s"
+                              indirection@306..315
+                                indirection_el@306..315
+                                  Dot@306..307 "."
+                                  attr_name@307..315
+                                    ColLabel@307..315
+                                      IDENT@307..315 "quantity"
+                      RParen@315..316 ")"
+      Semicolon@316..317 ";"
+      toplevel_stmt@317..317
+        stmt@317..317
+  Whitespace@317..318 "\n"

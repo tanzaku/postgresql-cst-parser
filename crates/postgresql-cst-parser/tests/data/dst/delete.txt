@@ -1,0 +1,347 @@
+Root@0..440
+  SQL_COMMENT@0..53 "-- https://www.postgr ..."
+  parse_toplevel@53..440
+    stmtmulti@53..440
+      stmtmulti@53..439
+        stmtmulti@53..371
+          stmtmulti@53..327
+            stmtmulti@53..280
+              stmtmulti@53..261
+                stmtmulti@53..227
+                  stmtmulti@53..144
+                    toplevel_stmt@53..144
+                      stmt@53..144
+                        DeleteStmt@53..144
+                          opt_with_clause@53..53
+                          Whitespace@53..54 "\n"
+                          DELETE_P@54..60 "DELETE"
+                          Whitespace@60..61 " "
+                          FROM@61..65 "FROM"
+                          Whitespace@65..66 " "
+                          relation_expr_opt_alias@66..71
+                            relation_expr@66..71
+                              qualified_name@66..71
+                                ColId@66..71
+                                  IDENT@66..71 "films"
+                          Whitespace@71..72 " "
+                          using_clause@72..87
+                            USING@72..77 "USING"
+                            Whitespace@77..78 " "
+                            from_list@78..87
+                              table_ref@78..87
+                                relation_expr@78..87
+                                  qualified_name@78..87
+                                    ColId@78..87
+                                      IDENT@78..87 "producers"
+                                opt_alias_clause@87..87
+                          Whitespace@87..90 "\n  "
+                          where_or_current_clause@90..144
+                            WHERE@90..95 "WHERE"
+                            Whitespace@95..96 " "
+                            a_expr@96..144
+                              a_expr@96..122
+                                a_expr@96..107
+                                  c_expr@96..107
+                                    columnref@96..107
+                                      ColId@96..107
+                                        IDENT@96..107 "producer_id"
+                                Whitespace@107..108 " "
+                                Equals@108..109 "="
+                                Whitespace@109..110 " "
+                                a_expr@110..122
+                                  c_expr@110..122
+                                    columnref@110..122
+                                      ColId@110..119
+                                        IDENT@110..119 "producers"
+                                      indirection@119..122
+                                        indirection_el@119..122
+                                          Dot@119..120 "."
+                                          attr_name@120..122
+                                            ColLabel@120..122
+                                              IDENT@120..122 "id"
+                              Whitespace@122..123 " "
+                              AND@123..126 "AND"
+                              Whitespace@126..127 " "
+                              a_expr@127..144
+                                a_expr@127..141
+                                  c_expr@127..141
+                                    columnref@127..141
+                                      ColId@127..136
+                                        IDENT@127..136 "producers"
+                                      indirection@136..141
+                                        indirection_el@136..141
+                                          Dot@136..137 "."
+                                          attr_name@137..141
+                                            ColLabel@137..141
+                                              unreserved_keyword@137..141
+                                                NAME_P@137..141 "name"
+                                Whitespace@141..142 " "
+                                Equals@142..143 "="
+                                Whitespace@143..144 " "
+                                a_expr@144..144
+                                  c_expr@144..144
+                                    AexprConst@144..144
+                                      Sconst@144..144
+                                        SCONST@144..144 ""
+                          returning_clause@144..144
+                  Semicolon@144..145 ";"
+                  toplevel_stmt@145..227
+                    stmt@145..227
+                      DeleteStmt@145..227
+                        opt_with_clause@145..145
+                        Whitespace@145..146 "\n"
+                        DELETE_P@146..152 "DELETE"
+                        Whitespace@152..153 " "
+                        FROM@153..157 "FROM"
+                        Whitespace@157..158 " "
+                        relation_expr_opt_alias@158..163
+                          relation_expr@158..163
+                            qualified_name@158..163
+                              ColId@158..163
+                                IDENT@158..163 "films"
+                        using_clause@163..163
+                        Whitespace@163..166 "\n  "
+                        where_or_current_clause@166..227
+                          WHERE@166..171 "WHERE"
+                          Whitespace@171..172 " "
+                          a_expr@172..227
+                            a_expr@172..183
+                              c_expr@172..183
+                                columnref@172..183
+                                  ColId@172..183
+                                    IDENT@172..183 "producer_id"
+                            Whitespace@183..184 " "
+                            IN_P@184..186 "IN"
+                            Whitespace@186..187 " "
+                            in_expr@187..227
+                              select_with_parens@187..227
+                                LParen@187..188 "("
+                                select_no_parens@188..226
+                                  simple_select@188..226
+                                    SELECT@188..194 "SELECT"
+                                    opt_all_clause@194..194
+                                    Whitespace@194..195 " "
+                                    opt_target_list@195..197
+                                      target_list@195..197
+                                        target_el@195..197
+                                          a_expr@195..197
+                                            c_expr@195..197
+                                              columnref@195..197
+                                                ColId@195..197
+                                                  IDENT@195..197 "id"
+                                    into_clause@197..197
+                                    Whitespace@197..198 " "
+                                    from_clause@198..212
+                                      FROM@198..202 "FROM"
+                                      Whitespace@202..203 " "
+                                      from_list@203..212
+                                        table_ref@203..212
+                                          relation_expr@203..212
+                                            qualified_name@203..212
+                                              ColId@203..212
+                                                IDENT@203..212 "producers"
+                                          opt_alias_clause@212..212
+                                    Whitespace@212..213 " "
+                                    where_clause@213..226
+                                      WHERE@213..218 "WHERE"
+                                      Whitespace@218..219 " "
+                                      a_expr@219..226
+                                        a_expr@219..223
+                                          c_expr@219..223
+                                            columnref@219..223
+                                              ColId@219..223
+                                                unreserved_keyword@219..223
+                                                  NAME_P@219..223 "name"
+                                        Whitespace@223..224 " "
+                                        Equals@224..225 "="
+                                        Whitespace@225..226 " "
+                                        a_expr@226..226
+                                          c_expr@226..226
+                                            AexprConst@226..226
+                                              Sconst@226..226
+                                                SCONST@226..226 ""
+                                    group_clause@226..226
+                                    having_clause@226..226
+                                    window_clause@226..226
+                                RParen@226..227 ")"
+                        returning_clause@227..227
+                Semicolon@227..228 ";"
+                toplevel_stmt@228..261
+                  stmt@228..261
+                    DeleteStmt@228..261
+                      opt_with_clause@228..228
+                      Whitespace@228..229 "\n"
+                      DELETE_P@229..235 "DELETE"
+                      Whitespace@235..236 " "
+                      FROM@236..240 "FROM"
+                      Whitespace@240..241 " "
+                      relation_expr_opt_alias@241..246
+                        relation_expr@241..246
+                          qualified_name@241..246
+                            ColId@241..246
+                              IDENT@241..246 "films"
+                      using_clause@246..246
+                      Whitespace@246..247 " "
+                      where_or_current_clause@247..261
+                        WHERE@247..252 "WHERE"
+                        Whitespace@252..253 " "
+                        a_expr@253..261
+                          a_expr@253..257
+                            c_expr@253..257
+                              columnref@253..257
+                                ColId@253..257
+                                  IDENT@253..257 "kind"
+                          Whitespace@257..258 " "
+                          NOT_EQUALS@258..260 "<>"
+                          Whitespace@260..261 " "
+                          a_expr@261..261
+                            c_expr@261..261
+                              AexprConst@261..261
+                                Sconst@261..261
+                                  SCONST@261..261 ""
+                      returning_clause@261..261
+              Semicolon@261..262 ";"
+              toplevel_stmt@262..280
+                stmt@262..280
+                  DeleteStmt@262..280
+                    opt_with_clause@262..262
+                    Whitespace@262..263 "\n"
+                    DELETE_P@263..269 "DELETE"
+                    Whitespace@269..270 " "
+                    FROM@270..274 "FROM"
+                    Whitespace@274..275 " "
+                    relation_expr_opt_alias@275..280
+                      relation_expr@275..280
+                        qualified_name@275..280
+                          ColId@275..280
+                            IDENT@275..280 "films"
+                    using_clause@280..280
+                    where_or_current_clause@280..280
+                    returning_clause@280..280
+            Semicolon@280..281 ";"
+            toplevel_stmt@281..327
+              stmt@281..327
+                DeleteStmt@281..327
+                  opt_with_clause@281..281
+                  Whitespace@281..282 "\n"
+                  DELETE_P@282..288 "DELETE"
+                  Whitespace@288..289 " "
+                  FROM@289..293 "FROM"
+                  Whitespace@293..294 " "
+                  relation_expr_opt_alias@294..299
+                    relation_expr@294..299
+                      qualified_name@294..299
+                        ColId@294..299
+                          IDENT@294..299 "tasks"
+                  using_clause@299..299
+                  Whitespace@299..300 " "
+                  where_or_current_clause@300..315
+                    WHERE@300..305 "WHERE"
+                    Whitespace@305..306 " "
+                    a_expr@306..315
+                      a_expr@306..312
+                        c_expr@306..312
+                          columnref@306..312
+                            ColId@306..312
+                              IDENT@306..312 "status"
+                      Whitespace@312..313 " "
+                      Equals@313..314 "="
+                      Whitespace@314..315 " "
+                      a_expr@315..315
+                        c_expr@315..315
+                          AexprConst@315..315
+                            Sconst@315..315
+                              SCONST@315..315 ""
+                  Whitespace@315..316 " "
+                  returning_clause@316..327
+                    RETURNING@316..325 "RETURNING"
+                    Whitespace@325..326 " "
+                    target_list@326..327
+                      target_el@326..327
+                        Star@326..327 "*"
+          Semicolon@327..328 ";"
+          toplevel_stmt@328..371
+            stmt@328..371
+              DeleteStmt@328..371
+                opt_with_clause@328..328
+                Whitespace@328..329 "\n"
+                DELETE_P@329..335 "DELETE"
+                Whitespace@335..336 " "
+                FROM@336..340 "FROM"
+                Whitespace@340..341 " "
+                relation_expr_opt_alias@341..346
+                  relation_expr@341..346
+                    qualified_name@341..346
+                      ColId@341..346
+                        IDENT@341..346 "tasks"
+                using_clause@346..346
+                Whitespace@346..347 " "
+                where_or_current_clause@347..371
+                  WHERE@347..352 "WHERE"
+                  Whitespace@352..353 " "
+                  CURRENT_P@353..360 "CURRENT"
+                  Whitespace@360..361 " "
+                  OF@361..363 "OF"
+                  Whitespace@363..364 " "
+                  cursor_name@364..371
+                    name@364..371
+                      ColId@364..371
+                        IDENT@364..371 "c_tasks"
+                returning_clause@371..371
+        Semicolon@371..372 ";"
+        toplevel_stmt@372..439
+          stmt@372..439
+            DeleteStmt@372..439
+              opt_with_clause@372..372
+              Whitespace@372..373 "\n"
+              DELETE_P@373..379 "DELETE"
+              Whitespace@379..380 " "
+              FROM@380..384 "FROM"
+              Whitespace@384..385 " "
+              relation_expr_opt_alias@385..394
+                relation_expr@385..394
+                  qualified_name@385..394
+                    ColId@385..394
+                      IDENT@385..394 "employees"
+              using_clause@394..394
+              Whitespace@394..403 "\n        "
+              where_or_current_clause@403..439
+                WHERE@403..408 "WHERE"
+                Whitespace@408..409 " "
+                a_expr@409..439
+                  a_expr@409..420
+                    a_expr@409..417
+                      c_expr@409..417
+                        columnref@409..417
+                          ColId@409..417
+                            col_name_keyword@409..417
+                              POSITION@409..417 "position"
+                    Whitespace@417..418 " "
+                    Equals@418..419 "="
+                    Whitespace@419..420 " "
+                    a_expr@420..420
+                      c_expr@420..420
+                        AexprConst@420..420
+                          Sconst@420..420
+                            SCONST@420..420 ""
+                  Whitespace@420..421 " "
+                  AND@421..424 "AND"
+                  Whitespace@424..425 " "
+                  a_expr@425..439
+                    a_expr@425..431
+                      c_expr@425..431
+                        columnref@425..431
+                          ColId@425..431
+                            IDENT@425..431 "salary"
+                    Whitespace@431..432 " "
+                    Less@432..433 "<"
+                    Whitespace@433..434 " "
+                    a_expr@434..439
+                      c_expr@434..439
+                        AexprConst@434..439
+                          Iconst@434..439
+                            ICONST@434..439 "70000"
+              returning_clause@439..439
+      Semicolon@439..440 ";"
+      toplevel_stmt@440..440
+        stmt@440..440

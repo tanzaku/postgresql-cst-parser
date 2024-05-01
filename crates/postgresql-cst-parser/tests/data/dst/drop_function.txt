@@ -1,0 +1,113 @@
+Root@0..213
+  SQL_COMMENT@0..58 "-- https://www.postgr ..."
+  Whitespace@58..59 "\n"
+  parse_toplevel@59..212
+    stmtmulti@59..212
+      stmtmulti@59..211
+        stmtmulti@59..169
+          stmtmulti@59..129
+            stmtmulti@59..86
+              toplevel_stmt@59..86
+                stmt@59..86
+                  RemoveFuncStmt@59..86
+                    DROP@59..63 "DROP"
+                    Whitespace@63..64 " "
+                    FUNCTION@64..72 "FUNCTION"
+                    Whitespace@72..73 " "
+                    function_with_argtypes_list@73..86
+                      function_with_argtypes@73..86
+                        func_name@73..77
+                          type_function_name@73..77
+                            IDENT@73..77 "sqrt"
+                        func_args@77..86
+                          LParen@77..78 "("
+                          func_args_list@78..85
+                            func_arg@78..85
+                              func_type@78..85
+                                Typename@78..85
+                                  SimpleTypename@78..85
+                                    Numeric@78..85
+                                      INTEGER@78..85 "integer"
+                                  opt_array_bounds@85..85
+                          RParen@85..86 ")"
+                    opt_drop_behavior@86..86
+            Semicolon@86..87 ";"
+            Whitespace@87..88 "\n"
+            toplevel_stmt@88..129
+              stmt@88..129
+                RemoveFuncStmt@88..129
+                  DROP@88..92 "DROP"
+                  Whitespace@92..93 " "
+                  FUNCTION@93..101 "FUNCTION"
+                  Whitespace@101..102 " "
+                  function_with_argtypes_list@102..129
+                    function_with_argtypes_list@102..115
+                      function_with_argtypes@102..115
+                        func_name@102..106
+                          type_function_name@102..106
+                            IDENT@102..106 "sqrt"
+                        func_args@106..115
+                          LParen@106..107 "("
+                          func_args_list@107..114
+                            func_arg@107..114
+                              func_type@107..114
+                                Typename@107..114
+                                  SimpleTypename@107..114
+                                    Numeric@107..114
+                                      INTEGER@107..114 "integer"
+                                  opt_array_bounds@114..114
+                          RParen@114..115 ")"
+                    Comma@115..116 ","
+                    Whitespace@116..117 " "
+                    function_with_argtypes@117..129
+                      func_name@117..121
+                        type_function_name@117..121
+                          IDENT@117..121 "sqrt"
+                      func_args@121..129
+                        LParen@121..122 "("
+                        func_args_list@122..128
+                          func_arg@122..128
+                            func_type@122..128
+                              Typename@122..128
+                                SimpleTypename@122..128
+                                  Numeric@122..128
+                                    BIGINT@122..128 "bigint"
+                                opt_array_bounds@128..128
+                        RParen@128..129 ")"
+                  opt_drop_behavior@129..129
+          Semicolon@129..130 ";"
+          Whitespace@130..131 "\n"
+          toplevel_stmt@131..169
+            stmt@131..169
+              RemoveFuncStmt@131..169
+                DROP@131..135 "DROP"
+                Whitespace@135..136 " "
+                FUNCTION@136..144 "FUNCTION"
+                Whitespace@144..145 " "
+                function_with_argtypes_list@145..169
+                  function_with_argtypes@145..169
+                    ColId@145..169
+                      IDENT@145..169 "update_employee_salaries"
+                opt_drop_behavior@169..169
+        Semicolon@169..170 ";"
+        Whitespace@170..171 "\n"
+        toplevel_stmt@171..211
+          stmt@171..211
+            RemoveFuncStmt@171..211
+              DROP@171..175 "DROP"
+              Whitespace@175..176 " "
+              FUNCTION@176..184 "FUNCTION"
+              Whitespace@184..185 " "
+              function_with_argtypes_list@185..211
+                function_with_argtypes@185..211
+                  func_name@185..209
+                    type_function_name@185..209
+                      IDENT@185..209 "update_employee_salaries"
+                  func_args@209..211
+                    LParen@209..210 "("
+                    RParen@210..211 ")"
+              opt_drop_behavior@211..211
+      Semicolon@211..212 ";"
+      toplevel_stmt@212..212
+        stmt@212..212
+  Whitespace@212..213 "\n"

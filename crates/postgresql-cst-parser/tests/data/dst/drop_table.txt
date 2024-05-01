@@ -1,0 +1,29 @@
+Root@0..89
+  SQL_COMMENT@0..56 "-- https://www.postgr ..."
+  Whitespace@56..57 "\n"
+  parse_toplevel@57..88
+    stmtmulti@57..88
+      stmtmulti@57..87
+        toplevel_stmt@57..87
+          stmt@57..87
+            DropStmt@57..87
+              DROP@57..61 "DROP"
+              Whitespace@61..62 " "
+              object_type_any_name@62..67
+                TABLE@62..67 "TABLE"
+              Whitespace@67..68 " "
+              any_name_list@68..87
+                any_name_list@68..73
+                  any_name@68..73
+                    ColId@68..73
+                      IDENT@68..73 "films"
+                Comma@73..74 ","
+                Whitespace@74..75 " "
+                any_name@75..87
+                  ColId@75..87
+                    IDENT@75..87 "distributors"
+              opt_drop_behavior@87..87
+      Semicolon@87..88 ";"
+      toplevel_stmt@88..88
+        stmt@88..88
+  Whitespace@88..89 "\n"
