@@ -2,6 +2,8 @@
 #![allow(dead_code)]
 
 mod bison;
+mod id_mapper;
+mod lalr;
 mod lexer;
 
 use std::{io::BufReader, process::Command};
@@ -11,15 +13,18 @@ use miniz_oxide::deflate::compress_to_vec;
 
 use crate::parser_generator::{bison::Action, lexer::TokenKind};
 
-use self::bison::{parse_bison, Component};
+use self::{
+    bison::{parse_bison, Component},
+    lalr::Lalr,
+};
 
-fn build_action_table(bison: &mut Bison, terminal_symbols: &Vec<Component>) -> Vec<u8> {
+fn build_action_table(lalr: &Lalr, terminal_symbols: &Vec<Component>) -> Vec<u8> {
     let mut action_table = Vec::new();
 
-    for i in 0..bison.state_set.states.len() {
+    for i in 0..lalr.state_set.states.len() {
         for terminal_symbol in terminal_symbols {
-            let cid = bison.to_component_id(terminal_symbol.clone());
-            match bison.action_table.get(&(i, cid)) {
+            let cid = lalr.id_mapper.to_component_id(terminal_symbol);
+            match lalr.action_table.get(&(i, cid)) {
                 Some(Action::Shift(s)) => {
                     action_table.push((*s as i16) + 1);
                 }
@@ -35,13 +40,13 @@ fn build_action_table(bison: &mut Bison, terminal_symbols: &Vec<Component>) -> V
     compress(action_table)
 }
 
-fn build_goto_table(bison: &mut Bison, non_terminal_symbols: &Vec<Component>) -> Vec<u8> {
+fn build_goto_table(lalr: &Lalr, non_terminal_symbols: &Vec<Component>) -> Vec<u8> {
     let mut goto_table = Vec::new();
 
-    for i in 0..bison.state_set.states.len() {
+    for i in 0..lalr.state_set.states.len() {
         for non_terminal_symbol in non_terminal_symbols {
-            let cid = bison.to_component_id(non_terminal_symbol.clone());
-            match bison.goto_table.get(&(i, cid)) {
+            let cid = lalr.id_mapper.to_component_id(non_terminal_symbol);
+            match lalr.goto_table.get(&(i, cid)) {
                 Some(s) => goto_table.push(*s as i16),
                 None => goto_table.push(-1),
             }
@@ -52,13 +57,14 @@ fn build_goto_table(bison: &mut Bison, non_terminal_symbols: &Vec<Component>) ->
 }
 
 fn write_parser_file(
-    bison: &mut Bison,
+    bison: &Bison,
+    lalr: &Lalr,
     terminal_symbols: &Vec<Component>,
     non_terminal_symbols: &Vec<Component>,
     comments: &Vec<Component>,
 ) {
-    let action_table = build_action_table(bison, &terminal_symbols);
-    let goto_table = build_goto_table(bison, &non_terminal_symbols);
+    let action_table = build_action_table(lalr, &terminal_symbols);
+    let goto_table = build_goto_table(lalr, &non_terminal_symbols);
 
     let terminal_symbols_with_comment = terminal_symbols
         .iter()
@@ -80,11 +86,11 @@ fn write_parser_file(
 
     let end_rule_id = terminal_symbols
         .iter()
-        .position(|t| &bison.end_rule_component == t)
+        .position(|t| &lalr.end_rule_component == t)
         .unwrap()
         .to_string();
 
-    let num_state = bison.state_set.states.len().to_string();
+    let num_state = lalr.state_set.states.len().to_string();
 
     let token_to_component_id = terminal_symbols_with_comment
         .iter()
@@ -93,7 +99,8 @@ fn write_parser_file(
             format!(
                 r#"TokenKind::{} => {},"#,
                 match s {
-                    Component::Terminal(TokenKind::RAW(s)) => format!(r#"RAW(s) if s == "{}""#, s),
+                    Component::Terminal(TokenKind::RAW(s)) =>
+                        format!(r#"RAW(s) if s == "{}""#, s.trim_matches('\'')),
                     Component::Terminal(TokenKind::KEYWORD(s)) =>
                         format!(r#"KEYWORD(s) if s == "{}""#, s),
                     Component::Terminal(s) => s.to_id(),
@@ -117,7 +124,7 @@ fn write_parser_file(
     let rule_name_to_component_id = non_terminal_symbols
         .iter()
         .enumerate()
-        .map(|(i, s)| format!(r#""{}" => {},"#, s.to_rule_string(), i))
+        .map(|(i, s)| format!(r#""{}" => {},"#, s.to_rule_string_without_quote(), i))
         .collect::<Vec<_>>()
         .join("\n");
 
@@ -163,56 +170,16 @@ fn write_syntax_file(
     non_terminal_symbols: &Vec<Component>,
     comments: &Vec<Component>,
 ) {
-    let mut kinds = vec!["".to_string(); terminal_symbols.len() + non_terminal_symbols.len() + 2];
-    for (i, c) in terminal_symbols
+    let mut kinds = Vec::new();
+    for c in terminal_symbols
         .iter()
         .chain(non_terminal_symbols)
         .chain(comments)
-        .enumerate()
     {
-        let s = c.to_rule_string().trim_matches('\'').to_string();
-
-        let replace_candidates = [
-            ('-', "Minus"),
-            (',', "Comma"),
-            (';', "Semicolon"),
-            (':', "Colon"),
-            ('!', "Exclamation"),
-            ('?', "Question"),
-            ('.', "Dot"),
-            ('"', "DQuote"),
-            ('(', "LParen"),
-            (')', "RParen"),
-            ('[', "LBracket"),
-            (']', "RBracket"),
-            ('{', "LBrace"),
-            ('}', "RBrace"),
-            ('@', "At"),
-            ('*', "Star"),
-            ('/', "Slash"),
-            ('\'', "Quote"),
-            ('\\', "Backslash"),
-            ('&', "Ampersand"),
-            ('#', "Pound"),
-            ('%', "Percent"),
-            ('`', "Backtick"),
-            ('^', "Caret"),
-            ('+', "Plus"),
-            ('<', "Less"),
-            ('=', "Equals"),
-            ('>', "Greater"),
-            ('|', "Pipe"),
-            ('~', "Tilde"),
-            ('$', "Dollar"),
-        ];
-
-        let mut s = s.to_string();
-        for (pat, replacement) in replace_candidates {
-            s = s.replace(pat, replacement);
-        }
-
-        kinds[i] = format!("{},", s);
+        kinds.push(format!("{},", c.to_rule_identifier()));
     }
+
+    // kinds.sort();
 
     let source = format!(
         r#"use cstree::Syntax;
@@ -232,15 +199,17 @@ fn write_syntax_file(
     Command::new("rustfmt").arg(path).output().unwrap();
 }
 
-fn write_file(mut bison: Bison) {
-    let terminal_symbols: Vec<_> = bison
+fn write_file(bison: &Bison, lalr: &Lalr) {
+    let terminal_symbols: Vec<_> = lalr
+        .id_mapper
         .components
         .iter()
         .filter(|c| matches!(c, Component::Terminal(_)))
         .cloned()
         .collect();
 
-    let non_terminal_symbols: Vec<_> = bison
+    let non_terminal_symbols: Vec<_> = lalr
+        .id_mapper
         .components
         .iter()
         .filter(|c| matches!(c, Component::NonTerminal(_)))
@@ -253,11 +222,13 @@ fn write_file(mut bison: Bison) {
     ];
 
     write_parser_file(
-        &mut bison,
+        bison,
+        lalr,
         &terminal_symbols,
         &non_terminal_symbols,
         &comments,
     );
+
     write_syntax_file(&terminal_symbols, &non_terminal_symbols, &comments);
 }
 
@@ -267,16 +238,19 @@ fn compress(data: Vec<i16>) -> Vec<u8> {
 }
 
 pub fn generate() {
-    let bison = match std::fs::File::open("bison.cache") {
+    let (bison, lalr) = match std::fs::File::open("bison.cache") {
         Ok(f) => bincode::deserialize_from(BufReader::new(f)).unwrap(),
         Err(_) => {
             let bison = parse_bison(include_str!("../resources/gram.y"));
+            let mut lalr = Lalr::new(&bison);
+            lalr.build_lalr1_parse_table();
+
             let f = std::fs::File::create("bison.cache").unwrap();
             let w = std::io::BufWriter::new(f);
-            bincode::serialize_into(w, &bison).unwrap();
-            bison
+            bincode::serialize_into(w, &(&bison, &lalr)).unwrap();
+            (bison, lalr)
         }
     };
 
-    write_file(bison);
+    write_file(&bison, &lalr);
 }

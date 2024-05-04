@@ -60,6 +60,8 @@ fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> String {
     // {xxx}のパターンを抽出する正規表現パターン
     let p = regex::Regex::new(r#"\{([a-zA-Z0-9_]+)\}"#).unwrap();
 
+    // flexではダブルクオートをエスケープする必要があるが、正規表現では不要である
+    // そのため、正規表現パターンにする前にダブルクオートのエスケープを除外する
     fn remove_unnecessary_quote(s: &str) -> String {
         let chars = s.chars().collect::<Vec<_>>();
         let mut remove = vec![false; chars.len()];

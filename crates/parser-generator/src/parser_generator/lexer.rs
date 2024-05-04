@@ -128,7 +128,8 @@ where
             "PARAM" => TokenKind::PARAM,
             "FCONST" => TokenKind::FCONST,
             "ICONST" => TokenKind::ICONST,
-            _ => TokenKind::KEYWORD(s.as_ref().to_string()), // TODO check if keyword
+            s if s.starts_with('\'') => TokenKind::RAW(s.to_string()),
+            s => TokenKind::KEYWORD(s.to_string()), // TODO check if keyword
         }
     }
 }
