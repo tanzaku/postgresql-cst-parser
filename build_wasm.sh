@@ -2,7 +2,7 @@
 
 set -eux
 
-cd crates/postgresql-cst-parser-wasm
+cd crates/postgresql-lst-parser-wasm
 wasm-pack build --release --target web
 cp pkg/*.js pkg/*.ts pkg/*.wasm ../../docs/js
 cd ../../docs

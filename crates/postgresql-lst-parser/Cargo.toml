@@ -1,9 +1,9 @@
 [package]
-name = "postgresql-cst-parser"
+name = "postgresql-lst-parser"
 version = "0.1.0"
 edition = "2021"
-repository = "https://github.com/tanzaku/postgresql-cst-parser"
-description = "PostgreSQL cst parser"
+repository = "https://github.com/tanzaku/postgresql-lst-parser"
+description = "PostgreSQL lst parser"
 documentation = ""
 license-file = "../../LICENSE"
 

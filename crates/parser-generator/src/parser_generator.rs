@@ -158,7 +158,7 @@ fn write_parser_file(
         .replace("{end_rule_kind}", r#"TokenKind::RAW("$end".to_string())"#)
         .replace("{end_rule_id}", &end_rule_id);
 
-    let paths = ["./crates/postgresql-cst-parser/src/parser.rs"];
+    let paths = ["./crates/postgresql-lst-parser/src/parser.rs"];
     for path in paths {
         std::fs::write(path, &parser_template).unwrap();
         Command::new("rustfmt").arg(path).output().unwrap();
@@ -194,7 +194,7 @@ fn write_syntax_file(
         kinds.join("\n\t")
     );
 
-    let path = "./crates/postgresql-cst-parser/src/syntax_kind.rs";
+    let path = "./crates/postgresql-lst-parser/src/syntax_kind.rs";
     std::fs::write(path, source).unwrap();
     Command::new("rustfmt").arg(path).output().unwrap();
 }

@@ -176,7 +176,7 @@ pub fn generate() {
         .replace("{keyword_map}", &keywords.join("\n"));
 
     let paths = [
-        "./crates/postgresql-cst-parser/src/lexer/generated.rs",
+        "./crates/postgresql-lst-parser/src/lexer/generated.rs",
         "./crates/parser-generator/src/parser_generator/lexer/generated.rs",
     ];
     for path in paths {

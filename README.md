@@ -1,17 +1,17 @@
-# postgresql-cst-parser
+# postgresql-lst-parser
 
 ## Overview
 
-The `postgresql-cst-parser` is a PostgreSQL-specific Concrete Syntax Tree (CST) parser developed in Pure Rust. This document describes the parser's features, motivation, usage, and details of its implementation.
+The `postgresql-lst-parser` is a PostgreSQL-specific Lossless Syntax Tree (LST) parser developed in Pure Rust. This document describes the parser's features, motivation, usage, and details of its implementation.
 
 ## Key Features
 
-- **Automatically Generated CST Parser**: Automatically generated from PostgreSQL grammar, allowing it to support a wide range of syntaxes.
+- **Automatically Generated LST Parser**: Automatically generated from PostgreSQL grammar, allowing it to support a wide range of syntaxes.
 - **Partial Limitations**: Due to some incomplete implementations in the scanner, it does not support all grammatical structures.
 
 ## Motivation for Development
 
-1. There is a lack of PostgreSQL CST (Concrete Syntax Tree) parsers that can be utilized from Rust and support a wide range of syntax.
+1. There is a lack of PostgreSQL LST (Lossless Syntax Tree) parsers that can be utilized from Rust and support a wide range of syntax.
 1. [pg_query.rs](https://github.com/pganalyze/pg_query.rs) is an excellent library, however, it does not construct CSTs and cannot be built for WebAssembly (wasm).
 
 ## Usage
@@ -19,11 +19,11 @@ The `postgresql-cst-parser` is a PostgreSQL-specific Concrete Syntax Tree (CST) 
 Use it as shown in the following code examples.
 
 ```rust
-let resolved_root = postgresql_cst_parser::parse("SELECT 1;");
+let resolved_root = postgresql_lst_parser::parse("SELECT 1;");
 dbg!(resolved_root);
 ```
 
-If you would like to experience this parser in action, you can try it out directly online [here](https://tanzaku.github.io/postgresql-cst-parser/). Enter your own code to see how the parser operates in real-time.
+If you would like to experience this parser in action, you can try it out directly online [here](https://tanzaku.github.io/postgresql-lst-parser/). Enter your own code to see how the parser operates in real-time.
 
 
 ## Implementation
