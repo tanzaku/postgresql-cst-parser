@@ -15,3 +15,8 @@ exclude = ["crates/lexer-generator", "crates/parser-generator", "crates/postgres
 
 [profile.release.package.postgresql-lst-parser-wasm]
 opt-level = "s"
+
+
+# for performance profile
+[profile.release]
+debug = 1

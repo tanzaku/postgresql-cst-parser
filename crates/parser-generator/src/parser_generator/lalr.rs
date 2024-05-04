@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
@@ -43,30 +43,12 @@ pub struct Lalr {
 pub struct Item {
     pub rule_index: usize,
     pub dot_pos: usize,
-    pub lookahead: Vec<ComponentId>,
-    pub diff_lookaheads: Vec<ComponentId>,
+    pub lookahead: BTreeSet<ComponentId>,
 }
 
 impl Item {
     fn add_lookahead(&mut self, lookahead: ComponentId) -> bool {
-        let mut insert_index = self.lookahead.len();
-
-        for i in 0..self.lookahead.len() {
-            match self.lookahead[i].cmp(&lookahead) {
-                std::cmp::Ordering::Equal => {
-                    return false;
-                }
-                std::cmp::Ordering::Greater => {
-                    insert_index = i;
-                    break;
-                }
-                _ => (),
-            }
-        }
-
-        self.lookahead.insert(insert_index, lookahead.clone());
-        self.diff_lookaheads.push(lookahead);
-        true
+        self.lookahead.insert(lookahead)
     }
 
     // fn display(&self, lalr: &Lalr, bison: &Bison) -> String {
@@ -91,10 +73,11 @@ impl Item {
     // }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct State {
     pub items: Vec<Item>,
     pub edge: Vec<(ComponentId, usize)>,
+    pub item_indices: HashMap<usize, usize>,
 }
 
 impl State {
@@ -120,6 +103,13 @@ impl State {
             l.rule_index == r.rule_index && l.dot_pos == r.dot_pos && l.lookahead == r.lookahead
         })
     }
+
+    fn push_item(&mut self, item: Item) {
+        if item.dot_pos == 0 {
+            self.item_indices.insert(item.rule_index, self.items.len());
+        }
+        self.items.push(item);
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -136,7 +126,6 @@ impl StateSet {
         comp: ComponentId,
         state: State,
     ) {
-        // let _fg = ::flame::start_guard("add_state_lalr");
         if let Some(i) = self
             .states
             .iter()
@@ -151,38 +140,17 @@ impl StateSet {
 
             let mut updated = false;
 
-            // LALR用の差分。先読み記号をマージする
-            let it = self.states[i].items.iter_mut().zip(state.items);
-            for (l, r) in it {
-                let mut res = Vec::with_capacity(l.lookahead.len() + r.lookahead.len());
+            self.states[i]
+                .items
+                .iter_mut()
+                .zip(state.items)
+                .for_each(|(l, r)| {
+                    let len = l.lookahead.len();
 
-                // merge sorted
-                let mut i = 0;
-                let mut j = 0;
-                while i + j < l.lookahead.len() + r.lookahead.len() {
-                    if j == r.lookahead.len() {
-                        res.push(l.lookahead[i].clone());
-                        i += 1;
-                        continue;
-                    }
+                    l.lookahead.extend(r.lookahead);
 
-                    if i == l.lookahead.len() || l.lookahead[i] > r.lookahead[j] {
-                        res.push(r.lookahead[j].clone());
-                        l.diff_lookaheads.push(r.lookahead[j].clone());
-                        updated = true;
-                        j += 1;
-                    } else if l.lookahead[i] < r.lookahead[j] {
-                        res.push(l.lookahead[i].clone());
-                        i += 1;
-                    } else {
-                        res.push(l.lookahead[i].clone());
-                        i += 1;
-                        j += 1;
-                    }
-                }
-
-                l.lookahead = res;
-            }
+                    updated |= l.lookahead.len() != len;
+                });
 
             if updated {
                 self.need_update.insert(i);
@@ -302,17 +270,6 @@ impl Lalr {
         }
     }
 
-    // pub fn to_component_id(&mut self, c: Component) -> ComponentId {
-    //     if let Some(&id) = self.component_map.get(&c) {
-    //         return id;
-    //     }
-
-    //     let id = ComponentId(self.components.len() as u16);
-    //     self.components.push(c.clone());
-    //     self.component_map.insert(c, id);
-    //     id
-    // }
-
     pub fn get_priority_by_terminal_symbol(&self, component_id: &ComponentId) -> Option<Assoc> {
         // let c = &self.components[component_id.0 as usize];
         self.assoc[component_id.0 as usize].clone()
@@ -320,31 +277,6 @@ impl Lalr {
 
     pub fn get_shift_priority(&self, component_id: &ComponentId) -> Option<Assoc> {
         self.get_priority_by_terminal_symbol(component_id)
-    }
-
-    // pub fn get_reduce_priority(&self, rule_index: usize) -> Option<Assoc> {
-    //     if let Some(prec) = &self.rules[rule_index].prec {
-    //         self.assoc[prec.0 as usize].clone()
-    //     } else {
-    //         self.rules[rule_index]
-    //             .components
-    //             .iter()
-    //             .filter(|c| matches!(self.components[c.0 as usize], Component::Terminal(_)))
-    //             .last()
-    //             .and_then(|c| self.get_priority_by_terminal_symbol(c))
-    //     }
-    // }
-
-    /// first set of comps
-    pub fn first_set(&self, comps: Vec<&ComponentId>) -> Vec<ComponentId> {
-        let mut set = HashSet::new();
-        for c in comps {
-            set.extend(self.first_set[&c].clone());
-            if !self.nullable[&c] {
-                break;
-            }
-        }
-        set.into_iter().collect()
     }
 
     fn build_first_set(&mut self) {
@@ -407,7 +339,6 @@ impl Lalr {
     }
 
     fn closure(
-        // bison: &Bison,
         &mut self,
         state: &mut State,
         map: &mut HashMap<usize, Option<usize>>,
@@ -427,69 +358,63 @@ impl Lalr {
                 ..
             } = state.items[j];
 
-            if dot_pos >= self.rules[rule_index].components.len()
-                || state.items[j].diff_lookaheads.is_empty()
-            {
+            if dot_pos >= self.rules[rule_index].components.len() {
                 continue;
             }
 
             // ドットの次の要素が非終端記号の場合には、その非終端記号を左辺に持つ全ての規則について、非終端記号の先頭にドットおるアイテムを追加する。
             let component_id = self.rules[rule_index].components[dot_pos];
-            if let Component::NonTerminal(_) = &self.id_mapper.components[component_id.0 as usize] {
-                // その際の先読み記号は、first_set(非終端記号の続き + lookahead)で求まる
-                let lookaheads: Vec<ComponentId> = state.items[j]
-                    .diff_lookaheads
+            if let Component::Terminal(_) = &self.id_mapper.components[component_id.0 as usize] {
+                continue;
+            }
+
+            let mut lookaheads = BTreeSet::new();
+            let mut nullable = true;
+
+            for c in &self.rules[rule_index].components[dot_pos + 1..] {
+                lookaheads.extend(self.first_set[&c].clone());
+                if !self.nullable[&c] {
+                    nullable = false;
+                    break;
+                }
+            }
+
+            // その際の先読み記号は、first_set(非終端記号の続き + lookahead)で求まる
+            if nullable {
+                state.items[j]
+                    .lookahead
                     .iter()
                     .filter(|&l| done.insert((j, l.clone())))
-                    .flat_map(|a| {
-                        let after_comp = self.rules[rule_index].components[dot_pos + 1..]
-                            .into_iter()
-                            .chain([a])
-                            .collect::<Vec<_>>();
-
-                        self.first_set(after_comp)
-                    })
-                    .collect();
-
-                self.rule_indices_by_name_id[component_id.0 as usize]
-                    .iter()
-                    .for_each(|&new_item_index| {
-                        // 追加予定のアイテムが既に存在するかチェックする
-                        let j: Option<usize> = *map.entry(new_item_index).or_insert_with(|| {
-                            state
-                                .items
-                                .iter()
-                                .position(|it| it.rule_index == new_item_index && it.dot_pos == 0)
-                        });
-
-                        if let Some(j) = j {
-                            // あれば先読み記号のみ追加
-                            for lookahead in &lookaheads {
-                                if state.items[j].add_lookahead(lookahead.clone()) {
-                                    deq.push_back(j);
-                                }
-                            }
-                        } else {
-                            // なければ追加
-                            let new_item = Item {
-                                rule_index: new_item_index,
-                                dot_pos: 0,
-                                lookahead: lookaheads.clone(),
-                                diff_lookaheads: lookaheads.clone(),
-                            };
-
-                            deq.push_back(state.items.len());
-                            map.insert(new_item_index, Some(state.items.len()));
-                            state.items.push(new_item);
-                            return;
-                        }
-                    })
+                    .for_each(|c| lookaheads.extend(self.first_set[c].clone()));
             }
-        }
 
-        for i in prev_item_len..state.items.len() {
-            state.items[i].lookahead.sort();
-            state.items[i].lookahead.dedup();
+            self.rule_indices_by_name_id[component_id.0 as usize]
+                .iter()
+                .for_each(|&new_item_index| {
+                    // 追加予定のアイテムが既に存在するかチェックする
+                    let j: Option<&usize> = state.item_indices.get(&new_item_index);
+
+                    if let Some(&j) = j {
+                        // あれば先読み記号のみ追加
+                        for lookahead in &lookaheads {
+                            if state.items[j].add_lookahead(lookahead.clone()) {
+                                deq.push_back(j);
+                            }
+                        }
+                    } else {
+                        // なければ追加
+                        let new_item = Item {
+                            rule_index: new_item_index,
+                            dot_pos: 0,
+                            lookahead: lookaheads.clone(),
+                        };
+
+                        deq.push_back(state.items.len());
+                        map.insert(new_item_index, Some(state.items.len()));
+                        state.push_item(new_item);
+                        return;
+                    }
+                });
         }
 
         if prev_item_len != state.items.len() {
@@ -530,13 +455,13 @@ impl Lalr {
             let initial_item = Item {
                 rule_index: start_rule_index,
                 dot_pos: 0,
-                lookahead: vec![self.end_rule_component_id],
-                diff_lookaheads: vec![self.end_rule_component_id],
+                lookahead: BTreeSet::from([self.end_rule_component_id]),
             };
 
             State {
                 items: vec![initial_item],
                 edge: Vec::new(),
+                item_indices: HashMap::new(),
             }
         });
 
@@ -555,7 +480,7 @@ impl Lalr {
             }
             state_set.need_update.remove(&i);
 
-            dbg!(i, state_set.states.len());
+            // dbg!(i, state_set.states.len());
 
             // ドットを進めた状態を作る
             // ドットを進める状態を、次の記号でグループ化
@@ -569,25 +494,23 @@ impl Lalr {
 
                 let comp = self.rules[ri].components[dot_pos].clone();
 
-                next_states
-                    .entry(comp)
-                    .or_default()
-                    .push(state_set.states[i].items[j].clone());
+                let item = &state_set.states[i].items[j];
+                next_states.entry(comp).or_default().push(Item {
+                    rule_index: item.rule_index,
+                    dot_pos: item.dot_pos + 1,
+                    lookahead: item.lookahead.clone(),
+                });
             }
 
-            // pos を進める
-            next_states
-                .iter_mut()
-                .for_each(|(_, v)| v.iter_mut().for_each(|it| it.dot_pos += 1));
-
-            for (kind, items) in next_states {
+            for (comp, items) in next_states {
                 let mut state = State {
                     items,
                     edge: Vec::new(),
+                    item_indices: HashMap::new(),
                 };
 
                 self.closure(&mut state, &mut map, &mut done);
-                state_set.add_state_lalr(&mut que, i, kind, state);
+                state_set.add_state_lalr(&mut que, i, comp, state);
             }
         }
 
