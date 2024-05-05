@@ -33,7 +33,8 @@ pub struct Lalr {
     pub end_rule_component: Component,
 
     pub first_set: HashMap<ComponentId, HashSet<ComponentId>>,
-    pub nullable: HashMap<ComponentId, bool>,
+    pub lookaheads: Vec<Vec<BTreeSet<ComponentId>>>,
+    pub nullable: Vec<Vec<bool>>,
     pub state_set: StateSet,
     pub action_table: HashMap<(usize, ComponentId), Action>,
     pub goto_table: HashMap<(usize, ComponentId), usize>,
@@ -47,9 +48,15 @@ pub struct Item {
 }
 
 impl Item {
-    fn add_lookahead(&mut self, lookahead: ComponentId) -> bool {
-        self.lookahead.insert(lookahead)
+    fn insert_lookaheads(&mut self, lookaheads: &BTreeSet<ComponentId>) -> bool {
+        let prev_len = self.lookahead.len();
+        self.lookahead.extend(lookaheads);
+        self.lookahead.len() != prev_len
     }
+
+    // fn add_lookahead(&mut self, lookahead: ComponentId) -> bool {
+    //     self.lookahead.insert(lookahead)
+    // }
 
     // fn display(&self, lalr: &Lalr, bison: &Bison) -> String {
     //     let mut res = String::new();
@@ -260,7 +267,8 @@ impl Lalr {
             end_rule_component_id,
 
             first_set: HashMap::new(),
-            nullable: HashMap::new(),
+            lookaheads: Vec::new(),
+            nullable: Vec::new(),
             state_set: StateSet {
                 states: Vec::new(),
                 need_update: HashSet::new(),
@@ -334,24 +342,47 @@ impl Lalr {
             }
         }
 
+        self.lookaheads = self
+            .rules
+            .iter()
+            .map(|r| vec![Default::default(); r.components.len() + 1])
+            .collect();
+
+        self.nullable = self
+            .rules
+            .iter()
+            .map(|r| vec![true; r.components.len() + 1])
+            .collect();
+
+        for i in 0..self.lookaheads.len() {
+            for j in (0..self.rules[i].components.len()).rev() {
+                let c = self.rules[i].components[j];
+
+                if nullable[&c] {
+                    self.lookaheads[i][j] = self.lookaheads[i][j + 1].clone();
+                    self.nullable[i][j] &= self.nullable[i][j + 1];
+                } else {
+                    self.nullable[i][j] = false;
+                }
+
+                self.lookaheads[i][j].extend(first_set[&c].clone());
+            }
+        }
+
         self.first_set = first_set;
-        self.nullable = nullable;
     }
 
-    fn closure(
-        &mut self,
-        state: &mut State,
-        map: &mut HashMap<usize, Option<usize>>,
-        done: &mut HashSet<(usize, ComponentId)>,
-    ) {
-        map.clear();
-        done.clear();
+    // TODO closureをテストする
+    fn closure(&mut self, state: &mut State) {
+        let mut in_deq = vec![false; state.items.len()];
 
         let prev_item_len = state.items.len();
 
         // LR(1)アイテム集合の単一状態の変化がなくなるまで繰り返す
         let mut deq = VecDeque::from_iter(0..state.items.len());
         while let Some(j) = deq.pop_front() {
+            in_deq[j] = false;
+
             let Item {
                 rule_index,
                 dot_pos,
@@ -368,23 +399,14 @@ impl Lalr {
                 continue;
             }
 
-            let mut lookaheads = BTreeSet::new();
-            let mut nullable = true;
-
-            for c in &self.rules[rule_index].components[dot_pos + 1..] {
-                lookaheads.extend(self.first_set[&c].clone());
-                if !self.nullable[&c] {
-                    nullable = false;
-                    break;
-                }
-            }
+            let mut lookaheads = self.lookaheads[rule_index][dot_pos + 1].clone();
+            let nullable = self.nullable[rule_index][dot_pos + 1];
 
             // その際の先読み記号は、first_set(非終端記号の続き + lookahead)で求まる
             if nullable {
                 state.items[j]
                     .lookahead
                     .iter()
-                    .filter(|&l| done.insert((j, l.clone())))
                     .for_each(|c| lookaheads.extend(self.first_set[c].clone()));
             }
 
@@ -396,10 +418,9 @@ impl Lalr {
 
                     if let Some(&j) = j {
                         // あれば先読み記号のみ追加
-                        for lookahead in &lookaheads {
-                            if state.items[j].add_lookahead(lookahead.clone()) {
-                                deq.push_back(j);
-                            }
+                        if state.items[j].insert_lookaheads(&lookaheads) && !in_deq[j] {
+                            deq.push_back(j);
+                            in_deq[j] = true;
                         }
                     } else {
                         // なければ追加
@@ -409,24 +430,21 @@ impl Lalr {
                             lookahead: lookaheads.clone(),
                         };
 
+                        in_deq.push(true);
                         deq.push_back(state.items.len());
-                        map.insert(new_item_index, Some(state.items.len()));
                         state.push_item(new_item);
-                        return;
                     }
                 });
         }
 
         if prev_item_len != state.items.len() {
-            state.items.sort();
+            state.items.sort_by_key(|it| (it.rule_index, it.dot_pos));
         }
     }
 
     /// 構文解析表を作成する
     /// 1. LR(1)項集合の作成
     pub fn build_lalr1_parse_table(&mut self) {
-        self.build_first_set();
-
         // for (i, rule) in self.rules.iter().enumerate() {
         //     self.name_to_rules
         //         .entry(rule.name.clone())
@@ -445,6 +463,8 @@ impl Lalr {
             components: vec![start_component_id],
             reduce_priority: None,
         });
+
+        self.build_first_set();
 
         let mut state_set = StateSet {
             states: Vec::new(),
@@ -465,10 +485,7 @@ impl Lalr {
             }
         });
 
-        let mut map: HashMap<usize, Option<usize>> = HashMap::new();
-        let mut done: HashSet<(usize, ComponentId)> = HashSet::new();
-
-        self.closure(&mut state_set.states[0], &mut map, &mut done);
+        self.closure(&mut state_set.states[0]);
 
         let mut que = VecDeque::new();
         que.push_back(0);
@@ -509,7 +526,7 @@ impl Lalr {
                     item_indices: HashMap::new(),
                 };
 
-                self.closure(&mut state, &mut map, &mut done);
+                self.closure(&mut state);
                 state_set.add_state_lalr(&mut que, i, comp, state);
             }
         }
