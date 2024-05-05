@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 #![allow(unreachable_code)]
 
 use std::collections::HashMap;

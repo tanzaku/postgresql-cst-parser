@@ -106,10 +106,10 @@ impl Parser {
 
 /// The logic for converting tokens in PostgreSQL's parser.c
 /// ref: https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/parser/parser.c#L195
-fn init_tokens(tokens: &mut Vec<Token>) {
-    fn next_token_index(tokens: &Vec<Token>, i: usize) -> Option<usize> {
-        for j in i + 1..tokens.len() {
-            match tokens[j].kind {
+fn init_tokens(tokens: &mut [Token]) {
+    fn next_token_index(tokens: &[Token], i: usize) -> Option<usize> {
+        for (j, token) in tokens.iter().enumerate().skip(i + 1) {
+            match token.kind {
                 TokenKind::C_COMMENT | TokenKind::SQL_COMMENT => continue,
                 _ => return Some(j),
             }
@@ -234,7 +234,6 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                     token.start_byte_pos,
                     &input[last_pos..token.start_byte_pos],
                 ));
-                token.start_byte_pos;
             }
 
             last_pos = token.end_byte_pos;
@@ -252,7 +251,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
         }
 
         let action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
-            v if v == 0x7FFF => Action::Error,
+            0x7FFF => Action::Error,
             v if v > 0 => Action::Shift((v - 1) as usize),
             v if v < 0 => Action::Reduce((-v - 1) as usize),
             _ => Action::Accept,
@@ -290,7 +289,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                 }
                 children.reverse();
 
-                let reduced_component_id = rule_name_to_component_id(&rule.name);
+                let reduced_component_id = rule_name_to_component_id(rule.name);
 
                 let start_byte_pos =
                     children
@@ -359,7 +358,6 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                 token.start_byte_pos,
                 &input[last_pos..token.start_byte_pos],
             ));
-            token.start_byte_pos;
         }
 
         last_pos = token.end_byte_pos;

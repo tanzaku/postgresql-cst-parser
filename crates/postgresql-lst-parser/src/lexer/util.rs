@@ -13,7 +13,7 @@ pub fn yyerror(msg: &str) {
 }
 
 pub fn get_char_by_byte_pos(s: &str, byte_pos: usize) -> char {
-    s.bytes().nth(byte_pos).unwrap() as char
+    s.as_bytes()[byte_pos] as char
 }
 
 impl Lexer {
@@ -112,11 +112,11 @@ impl Lexer {
         let mut neg = false;
 
         match yytext.bytes().next() {
-            Some(b) if b == '-' as u8 => {
+            Some(b'-') => {
                 neg = true;
                 yytext = &yytext[1..];
             }
-            Some(b) if b == '+' as u8 => {
+            Some(b'+') => {
                 yytext = &yytext[1..];
             }
             _ => (),
@@ -124,7 +124,7 @@ impl Lexer {
 
         let res_parse_as_i32 = match radix {
             8 => i32::from_str_radix(&yytext[2..], 8),
-            10 => i32::from_str_radix(yytext, 10),
+            10 => yytext.parse::<i32>(),
             16 => i32::from_str_radix(&yytext[2..], 16),
             _ => unreachable!(),
         };

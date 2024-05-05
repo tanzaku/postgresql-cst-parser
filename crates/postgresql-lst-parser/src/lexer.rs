@@ -48,6 +48,7 @@ pub struct Rule {
     pub kind: RuleKind,
 }
 
+#[allow(clippy::all)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum TokenKind {
     RAW(String),
@@ -177,5 +178,5 @@ pub fn lex(input: &str) -> Vec<Token> {
     }
 
     // dbg!(&tokens);
-    return tokens;
+    tokens
 }
