@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
@@ -32,7 +32,7 @@ pub struct Lalr {
     pub end_rule_component_id: ComponentId,
     pub end_rule_component: Component,
 
-    pub first_set: HashMap<ComponentId, HashSet<ComponentId>>,
+    pub first_set: HashMap<ComponentId, Vec<ComponentId>>,
     pub lookaheads: Vec<Vec<BTreeSet<ComponentId>>>,
     pub nullable: Vec<Vec<bool>>,
     pub state_set: StateSet,
@@ -101,7 +101,7 @@ impl State {
     }
 
     // LALR用の差分。先読み記号を無視する
-    fn equals_without_diff_lookahead(&self, other: &State) -> bool {
+    fn equals(&self, other: &State) -> bool {
         if self.items.len() != other.items.len() {
             return false;
         }
@@ -141,7 +141,7 @@ impl StateSet {
             self.states[from_index].edge.push((comp, i));
 
             // 先読み記号まで含めて同一ならスキップ
-            if state.equals_without_diff_lookahead(&self.states[i]) {
+            if state.equals(&self.states[i]) {
                 return;
             }
 
@@ -369,7 +369,10 @@ impl Lalr {
             }
         }
 
-        self.first_set = first_set;
+        self.first_set = first_set
+            .into_iter()
+            .map(|(k, v)| (k, v.into_iter().collect()))
+            .collect();
     }
 
     // TODO closureをテストする
@@ -501,7 +504,7 @@ impl Lalr {
 
             // ドットを進めた状態を作る
             // ドットを進める状態を、次の記号でグループ化
-            let mut next_states: HashMap<ComponentId, Vec<Item>> = HashMap::new();
+            let mut next_states: BTreeMap<ComponentId, Vec<_>> = BTreeMap::new();
             for j in 0..state_set.states[i].items.len() {
                 let dot_pos = state_set.states[i].items[j].dot_pos;
                 let ri = state_set.states[i].items[j].rule_index;

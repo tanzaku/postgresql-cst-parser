@@ -18,5 +18,5 @@ opt-level = "s"
 
 
 # for performance profile
-[profile.release]
-debug = 1
+# [profile.release]
+# debug = 1
