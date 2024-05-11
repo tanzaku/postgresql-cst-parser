@@ -283,6 +283,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
             }
             Action::Reduce(rule_index) => {
                 let rule = &RULES[rule_index];
+
                 let mut children = Vec::new();
                 for _ in 0..rule.len {
                     children.push(stack.pop().unwrap().1);
@@ -342,7 +343,10 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
             }
             Action::Error => {
                 return Err(ParseError {
-                    message: format!("syntax error at byte position {}", token.start_byte_pos),
+                    message: format!(
+                        "Action::Error: syntax error at byte position {}",
+                        token.start_byte_pos
+                    ),
                     start_byte_pos: token.start_byte_pos,
                     end_byte_pos: token.end_byte_pos,
                 });

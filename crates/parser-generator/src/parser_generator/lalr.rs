@@ -33,11 +33,13 @@ pub struct Lalr {
     pub end_rule_component: Component,
 
     pub first_set: HashMap<ComponentId, Vec<ComponentId>>,
-    pub lookaheads: Vec<Vec<BTreeSet<ComponentId>>>,
+    pub first_set_after: Vec<Vec<BTreeSet<ComponentId>>>,
     pub nullable: Vec<Vec<bool>>,
     pub state_set: StateSet,
     pub action_table: HashMap<(usize, ComponentId), Action>,
     pub goto_table: HashMap<(usize, ComponentId), usize>,
+
+    pub all_terminal: Vec<ComponentId>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -54,36 +56,35 @@ impl Item {
         self.lookahead.len() != prev_len
     }
 
-    // fn add_lookahead(&mut self, lookahead: ComponentId) -> bool {
-    //     self.lookahead.insert(lookahead)
-    // }
+    fn display(&self, lalr: &Lalr) -> String {
+        let mut res = String::new();
 
-    // fn display(&self, lalr: &Lalr, bison: &Bison) -> String {
-    //     let mut res = String::new();
-
-    //     let rule = &bison.rules[self.rule_index];
-    //     res += &format!("{} ->", rule.name);
-    //     for j in 0..self.dot_pos {
-    //         res += &format!(
-    //             " {}",
-    //             lalr.components[rule.components[j].0 as usize].to_rule_string()
-    //         );
-    //     }
-    //     res += " .";
-    //     for j in self.dot_pos..rule.components.len() {
-    //         res += &format!(
-    //             " {}",
-    //             lalr.components[rule.components[j].0 as usize].to_rule_string()
-    //         );
-    //     }
-    //     res
-    // }
+        let rule = &lalr.rules[self.rule_index];
+        res += &format!(
+            "{} ->",
+            lalr.id_mapper.components[rule.name_id.0 as usize].to_rule_string()
+        );
+        for j in 0..self.dot_pos {
+            res += &format!(
+                " {}",
+                lalr.id_mapper.components[rule.components[j].0 as usize].to_rule_string()
+            );
+        }
+        res += " .";
+        for j in self.dot_pos..rule.components.len() {
+            res += &format!(
+                " {}",
+                lalr.id_mapper.components[rule.components[j].0 as usize].to_rule_string()
+            );
+        }
+        res
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct State {
     pub items: Vec<Item>,
-    pub edge: Vec<(ComponentId, usize)>,
+    pub edge: BTreeSet<(ComponentId, usize)>,
     pub item_indices: HashMap<usize, usize>,
 }
 
@@ -138,7 +139,7 @@ impl StateSet {
             .iter()
             .position(|s| state.equals_without_lookahead(s))
         {
-            self.states[from_index].edge.push((comp, i));
+            self.states[from_index].edge.insert((comp, i));
 
             // 先読み記号まで含めて同一ならスキップ
             if state.equals(&self.states[i]) {
@@ -165,7 +166,7 @@ impl StateSet {
             }
         } else {
             let i = self.states.len();
-            self.states[from_index].edge.push((comp, i));
+            self.states[from_index].edge.insert((comp, i));
             self.states.push(state);
             que.push_back(i);
             self.need_update.insert(i);
@@ -177,36 +178,42 @@ impl Lalr {
     pub fn new(bison: &Bison) -> Self {
         let mut id_mapper = IdMapper::new();
 
-        let mut all_components = Vec::new();
+        let mut terminal_components = Vec::new();
+        let mut non_terminal_components = Vec::new();
 
         for rule in &bison.rules {
             let name_comp = Component::NonTerminal(rule.name.clone());
-            all_components.push(name_comp);
+            non_terminal_components.push(name_comp);
             rule.components
                 .iter()
-                .for_each(|c| all_components.push(c.clone()));
+                .filter(|c| matches!(c, Component::Terminal(_)))
+                .for_each(|c| terminal_components.push(c.clone()));
         }
 
         for (name, _) in &bison.assoc {
             let kind = TokenKind::from(name);
-            all_components.push(Component::Terminal(kind));
+            terminal_components.push(Component::Terminal(kind));
         }
 
         let accept_rule_component = Component::NonTerminal("$accept".to_string());
         let end_rule_component = Component::Terminal(TokenKind::RAW("$end".to_string()));
 
-        all_components.push(accept_rule_component.clone());
-        all_components.push(end_rule_component.clone());
-        all_components.sort_by_key(|c| {
-            let typ = match c {
-                Component::Terminal(_) => 0,
-                _ => 1,
-            };
+        non_terminal_components.push(accept_rule_component.clone());
+        terminal_components.push(end_rule_component.clone());
+        terminal_components.sort_by_key(|c| c.to_rule_identifier());
+        terminal_components.dedup();
 
-            (typ, c.to_rule_identifier())
-        });
+        terminal_components
+            .iter()
+            .for_each(|c| id_mapper.insert(c.clone()));
+        non_terminal_components
+            .iter()
+            .for_each(|c| id_mapper.insert(c.clone()));
 
-        all_components.into_iter().for_each(|c| id_mapper.insert(c));
+        let all_terminal = terminal_components
+            .iter()
+            .map(|c| id_mapper.to_component_id(c))
+            .collect();
 
         let accept_rule_component_id = id_mapper.to_component_id(&accept_rule_component);
         let end_rule_component_id = id_mapper.to_component_id(&end_rule_component);
@@ -267,7 +274,7 @@ impl Lalr {
             end_rule_component_id,
 
             first_set: HashMap::new(),
-            lookaheads: Vec::new(),
+            first_set_after: Vec::new(),
             nullable: Vec::new(),
             state_set: StateSet {
                 states: Vec::new(),
@@ -275,16 +282,9 @@ impl Lalr {
             },
             action_table: HashMap::new(),
             goto_table: HashMap::new(),
+
+            all_terminal,
         }
-    }
-
-    pub fn get_priority_by_terminal_symbol(&self, component_id: &ComponentId) -> Option<Assoc> {
-        // let c = &self.components[component_id.0 as usize];
-        self.assoc[component_id.0 as usize].clone()
-    }
-
-    pub fn get_shift_priority(&self, component_id: &ComponentId) -> Option<Assoc> {
-        self.get_priority_by_terminal_symbol(component_id)
     }
 
     fn build_first_set(&mut self) {
@@ -342,7 +342,7 @@ impl Lalr {
             }
         }
 
-        self.lookaheads = self
+        self.first_set_after = self
             .rules
             .iter()
             .map(|r| vec![Default::default(); r.components.len() + 1])
@@ -354,18 +354,18 @@ impl Lalr {
             .map(|r| vec![true; r.components.len() + 1])
             .collect();
 
-        for i in 0..self.lookaheads.len() {
+        for i in 0..self.first_set_after.len() {
             for j in (0..self.rules[i].components.len()).rev() {
                 let c = self.rules[i].components[j];
 
                 if nullable[&c] {
-                    self.lookaheads[i][j] = self.lookaheads[i][j + 1].clone();
+                    self.first_set_after[i][j] = self.first_set_after[i][j + 1].clone();
                     self.nullable[i][j] &= self.nullable[i][j + 1];
                 } else {
                     self.nullable[i][j] = false;
                 }
 
-                self.lookaheads[i][j].extend(first_set[&c].clone());
+                self.first_set_after[i][j].extend(first_set[&c].clone());
             }
         }
 
@@ -402,7 +402,7 @@ impl Lalr {
                 continue;
             }
 
-            let mut lookaheads = self.lookaheads[rule_index][dot_pos + 1].clone();
+            let mut lookaheads = self.first_set_after[rule_index][dot_pos + 1].clone();
             let nullable = self.nullable[rule_index][dot_pos + 1];
 
             // その際の先読み記号は、first_set(非終端記号の続き + lookahead)で求まる
@@ -448,16 +448,8 @@ impl Lalr {
     /// 構文解析表を作成する
     /// 1. LR(1)項集合の作成
     pub fn build_lalr1_parse_table(&mut self) {
-        // for (i, rule) in self.rules.iter().enumerate() {
-        //     self.name_to_rules
-        //         .entry(rule.name.clone())
-        //         .or_default()
-        //         .push(i);
-        // }
-
         // bisonでは明示的に指定しない場合、最初のルールが起点のルールになる
         // PostgreSQLの場合、明示的に指定していないため、最初のルールを起点とする
-        // let start_rule = self.rule_names[0].clone();
         let start_rule_index = self.rules.len();
         let start_component_id = self.rules[0].name_id;
 
@@ -483,7 +475,7 @@ impl Lalr {
 
             State {
                 items: vec![initial_item],
-                edge: Vec::new(),
+                edge: BTreeSet::new(),
                 item_indices: HashMap::new(),
             }
         });
@@ -525,7 +517,7 @@ impl Lalr {
             for (comp, items) in next_states {
                 let mut state = State {
                     items,
-                    edge: Vec::new(),
+                    edge: BTreeSet::new(),
                     item_indices: HashMap::new(),
                 };
 
@@ -541,95 +533,73 @@ impl Lalr {
         let mut goto_table: HashMap<(usize, ComponentId), usize> = HashMap::new();
 
         for (i, s) in state_set.states.iter().enumerate() {
+            let reduce_rules: Vec<_> = s
+                .items
+                .iter()
+                .filter(|item| self.rules[item.rule_index].components.len() == item.dot_pos)
+                .collect();
+
+            let get_conflicted_reduce_rule = |shift_comp: &ComponentId| -> Option<&&Item> {
+                reduce_rules
+                    .iter()
+                    .find(|item| item.lookahead.contains(&shift_comp))
+            };
+
             for e in &s.edge {
-                match &self.id_mapper.components[e.0 .0 as usize] {
-                    Component::NonTerminal(_) => {
-                        goto_table.insert((i, e.0.clone()), e.1);
-                    }
-                    Component::Terminal(_) => {
-                        action_table.insert((i, e.0.clone()), Action::Shift(e.1));
-                    }
+                let key = (i, e.0.clone());
+
+                if let Component::NonTerminal(_) = &self.id_mapper.components[e.0 .0 as usize] {
+                    goto_table.insert(key, e.1);
+                } else {
+                    action_table.insert(key, Action::Shift(e.1));
                 }
             }
 
-            for item in &s.items {
-                let rule = &self.rules[item.rule_index];
-                if item.dot_pos >= rule.components.len() {
-                    // ドットが最後まで進んでいる場合
-                    // そのアイテムの先読み記号に対応する構文解析表のエントリに、
-                    // そのアイテムの規則のインデックスを追加する
-                    for lookahead in &item.lookahead {
-                        let action = if item.rule_index == start_rule_index {
-                            Action::Accept
-                        } else {
-                            Action::Reduce(item.rule_index)
-                        };
+            for terminal in &self.all_terminal {
+                if let Some(item) = get_conflicted_reduce_rule(terminal) {
+                    let reduce_action = if item.rule_index == start_rule_index {
+                        Action::Accept
+                    } else {
+                        Action::Reduce(item.rule_index)
+                    };
 
-                        let key = (i, lookahead.clone());
+                    let key = (i, terminal.clone());
 
-                        if action_table.contains_key(&key) {
-                            match action_table.get(&key) {
-                                Some(Action::Shift(_shift_state)) => {
-                                    // shift-reduce conflict
-                                    // https://guppy.eng.kagawa-u.ac.jp/2019/Compiler/bison-1.2.8/bison-ja_8.html#:~:text=%E8%A1%9D%E7%AA%81%E3%81%AE%E8%A7%A3%E6%B1%BA%E3%81%AF%E3%80%81%E5%95%8F%E9%A1%8C%E3%81%AB%E3%81%AA%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8B%E8%A6%8F%E5%89%87%E3%81%AE%E5%84%AA%E5%85%88%E9%A0%86%E4%BD%8D%E3%81%A8%E3%80%81%20%E5%85%88%E8%AA%AD%E3%81%BF%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E3%81%AE%E5%84%AA%E5%85%88%E9%A0%86%E4%BD%8D%E3%81%AE%E6%AF%94%E8%BC%83%E3%81%AB%E3%82%88%E3%81%A3%E3%81%A6%E8%A1%8C%E3%82%8F%E3%82%8C%E3%81%BE%E3%81%99
-                                    // 衝突の解決は、問題になっている規則の優先順位と、 先読みトークンの優先順位の比較によって行われます
+                    // not conflict
+                    if !action_table.contains_key(&key) {
+                        action_table.insert(key, reduce_action);
+                        continue;
+                    }
 
-                                    let shift_priority = self.get_shift_priority(lookahead);
-                                    let reduce_priority =
-                                        &self.rules[item.rule_index].reduce_priority;
+                    // shift-reduce conflict
+                    let shift = self.assoc[terminal.0 as usize].as_ref();
+                    let reduce = self.rules[item.rule_index].reduce_priority.as_ref();
 
-                                    match (&shift_priority, &reduce_priority) {
-                                        (Some(shift_priority), Some(reduce_priority)) => {
-                                            match shift_priority
-                                                .priority
-                                                .cmp(&reduce_priority.priority)
-                                            {
-                                                std::cmp::Ordering::Equal => {
-                                                    match shift_priority.directive {
-                                                        AssocDirective::NonAssoc => {
-                                                            // このケースはparse errorのため、action tableから削除してみる
-                                                            action_table.remove(&key);
-                                                        }
-                                                        AssocDirective::Left => {
-                                                            // reduceを採用するのでinsert
-                                                            action_table.insert(key, action);
-                                                        }
-                                                        AssocDirective::Right => {
-                                                            // shiftを採用するので何もしない
-                                                        }
-                                                    }
-                                                }
-                                                std::cmp::Ordering::Greater => {
-                                                    // shiftを採用するので何もしない
-                                                }
-                                                std::cmp::Ordering::Less => {
-                                                    // reduceを採用するのでinsert
-                                                    action_table.insert(key, action);
-                                                }
-                                            }
-                                        }
-                                        (Some(_shift_priority), None) => {
-                                            // bisonに合わせて？reduceを採用するのでinsert
-                                            action_table.insert(key, action);
-                                        }
-                                        (None, Some(_reduce_priority)) => {
-                                            // bisonの挙動に合わせてshiftを採用するので何もしない
-                                        }
-                                        (None, None) => {
-                                            // Bisonは、演算子優先規則宣言で特に指定されていないかぎり、 シフトを選ぶことで衝突を解決するように設計されています。
-                                            // shiftを採用するので何もしない
-                                        }
-                                    }
+                    match (reduce, shift) {
+                        (Some(reduce), Some(shift)) if reduce.priority < shift.priority => {
+                            // shiftを採用
+                        }
+                        (Some(reduce), Some(shift)) if reduce.priority > shift.priority => {
+                            // reduceを採用
+                            action_table.insert(key, reduce_action);
+                        }
+                        (Some(_), Some(shift)) => {
+                            match shift.directive {
+                                AssocDirective::NonAssoc => {
+                                    // このケースはparse error
+                                    action_table.insert(key, Action::Error);
                                 }
-                                Some(Action::Reduce(reduce_rule_index)) => {
-                                    // 同一の入力列に対して2個以上の規則が適用可能であると、 還元/還元衝突が起きます。
-                                    dbg!(reduce_rule_index);
-                                    panic!();
+                                AssocDirective::Left => {
+                                    // reduceを採用
+                                    action_table.insert(key, reduce_action);
                                 }
-                                _ => panic!(),
-                            };
-                        } else {
-                            action_table.insert(key, action);
+                                AssocDirective::Right => {
+                                    // shiftを採用
+                                }
+                            }
+                        }
+                        _ => {
+                            // いずれかに優先度がなければshift優先らしい
                         }
                     }
                 }

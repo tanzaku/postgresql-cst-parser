@@ -32,6 +32,7 @@ fn build_action_table(lalr: &Lalr, terminal_symbols: &Vec<Component>) -> Vec<u8>
                     action_table.push(-(*r as i16) - 1);
                 }
                 Some(Action::Accept) => action_table.push(0),
+                Some(Action::Error) => action_table.push(0x7FFF),
                 None => action_table.push(0x7FFF),
             }
         }

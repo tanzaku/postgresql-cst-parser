@@ -13,6 +13,7 @@ pub enum Action {
     Shift(usize),
     Reduce(usize),
     Accept,
+    Error,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
