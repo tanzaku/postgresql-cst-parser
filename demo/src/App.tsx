@@ -11,7 +11,10 @@ function App() {
   const [parseResult, setParseResult] = useState('')
 
   useEffect(() => {
-    init()
+    (async () => {
+      await init();
+      setParseResult(parse_sql(sql))
+    })()
   }, [])
 
   return (
