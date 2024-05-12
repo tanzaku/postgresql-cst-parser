@@ -176,7 +176,7 @@ async function __wbg_init(input) {
     if (wasm !== undefined) return wasm;
 
     if (typeof input === 'undefined') {
-        input = new URL('postgresql_lst_parser_wasm_bg.wasm', import.meta.url);
+        input = new URL('postgresql_cst_parser_wasm_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 

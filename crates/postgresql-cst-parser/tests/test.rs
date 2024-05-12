@@ -1,4 +1,4 @@
-use postgresql_lst_parser::parse;
+use postgresql_cst_parser::parse;
 
 #[test]
 fn test_all() -> Result<(), std::io::Error> {

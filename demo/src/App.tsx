@@ -4,7 +4,7 @@ import './App.css'
 import Button from '@mui/material/Button';
 import { Box, CssBaseline, TextField, Typography } from '@mui/material';
 
-import init, { parse_sql } from "./postgresql-lst-parser/postgresql_lst_parser_wasm.js";
+import init, { parse_sql } from "./postgresql-cst-parser/postgresql_cst_parser_wasm.js";
 
 function App() {
   const [sql, setSQL] = useState('SELECT\n\ttbl.a as a\nfrom\n\tTBL tbl')
@@ -27,7 +27,7 @@ function App() {
             variant="h6"
             sx={{ p: 1, flexGrow: 1 }}
             align="left"
-          >PostgreSQL LST Parser
+          >PostgreSQL CST Parser
           </Typography>
         </Box>
 

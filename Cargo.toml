@@ -4,16 +4,16 @@ resolver = "2"
 members = [
     "crates/lexer-generator",
     "crates/parser-generator",
-    "crates/postgresql-lst-parser",
-    "crates/postgresql-lst-parser-wasm",
+    "crates/postgresql-cst-parser",
+    "crates/postgresql-cst-parser-wasm",
 ]
 
-default-members = ["crates/postgresql-lst-parser"]
+default-members = ["crates/postgresql-cst-parser"]
 
 [workspace.package]
-exclude = ["crates/lexer-generator", "crates/parser-generator", "crates/postgresql-lst-parser-wasm"]
+exclude = ["crates/lexer-generator", "crates/parser-generator", "crates/postgresql-cst-parser-wasm"]
 
-[profile.release.package.postgresql-lst-parser-wasm]
+[profile.release.package.postgresql-cst-parser-wasm]
 opt-level = "s"
 
 

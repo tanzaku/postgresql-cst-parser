@@ -1,6 +1,6 @@
 mod utils;
 
-use postgresql_lst_parser::parse;
+use postgresql_cst_parser::parse;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
