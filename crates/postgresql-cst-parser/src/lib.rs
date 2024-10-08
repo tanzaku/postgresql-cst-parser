@@ -7,6 +7,9 @@ mod parser;
 mod cst;
 pub mod syntax_kind;
 
+#[cfg(feature = "tree-sitter-like")]
+pub mod tree_sitter;
+
 pub use cst::NodeOrToken;
 pub use cst::ParseError;
 pub use cst::PostgreSQLSyntax;

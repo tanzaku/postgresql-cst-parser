@@ -10,7 +10,6 @@ Root@0..530
                 toplevel_stmt@62..101
                   stmt@62..101
                     UpdateStmt@62..101
-                      opt_with_clause@62..62
                       Whitespace@62..63 "\n"
                       UPDATE@63..69 "UPDATE"
                       Whitespace@69..70 " "
@@ -27,7 +26,6 @@ Root@0..530
                           set_target@80..84
                             ColId@80..84
                               IDENT@80..84 "kind"
-                            opt_indirection@84..84
                           Whitespace@84..85 " "
                           Equals@85..86 "="
                           Whitespace@86..87 " "
@@ -36,7 +34,6 @@ Root@0..530
                               AexprConst@87..87
                                 Sconst@87..87
                                   SCONST@87..87 ""
-                      from_clause@87..87
                       Whitespace@87..88 " "
                       where_or_current_clause@88..101
                         WHERE@88..93 "WHERE"
@@ -55,12 +52,10 @@ Root@0..530
                               AexprConst@101..101
                                 Sconst@101..101
                                   SCONST@101..101 ""
-                      returning_clause@101..101
               Semicolon@101..102 ";"
               toplevel_stmt@102..207
                 stmt@102..207
                   UpdateStmt@102..207
-                    opt_with_clause@102..102
                     Whitespace@102..103 "\n"
                     UPDATE@103..109 "UPDATE"
                     Whitespace@109..110 " "
@@ -79,7 +74,6 @@ Root@0..530
                             set_target@122..129
                               ColId@122..129
                                 IDENT@122..129 "temp_lo"
-                              opt_indirection@129..129
                             Whitespace@129..130 " "
                             Equals@130..131 "="
                             Whitespace@131..132 " "
@@ -101,7 +95,6 @@ Root@0..530
                           set_target@143..150
                             ColId@143..150
                               IDENT@143..150 "temp_hi"
-                            opt_indirection@150..150
                           Whitespace@150..151 " "
                           Equals@151..152 "="
                           Whitespace@152..153 " "
@@ -123,13 +116,11 @@ Root@0..530
                         set_target@165..169
                           ColId@165..169
                             IDENT@165..169 "prcp"
-                          opt_indirection@169..169
                         Whitespace@169..170 " "
                         Equals@170..171 "="
                         Whitespace@171..172 " "
                         a_expr@172..179
                           DEFAULT@172..179 "DEFAULT"
-                    from_clause@179..179
                     Whitespace@179..182 "\n  "
                     where_or_current_clause@182..207
                       WHERE@182..187 "WHERE"
@@ -166,12 +157,10 @@ Root@0..530
                               AexprConst@207..207
                                 Sconst@207..207
                                   SCONST@207..207 ""
-                    returning_clause@207..207
             Semicolon@207..208 ";"
             toplevel_stmt@208..341
               stmt@208..341
                 UpdateStmt@208..341
-                  opt_with_clause@208..208
                   Whitespace@208..209 "\n"
                   UPDATE@209..215 "UPDATE"
                   Whitespace@215..216 " "
@@ -188,7 +177,6 @@ Root@0..530
                       set_target@230..241
                         ColId@230..241
                           IDENT@230..241 "sales_count"
-                        opt_indirection@241..241
                       Whitespace@241..242 " "
                       Equals@242..243 "="
                       Whitespace@243..244 " "
@@ -216,7 +204,6 @@ Root@0..530
                           qualified_name@265..273
                             ColId@265..273
                               IDENT@265..273 "accounts"
-                        opt_alias_clause@273..273
                   Whitespace@273..276 "\n  "
                   where_or_current_clause@276..341
                     WHERE@276..281 "WHERE"
@@ -272,12 +259,10 @@ Root@0..530
                                   attr_name@329..341
                                     ColLabel@329..341
                                       IDENT@329..341 "sales_person"
-                  returning_clause@341..341
           Semicolon@341..342 ";"
           toplevel_stmt@342..456
             stmt@342..456
               UpdateStmt@342..456
-                opt_with_clause@342..342
                 Whitespace@342..343 "\n"
                 UPDATE@343..349 "UPDATE"
                 Whitespace@349..350 " "
@@ -294,7 +279,6 @@ Root@0..530
                     set_target@364..375
                       ColId@364..375
                         IDENT@364..375 "sales_count"
-                      opt_indirection@375..375
                     Whitespace@375..376 " "
                     Equals@376..377 "="
                     Whitespace@377..378 " "
@@ -312,7 +296,6 @@ Root@0..530
                           AexprConst@392..393
                             Iconst@392..393
                               ICONST@392..393 "1"
-                from_clause@393..393
                 Whitespace@393..394 " "
                 where_or_current_clause@394..456
                   WHERE@394..399 "WHERE"
@@ -333,7 +316,6 @@ Root@0..530
                           select_no_parens@408..455
                             simple_select@408..455
                               SELECT@408..414 "SELECT"
-                              opt_all_clause@414..414
                               Whitespace@414..415 " "
                               opt_target_list@415..427
                                 target_list@415..427
@@ -343,7 +325,6 @@ Root@0..530
                                         columnref@415..427
                                           ColId@415..427
                                             IDENT@415..427 "sales_person"
-                              into_clause@427..427
                               Whitespace@427..428 " "
                               from_clause@428..441
                                 FROM@428..432 "FROM"
@@ -354,7 +335,6 @@ Root@0..530
                                       qualified_name@433..441
                                         ColId@433..441
                                           IDENT@433..441 "accounts"
-                                    opt_alias_clause@441..441
                               Whitespace@441..442 " "
                               where_clause@442..455
                                 WHERE@442..447 "WHERE"
@@ -374,16 +354,11 @@ Root@0..530
                                       AexprConst@455..455
                                         Sconst@455..455
                                           SCONST@455..455 ""
-                              group_clause@455..455
-                              having_clause@455..455
-                              window_clause@455..455
                           RParen@455..456 ")"
-                returning_clause@456..456
         Semicolon@456..457 ";"
         toplevel_stmt@457..529
           stmt@457..529
             UpdateStmt@457..529
-              opt_with_clause@457..457
               Whitespace@457..458 "\n"
               UPDATE@458..464 "UPDATE"
               Whitespace@464..465 " "
@@ -400,7 +375,6 @@ Root@0..530
                   set_target@481..487
                     ColId@481..487
                       IDENT@481..487 "salary"
-                    opt_indirection@487..487
                   Whitespace@487..488 " "
                   Equals@488..489 "="
                   Whitespace@489..490 " "
@@ -417,7 +391,6 @@ Root@0..530
                       c_expr@499..503
                         AexprConst@499..503
                           FCONST@499..503 "1.05"
-              from_clause@503..503
               Whitespace@503..506 "\n  "
               where_or_current_clause@506..529
                 WHERE@506..511 "WHERE"
@@ -436,7 +409,4 @@ Root@0..530
                       AexprConst@528..529
                         Iconst@528..529
                           ICONST@528..529 "3"
-              returning_clause@529..529
       Semicolon@529..530 ";"
-      toplevel_stmt@530..530
-        stmt@530..530
