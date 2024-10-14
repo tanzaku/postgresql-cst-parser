@@ -150,7 +150,7 @@ fn construct_states(flex_file: &FlexFile) -> String {
 /// scan.lに基づいてLexerを生成する
 pub fn generate() {
     let flex_file = parse_flex_file(include_str!("../resources/scan.l"));
-    let template = include_str!("../resources/lex_template.rs");
+    let template = include_str!("../templates/lex_template.rs");
 
     let rule_kinds = construct_rule_kinds(&flex_file);
     let actions = construct_actions(&flex_file);

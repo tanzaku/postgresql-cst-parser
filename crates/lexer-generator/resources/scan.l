@@ -1,3 +1,166 @@
+%top{
+/*-------------------------------------------------------------------------
+ *
+ * scan.l
+ *	  lexical scanner for PostgreSQL
+ *
+ * NOTE NOTE NOTE:
+ *
+ * The rules in this file must be kept in sync with src/fe_utils/psqlscan.l
+ * and src/interfaces/ecpg/preproc/pgc.l!
+ *
+ * The rules are designed so that the scanner never has to backtrack,
+ * in the sense that there is always a rule that can match the input
+ * consumed so far (the rule action may internally throw back some input
+ * with yyless(), however).  As explained in the flex manual, this makes
+ * for a useful speed increase --- several percent faster when measuring
+ * raw parsing (Flex + Bison).  The extra complexity is mostly in the rules
+ * for handling float numbers and continued string literals.  If you change
+ * the lexical rules, verify that you haven't broken the no-backtrack
+ * property by running flex with the "-b" option and checking that the
+ * resulting "lex.backup" file says that no backing up is needed.  (As of
+ * Postgres 9.2, this check is made automatically by the Makefile.)
+ *
+ *
+ * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1994, Regents of the University of California
+ *
+ * IDENTIFICATION
+ *	  src/backend/parser/scan.l
+ *
+ *-------------------------------------------------------------------------
+ */
+#include "postgres.h"
+
+#include <ctype.h>
+#include <unistd.h>
+
+#include "common/string.h"
+#include "gramparse.h"
+#include "nodes/miscnodes.h"
+#include "parser/parser.h"		/* only needed for GUC variables */
+#include "parser/scansup.h"
+#include "port/pg_bitutils.h"
+#include "mb/pg_wchar.h"
+#include "utils/builtins.h"
+}
+
+%{
+
+/* LCOV_EXCL_START */
+
+/* Avoid exit() on fatal scanner errors (a bit ugly -- see yy_fatal_error) */
+#undef fprintf
+#define fprintf(file, fmt, msg)  fprintf_to_ereport(fmt, msg)
+
+static void
+fprintf_to_ereport(const char *fmt, const char *msg)
+{
+	ereport(ERROR, (errmsg_internal("%s", msg)));
+}
+
+/*
+ * GUC variables.  This is a DIRECT violation of the warning given at the
+ * head of gram.y, ie flex/bison code must not depend on any GUC variables;
+ * as such, changing their values can induce very unintuitive behavior.
+ * But we shall have to live with it until we can remove these variables.
+ */
+int			backslash_quote = BACKSLASH_QUOTE_SAFE_ENCODING;
+bool		escape_string_warning = true;
+bool		standard_conforming_strings = true;
+
+/*
+ * Constant data exported from this file.  This array maps from the
+ * zero-based keyword numbers returned by ScanKeywordLookup to the
+ * Bison token numbers needed by gram.y.  This is exported because
+ * callers need to pass it to scanner_init, if they are using the
+ * standard keyword list ScanKeywords.
+ */
+#define PG_KEYWORD(kwname, value, category, collabel) value,
+
+const uint16 ScanKeywordTokens[] = {
+#include "parser/kwlist.h"
+};
+
+#undef PG_KEYWORD
+
+/*
+ * Set the type of YYSTYPE.
+ */
+#define YYSTYPE core_YYSTYPE
+
+/*
+ * Set the type of yyextra.  All state variables used by the scanner should
+ * be in yyextra, *not* statically allocated.
+ */
+#define YY_EXTRA_TYPE core_yy_extra_type *
+
+/*
+ * Each call to yylex must set yylloc to the location of the found token
+ * (expressed as a byte offset from the start of the input text).
+ * When we parse a token that requires multiple lexer rules to process,
+ * this should be done in the first such rule, else yylloc will point
+ * into the middle of the token.
+ */
+#define SET_YYLLOC()  (*(yylloc) = yytext - yyextra->scanbuf)
+
+/*
+ * Advance yylloc by the given number of bytes.
+ */
+#define ADVANCE_YYLLOC(delta)  ( *(yylloc) += (delta) )
+
+/*
+ * Sometimes, we do want yylloc to point into the middle of a token; this is
+ * useful for instance to throw an error about an escape sequence within a
+ * string literal.  But if we find no error there, we want to revert yylloc
+ * to the token start, so that that's the location reported to the parser.
+ * Use PUSH_YYLLOC/POP_YYLLOC to save/restore yylloc around such code.
+ * (Currently the implied "stack" is just one location, but someday we might
+ * need to nest these.)
+ */
+#define PUSH_YYLLOC()	(yyextra->save_yylloc = *(yylloc))
+#define POP_YYLLOC()	(*(yylloc) = yyextra->save_yylloc)
+
+#define startlit()	( yyextra->literallen = 0 )
+static void addlit(char *ytext, int yleng, core_yyscan_t yyscanner);
+static void addlitchar(unsigned char ychar, core_yyscan_t yyscanner);
+static char *litbufdup(core_yyscan_t yyscanner);
+static unsigned char unescape_single_char(unsigned char c, core_yyscan_t yyscanner);
+static int	process_integer_literal(const char *token, YYSTYPE *lval, int base);
+static void addunicode(pg_wchar c, yyscan_t yyscanner);
+
+#define yyerror(msg)  scanner_yyerror(msg, yyscanner)
+
+#define lexer_errposition()  scanner_errposition(*(yylloc), yyscanner)
+
+static void check_string_escape_warning(unsigned char ychar, core_yyscan_t yyscanner);
+static void check_escape_warning(core_yyscan_t yyscanner);
+
+/*
+ * Work around a bug in flex 2.5.35: it emits a couple of functions that
+ * it forgets to emit declarations for.  Since we use -Wmissing-prototypes,
+ * this would cause warnings.  Providing our own declarations should be
+ * harmless even when the bug gets fixed.
+ */
+extern int	core_yyget_column(yyscan_t yyscanner);
+extern void core_yyset_column(int column_no, yyscan_t yyscanner);
+
+%}
+
+%option reentrant
+%option bison-bridge
+%option bison-locations
+%option 8bit
+%option never-interactive
+%option nodefault
+%option noinput
+%option nounput
+%option noyywrap
+%option noyyalloc
+%option noyyrealloc
+%option noyyfree
+%option warn
+%option prefix="core_yy"
 
 /*
  * OK, here is a short description of lex/flex rules behavior.
@@ -1170,6 +1333,206 @@ other			.
 
 %%
 
+/* LCOV_EXCL_STOP */
+
+/*
+ * Arrange access to yyextra for subroutines of the main yylex() function.
+ * We expect each subroutine to have a yyscanner parameter.  Rather than
+ * use the yyget_xxx functions, which might or might not get inlined by the
+ * compiler, we cheat just a bit and cast yyscanner to the right type.
+ */
+#undef yyextra
+#define yyextra  (((struct yyguts_t *) yyscanner)->yyextra_r)
+
+/* Likewise for a couple of other things we need. */
+#undef yylloc
+#define yylloc	(((struct yyguts_t *) yyscanner)->yylloc_r)
+#undef yyleng
+#define yyleng	(((struct yyguts_t *) yyscanner)->yyleng_r)
+
+
+/*
+ * scanner_errposition
+ *		Report a lexer or grammar error cursor position, if possible.
+ *
+ * This is expected to be used within an ereport() call, or via an error
+ * callback such as setup_scanner_errposition_callback().  The return value
+ * is a dummy (always 0, in fact).
+ *
+ * Note that this can only be used for messages emitted during raw parsing
+ * (essentially, scan.l, parser.c, and gram.y), since it requires the
+ * yyscanner struct to still be available.
+ */
+int
+scanner_errposition(int location, core_yyscan_t yyscanner)
+{
+	int			pos;
+
+	if (location < 0)
+		return 0;				/* no-op if location is unknown */
+
+	/* Convert byte offset to character number */
+	pos = pg_mbstrlen_with_len(yyextra->scanbuf, location) + 1;
+	/* And pass it to the ereport mechanism */
+	return errposition(pos);
+}
+
+/*
+ * Error context callback for inserting scanner error location.
+ *
+ * Note that this will be called for *any* error occurring while the
+ * callback is installed.  We avoid inserting an irrelevant error location
+ * if the error is a query cancel --- are there any other important cases?
+ */
+static void
+scb_error_callback(void *arg)
+{
+	ScannerCallbackState *scbstate = (ScannerCallbackState *) arg;
+
+	if (geterrcode() != ERRCODE_QUERY_CANCELED)
+		(void) scanner_errposition(scbstate->location, scbstate->yyscanner);
+}
+
+/*
+ * setup_scanner_errposition_callback
+ *		Arrange for non-scanner errors to report an error position
+ *
+ * Sometimes the scanner calls functions that aren't part of the scanner
+ * subsystem and can't reasonably be passed the yyscanner pointer; yet
+ * we would like any errors thrown in those functions to be tagged with an
+ * error location.  Use this function to set up an error context stack
+ * entry that will accomplish that.  Usage pattern:
+ *
+ *		declare a local variable "ScannerCallbackState scbstate"
+ *		...
+ *		setup_scanner_errposition_callback(&scbstate, yyscanner, location);
+ *		call function that might throw error;
+ *		cancel_scanner_errposition_callback(&scbstate);
+ */
+void
+setup_scanner_errposition_callback(ScannerCallbackState *scbstate,
+								   core_yyscan_t yyscanner,
+								   int location)
+{
+	/* Setup error traceback support for ereport() */
+	scbstate->yyscanner = yyscanner;
+	scbstate->location = location;
+	scbstate->errcallback.callback = scb_error_callback;
+	scbstate->errcallback.arg = (void *) scbstate;
+	scbstate->errcallback.previous = error_context_stack;
+	error_context_stack = &scbstate->errcallback;
+}
+
+/*
+ * Cancel a previously-set-up errposition callback.
+ */
+void
+cancel_scanner_errposition_callback(ScannerCallbackState *scbstate)
+{
+	/* Pop the error context stack */
+	error_context_stack = scbstate->errcallback.previous;
+}
+
+/*
+ * scanner_yyerror
+ *		Report a lexer or grammar error.
+ *
+ * The message's cursor position is whatever YYLLOC was last set to,
+ * ie, the start of the current token if called within yylex(), or the
+ * most recently lexed token if called from the grammar.
+ * This is OK for syntax error messages from the Bison parser, because Bison
+ * parsers report error as soon as the first unparsable token is reached.
+ * Beware of using yyerror for other purposes, as the cursor position might
+ * be misleading!
+ */
+void
+scanner_yyerror(const char *message, core_yyscan_t yyscanner)
+{
+	const char *loc = yyextra->scanbuf + *yylloc;
+
+	if (*loc == YY_END_OF_BUFFER_CHAR)
+	{
+		ereport(ERROR,
+				(errcode(ERRCODE_SYNTAX_ERROR),
+		/* translator: %s is typically the translation of "syntax error" */
+				 errmsg("%s at end of input", _(message)),
+				 lexer_errposition()));
+	}
+	else
+	{
+		ereport(ERROR,
+				(errcode(ERRCODE_SYNTAX_ERROR),
+		/* translator: first %s is typically the translation of "syntax error" */
+				 errmsg("%s at or near \"%s\"", _(message), loc),
+				 lexer_errposition()));
+	}
+}
+
+
+/*
+ * Called before any actual parsing is done
+ */
+core_yyscan_t
+scanner_init(const char *str,
+			 core_yy_extra_type *yyext,
+			 const ScanKeywordList *keywordlist,
+			 const uint16 *keyword_tokens)
+{
+	Size		slen = strlen(str);
+	yyscan_t	scanner;
+
+	if (yylex_init(&scanner) != 0)
+		elog(ERROR, "yylex_init() failed: %m");
+
+	core_yyset_extra(yyext, scanner);
+
+	yyext->keywordlist = keywordlist;
+	yyext->keyword_tokens = keyword_tokens;
+
+	yyext->backslash_quote = backslash_quote;
+	yyext->escape_string_warning = escape_string_warning;
+	yyext->standard_conforming_strings = standard_conforming_strings;
+
+	/*
+	 * Make a scan buffer with special termination needed by flex.
+	 */
+	yyext->scanbuf = (char *) palloc(slen + 2);
+	yyext->scanbuflen = slen;
+	memcpy(yyext->scanbuf, str, slen);
+	yyext->scanbuf[slen] = yyext->scanbuf[slen + 1] = YY_END_OF_BUFFER_CHAR;
+	yy_scan_buffer(yyext->scanbuf, slen + 2, scanner);
+
+	/* initialize literal buffer to a reasonable but expansible size */
+	yyext->literalalloc = 1024;
+	yyext->literalbuf = (char *) palloc(yyext->literalalloc);
+	yyext->literallen = 0;
+
+	return scanner;
+}
+
+
+/*
+ * Called after parsing is done to clean up after scanner_init()
+ */
+void
+scanner_finish(core_yyscan_t yyscanner)
+{
+	/*
+	 * We don't bother to call yylex_destroy(), because all it would do is
+	 * pfree a small amount of control storage.  It's cheaper to leak the
+	 * storage until the parsing context is destroyed.  The amount of space
+	 * involved is usually negligible compared to the output parse tree
+	 * anyway.
+	 *
+	 * We do bother to pfree the scanbuf and literal buffer, but only if they
+	 * represent a nontrivial amount of space.  The 8K cutoff is arbitrary.
+	 */
+	if (yyextra->scanbuflen >= 8192)
+		pfree(yyextra->scanbuf);
+	if (yyextra->literalalloc >= 8192)
+		pfree(yyextra->literalbuf);
+}
+
 
 static void
 addlit(char *ytext, int yleng, core_yyscan_t yyscanner)
@@ -1200,6 +1563,22 @@ addlitchar(unsigned char ychar, core_yyscan_t yyscanner)
 	/* append new data */
 	yyextra->literalbuf[yyextra->literallen] = ychar;
 	yyextra->literallen += 1;
+}
+
+
+/*
+ * Create a palloc'd copy of literalbuf, adding a trailing null.
+ */
+static char *
+litbufdup(core_yyscan_t yyscanner)
+{
+	int			llen = yyextra->literallen;
+	char	   *new;
+
+	new = palloc(llen + 1);
+	memcpy(new, yyextra->literalbuf, llen);
+	new[llen] = '\0';
+	return new;
 }
 
 /*
@@ -1264,4 +1643,70 @@ unescape_single_char(unsigned char c, core_yyscan_t yyscanner)
 
 			return c;
 	}
+}
+
+static void
+check_string_escape_warning(unsigned char ychar, core_yyscan_t yyscanner)
+{
+	if (ychar == '\'')
+	{
+		if (yyextra->warn_on_first_escape && yyextra->escape_string_warning)
+			ereport(WARNING,
+					(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
+					 errmsg("nonstandard use of \\' in a string literal"),
+					 errhint("Use '' to write quotes in strings, or use the escape string syntax (E'...')."),
+					 lexer_errposition()));
+		yyextra->warn_on_first_escape = false;	/* warn only once per string */
+	}
+	else if (ychar == '\\')
+	{
+		if (yyextra->warn_on_first_escape && yyextra->escape_string_warning)
+			ereport(WARNING,
+					(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
+					 errmsg("nonstandard use of \\\\ in a string literal"),
+					 errhint("Use the escape string syntax for backslashes, e.g., E'\\\\'."),
+					 lexer_errposition()));
+		yyextra->warn_on_first_escape = false;	/* warn only once per string */
+	}
+	else
+		check_escape_warning(yyscanner);
+}
+
+static void
+check_escape_warning(core_yyscan_t yyscanner)
+{
+	if (yyextra->warn_on_first_escape && yyextra->escape_string_warning)
+		ereport(WARNING,
+				(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
+				 errmsg("nonstandard use of escape in a string literal"),
+		errhint("Use the escape string syntax for escapes, e.g., E'\\r\\n'."),
+				 lexer_errposition()));
+	yyextra->warn_on_first_escape = false;		/* warn only once per string */
+}
+
+/*
+ * Interface functions to make flex use palloc() instead of malloc().
+ * It'd be better to make these static, but flex insists otherwise.
+ */
+
+void *
+core_yyalloc(yy_size_t bytes, core_yyscan_t yyscanner)
+{
+	return palloc(bytes);
+}
+
+void *
+core_yyrealloc(void *ptr, yy_size_t bytes, core_yyscan_t yyscanner)
+{
+	if (ptr)
+		return repalloc(ptr, bytes);
+	else
+		return palloc(bytes);
+}
+
+void
+core_yyfree(void *ptr, core_yyscan_t yyscanner)
+{
+	if (ptr)
+		pfree(ptr);
 }

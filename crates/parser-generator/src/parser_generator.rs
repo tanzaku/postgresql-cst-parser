@@ -144,7 +144,7 @@ fn write_parser_file(
 
     let num_non_terminal_symbol = non_terminal_symbols.len().to_string();
 
-    let parser_template = include_str!("../resources/parser_template.rs")
+    let parser_template = include_str!("../templates/parser_template.rs")
         .replace("{num_terminal_symbol}", &terminal_symbols.len().to_string())
         .replace("{num_non_terminal_symbol}", &num_non_terminal_symbol)
         .replace("{num_state}", &num_state)
