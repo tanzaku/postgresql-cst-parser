@@ -2119,8 +2119,6 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("json_arrayagg", "JSON_ARRAYAGG"),
         ("json_object", "JSON_OBJECT"),
         ("json_objectagg", "JSON_OBJECTAGG"),
-        ("json_scalar", "JSON_SCALAR"),
-        ("json_serialize", "JSON_SERIALIZE"),
         ("key", "KEY"),
         ("keys", "KEYS"),
         ("label", "LABEL"),
