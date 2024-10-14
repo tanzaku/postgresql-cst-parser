@@ -14,5 +14,8 @@ prepare-original-source: clean
 	cp $(ROOT_DIR)tmp/libpg_query/tmp/postgres/src/include/parser/kwlist.h $(ROOT_DIR)crates/lexer-generator/resources
 	cp $(ROOT_DIR)tmp/libpg_query/tmp/postgres/src/backend/parser/gram.y $(ROOT_DIR)crates/parser-generator/resources
 
+make-patch:
+	git diff -- ./crates/lexer-generator/resources/scan.l > ./patches/patch_scan.patch
+
 clean:
 	-@ rm -rf ./tmp

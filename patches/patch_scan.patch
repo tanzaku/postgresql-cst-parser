@@ -1,5 +1,5 @@
 diff --git a/crates/lexer-generator/resources/scan.l b/crates/lexer-generator/resources/scan.l
-index a9b8f39..a0857db 100644
+index a9b8f39..40068ca 100644
 --- a/crates/lexer-generator/resources/scan.l
 +++ b/crates/lexer-generator/resources/scan.l
 @@ -296,8 +296,8 @@ xqinside		[^']+
@@ -124,7 +124,7 @@ index a9b8f39..a0857db 100644
  				}
  <xh><<EOF>>		{ yyerror("unterminated hexadecimal string literal"); }
  
-@@ -528,55 +532,66 @@ other			.
+@@ -528,55 +532,63 @@ other			.
  					 * We will pass this along as a normal character string,
  					 * but preceded with an internally-generated "NCHAR".
  					 */
@@ -146,15 +146,12 @@ index a9b8f39..a0857db 100644
 +					self.set_yylloc();
 +					self.yyless(1);	/* eat only 'n' this time */
 +
-+					// kwnumは文字列のキーワード位置のオフセット
 +					// kwnum = ScanKeywordLookup("nchar",
 +					// 						  yyextra->keywordlist);
 +					// if (kwnum >= 0)
 +					// {
-+					//  キーワードの文字列をセット
 +					// 	yylval->keyword = GetScanKeyword(kwnum,
 +					// 									 yyextra->keywordlist);
-+					//  キーワードのIDを返す。IDはbison grammarのtoken typeの数値で返す
 +					// 	return yyextra->keyword_tokens[kwnum];
 +					// }
 +					// else
@@ -231,7 +228,7 @@ index a9b8f39..a0857db 100644
  				}
  
  <xb,xh,xq,xe,xus>{quote} {
-@@ -588,8 +603,8 @@ other			.
+@@ -588,8 +600,8 @@ other			.
  					 * we use a single "xqs" state to do the lookahead for all
  					 * types of strings.
  					 */
@@ -242,7 +239,7 @@ index a9b8f39..a0857db 100644
  				}
  <xqs>{quotecontinue} {
  					/*
-@@ -597,7 +612,7 @@ other			.
+@@ -597,7 +609,7 @@ other			.
  					 * state and continue scanning the literal.  Nothing is
  					 * added to the literal's contents.
  					 */
@@ -251,7 +248,7 @@ index a9b8f39..a0857db 100644
  				}
  <xqs>{quotecontinuefail} |
  <xqs>{other} |
-@@ -607,174 +622,250 @@ other			.
+@@ -607,174 +619,247 @@ other			.
  					 * everything after the end quote, and handle the string
  					 * according to the state we were in previously.
  					 */
@@ -400,7 +397,6 @@ index a9b8f39..a0857db 100644
 +					// SET_YYLLOC();
 +					// self.set_yylloc();
 +
-+					// TODO
 +					// if is_utf16_surrogate_first(c) {
 +					// 	// yyextra->utf16_first_part = c;
 +					// 	self.utf16_first_part = c;
@@ -434,7 +430,6 @@ index a9b8f39..a0857db 100644
  
 -					if (!is_utf16_surrogate_second(c))
 -						yyerror("invalid Unicode surrogate pair");
-+					// TODO
 +					// if !is_utf16_surrogate_second(c) {
 +					// 	yyerror("invalid Unicode surrogate pair");
 +					// }
@@ -573,7 +568,6 @@ index a9b8f39..a0857db 100644
 +					self.yyless(1);
  					/* and treat it as {other} */
 -					return yytext[0];
-+					// これ何だろう
 +					return Some(TokenKind::RAW(self.yytext()));
  				}
  <xdolq>{dolqdelim} {
@@ -599,7 +593,7 @@ index a9b8f39..a0857db 100644
  					}
  					else
  					{
-@@ -783,120 +874,143 @@ other			.
+@@ -783,120 +868,143 @@ other			.
  						 * the $... part to the output, but put back the final
  						 * $ for rescanning.  Consider $delim$...$junk$delim$
  						 */
@@ -795,7 +789,7 @@ index a9b8f39..a0857db 100644
  				}
  
  {operator}		{
-@@ -906,20 +1020,38 @@ other			.
+@@ -906,20 +1014,38 @@ other			.
  					 * Note that slash-star or dash-dash at the first
  					 * character will match a prior rule, not this one.
  					 */
@@ -846,7 +840,7 @@ index a9b8f39..a0857db 100644
  
  					/*
  					 * For SQL compatibility, '+' and '-' cannot be the
-@@ -929,68 +1061,124 @@ other			.
+@@ -929,68 +1055,124 @@ other			.
  					 * to forbid operator names like '?-' that could not be
  					 * sequences of SQL operators.
  					 */
@@ -1015,7 +1009,7 @@ index a9b8f39..a0857db 100644
  						}
  					}
  
-@@ -1000,127 +1188,147 @@ other			.
+@@ -1000,127 +1182,147 @@ other			.
  					 * and-truncate, because the odds are we are looking at
  					 * a syntactic mistake anyway.
  					 */
