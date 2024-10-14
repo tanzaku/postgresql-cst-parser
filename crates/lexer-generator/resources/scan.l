@@ -296,8 +296,8 @@ xqinside		[^']+
  * {dolqfailed} is an error rule to avoid scanner backup when {dolqdelim}
  * fails to match its trailing "$".
  */
-dolq_start		[A-Za-z\x80-\xFF_]
-dolq_cont		[A-Za-z\x80-\xFF_0-9]
+dolq_start		[A-Za-z\200-\377_]
+dolq_cont		[A-Za-z\200-\377_0-9]
 dolqdelim		\$({dolq_start}{dolq_cont}*)?\$
 dolqfailed		\${dolq_start}{dolq_cont}*
 dolqinside		[^$]+
@@ -343,8 +343,8 @@ xcstart			\/\*{op_chars}*
 xcstop			\*+\/
 xcinside		[^*/]+
 
-ident_start		[A-Za-z\x80-\xFF_]
-ident_cont		[A-Za-z\x80-\xFF_0-9\$]
+ident_start		[A-Za-z\200-\377_]
+ident_cont		[A-Za-z\200-\377_0-9\$]
 
 identifier		{ident_start}{ident_cont}*
 
@@ -377,8 +377,8 @@ not_equals		"!="
  * If you change either set, adjust the character lists appearing in the
  * rule for "operator"!
  */
-self			[,()\[\].;\:\+\-\*\/\%\^<>\=]
-op_chars		[\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=]
+self			[,()\[\].;\:\+\-\*\/\%\^\<\>\=]
+op_chars		[\~\!\@\#\^\&\|\`\?\+\-\*\/\%\<\>\=]
 operator		{op_chars}+
 
 /*
@@ -443,36 +443,35 @@ other			.
 				}
 
 {comment}	{
-					self.set_yylloc();
-					return Some(TokenKind::SQL_COMMENT);
+					SET_YYLLOC();
+					return SQL_COMMENT;
 				}
 
 {xcstart}		{
 					/* Set location in case of syntax error in comment */
-					self.set_yylloc();
-					self.xcdepth = 0;
-					self.begin(State::xc);
+					SET_YYLLOC();
+					yyextra->xcdepth = 0;
+					BEGIN(xc);
 					/* Put back any characters past slash-star; see above */
-					self.yyless(2);
+					yyless(2);
 				}
 
 <xc>{
 {xcstart}		{
-					self.xcdepth += 1;
+					(yyextra->xcdepth)++;
 					/* Put back any characters past slash-star; see above */
-					self.yyless(2);
+					yyless(2);
 				}
 
 {xcstop}		{
-					if self.xcdepth <= 0
+					if (yyextra->xcdepth <= 0)
 					{
-						self.begin(State::INITIAL);
-						self.set_yyllocend();
-						return Some(TokenKind::C_COMMENT);
+						BEGIN(INITIAL);
+						yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+						return C_COMMENT;
 					}
-					else {
-						self.xcdepth -= 1;
-					}
+					else
+						(yyextra->xcdepth)--;
 				}
 
 {xcinside}		{
@@ -499,16 +498,14 @@ other			.
 					 * In the meantime, place a leading "b" on the string
 					 * to mark it for the input routine as a binary string.
 					 */
-					self.set_yylloc();
-					self.begin(State::xb);
-					self.literal.clear();
-					// self.literal += 'b';
-					self.addlitchar('b');
+					SET_YYLLOC();
+					BEGIN(xb);
+					startlit();
+					addlitchar('b', yyscanner);
 				}
 <xh>{xhinside}	|
 <xb>{xbinside}	{
-					// addlit(yytext, yyleng, yyscanner);
-					self.addlit(self.yyleng);
+					addlit(yytext, yyleng, yyscanner);
 				}
 <xb><<EOF>>		{ yyerror("unterminated bit string literal"); }
 
@@ -519,11 +516,10 @@ other			.
 					 * In the meantime, place a leading "x" on the string
 					 * to mark it for the input routine as a hex string.
 					 */
-					self.set_yylloc();
-					self.begin(State::xh);
-					self.literal.clear();
-					// self.literal += 'x';
-					self.addlitchar('x');
+					SET_YYLLOC();
+					BEGIN(xh);
+					startlit();
+					addlitchar('x', yyscanner);
 				}
 <xh><<EOF>>		{ yyerror("unterminated hexadecimal string literal"); }
 
@@ -532,66 +528,55 @@ other			.
 					 * We will pass this along as a normal character string,
 					 * but preceded with an internally-generated "NCHAR".
 					 */
-					self.set_yylloc();
-					self.yyless(1);	/* eat only 'n' this time */
+					int		kwnum;
 
-					// kwnumは文字列のキーワード位置のオフセット
-					// kwnum = ScanKeywordLookup("nchar",
-					// 						  yyextra->keywordlist);
-					// if (kwnum >= 0)
-					// {
-					//  キーワードの文字列をセット
-					// 	yylval->keyword = GetScanKeyword(kwnum,
-					// 									 yyextra->keywordlist);
-					//  キーワードのIDを返す。IDはbison grammarのtoken typeの数値で返す
-					// 	return yyextra->keyword_tokens[kwnum];
-					// }
-					// else
-					// {
-					// 	/* If NCHAR isn't a keyword, just return "n" */
-					// 	yylval->str = pstrdup("n");
-					// 	yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					// 	return IDENT;
-					// }
+					SET_YYLLOC();
+					yyless(1);	/* eat only 'n' this time */
 
-					if let Some((kw, kw_token)) = self.get_keyword("nchar") {
-						self.yylval = Yylval::Keyword(kw);
-						return Some(TokenKind::KEYWORD(kw_token));
-					} else {
+					kwnum = ScanKeywordLookup("nchar",
+											  yyextra->keywordlist);
+					if (kwnum >= 0)
+					{
+						yylval->keyword = GetScanKeyword(kwnum,
+														 yyextra->keywordlist);
+						return yyextra->keyword_tokens[kwnum];
+					}
+					else
+					{
 						/* If NCHAR isn't a keyword, just return "n" */
-						self.yylval = Yylval::Str("n".to_string());
-						self.set_yyllocend();
-						return Some(TokenKind::IDENT);
+						yylval->str = pstrdup("n");
+						yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+						return IDENT;
 					}
 				}
 
 {xqstart}		{
-					self.set_yylloc();
-					// if (yyextra->standard_conforming_strings)
-					if true {
-						self.begin(State::xq);
-					} else {
-						self.begin(State::xe);
-					}
-					self.literal.clear();
+					yyextra->warn_on_first_escape = true;
+					yyextra->saw_non_ascii = false;
+					SET_YYLLOC();
+					if (yyextra->standard_conforming_strings)
+						BEGIN(xq);
+					else
+						BEGIN(xe);
+					startlit();
 				}
 {xestart}		{
-					self.set_yylloc();
-					self.begin(State::xe);
-					self.literal.clear();
+					yyextra->warn_on_first_escape = false;
+					yyextra->saw_non_ascii = false;
+					SET_YYLLOC();
+					BEGIN(xe);
+					startlit();
 				}
 {xusstart}		{
-					self.set_yylloc();
-					// if (!yyextra->standard_conforming_strings)
-					if false {
-						// ereport(ERROR,
-						// 		(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-						// 		 errmsg("unsafe use of string constant with Unicode escapes"),
-						// 		 errdetail("String constants with Unicode escapes cannot be used when standard_conforming_strings is off."),
-						// 		 lexer_errposition()));
-					}
-					self.begin(State::xus);
-					self.literal.clear();
+					SET_YYLLOC();
+					if (!yyextra->standard_conforming_strings)
+						ereport(ERROR,
+								(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+								 errmsg("unsafe use of string constant with Unicode escapes"),
+								 errdetail("String constants with Unicode escapes cannot be used when standard_conforming_strings is off."),
+								 lexer_errposition()));
+					BEGIN(xus);
+					startlit();
 				}
 
 <xb,xh,xq,xe,xus>{quote} {
@@ -603,8 +588,8 @@ other			.
 					 * we use a single "xqs" state to do the lookahead for all
 					 * types of strings.
 					 */
-					self.state_before_str_stop = self.state;
-					self.begin(State::xqs);
+					yyextra->state_before_str_stop = YYSTATE;
+					BEGIN(xqs);
 				}
 <xqs>{quotecontinue} {
 					/*
@@ -612,7 +597,7 @@ other			.
 					 * state and continue scanning the literal.  Nothing is
 					 * added to the literal's contents.
 					 */
-					self.begin(self.state_before_str_stop);
+					BEGIN(yyextra->state_before_str_stop);
 				}
 <xqs>{quotecontinuefail} |
 <xqs>{other} |
@@ -622,250 +607,174 @@ other			.
 					 * everything after the end quote, and handle the string
 					 * according to the state we were in previously.
 					 */
-					self.yyless(0);
-					self.begin(State::INITIAL);
+					yyless(0);
+					BEGIN(INITIAL);
 
-					// switch (yyextra->state_before_str_stop)
-					// {
-					// 	case xb:
-					// 		yylval->str = litbufdup(yyscanner);
-					// 		yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					// 		return BCONST;
-					// 	case xh:
-					// 		yylval->str = litbufdup(yyscanner);
-					// 		yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					// 		return XCONST;
-					// 	case xq:
-					// 	case xe:
-					// 		/*
-					// 		 * Check that the data remains valid, if it might
-					// 		 * have been made invalid by unescaping any chars.
-					// 		 */
-					// 		if (yyextra->saw_non_ascii)
-					// 			pg_verifymbstr(yyextra->literalbuf,
-					// 						   yyextra->literallen,
-					// 						   false);
-					// 		yylval->str = litbufdup(yyscanner);
-					// 		yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					// 		return SCONST;
-					// 	case xus:
-					// 		yylval->str = litbufdup(yyscanner);
-					// 		yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					// 		return USCONST;
-					// 	default:
-					// 		yyerror("unhandled previous state in xqs");
-					// }
-
-					match self.state_before_str_stop {
-						State::xb => {
-							self.yylval = Yylval::Str(self.literal.clone());
-							self.set_yyllocend();
-							return Some(TokenKind::BCONST);
-						}
-						State::xh => {
-							self.yylval = Yylval::Str(self.literal.clone());
-							self.set_yyllocend();
-							return Some(TokenKind::XCONST);
-						}
-						State::xq | State::xe => {
+					switch (yyextra->state_before_str_stop)
+					{
+						case xb:
+							yylval->str = litbufdup(yyscanner);
+							yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+							return BCONST;
+						case xh:
+							yylval->str = litbufdup(yyscanner);
+							yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+							return XCONST;
+						case xq:
+						case xe:
 							/*
 							 * Check that the data remains valid, if it might
 							 * have been made invalid by unescaping any chars.
 							 */
-							// if (yyextra->saw_non_ascii)
-							// 	pg_verifymbstr(yyextra->literalbuf,
-							// 				   yyextra->literallen,
-							// 				   false);
-							self.yylval = Yylval::Str(self.literal.clone());
-							self.set_yyllocend();
-							return Some(TokenKind::SCONST);
-						}
-						State::xus => {
-							self.yylval = Yylval::Str(self.literal.clone());
-							self.set_yyllocend();
-							return Some(TokenKind::USCONST);
-						}
-						_ => yyerror("unhandled previous state in xqs"),
+							if (yyextra->saw_non_ascii)
+								pg_verifymbstr(yyextra->literalbuf,
+											   yyextra->literallen,
+											   false);
+							yylval->str = litbufdup(yyscanner);
+							yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+							return SCONST;
+						case xus:
+							yylval->str = litbufdup(yyscanner);
+							yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+							return USCONST;
+						default:
+							yyerror("unhandled previous state in xqs");
 					}
 				}
 
 <xq,xe,xus>{xqdouble} {
-					// self.literal += '\'';
-					self.addlitchar('\'');
+					addlitchar('\'', yyscanner);
 				}
 <xq,xus>{xqinside}  {
-					// addlit(yytext, yyleng, yyscanner);
-					// self.literal += self.input[self.index_bytes..self.index_bytes + self.yyleng];
-					self.addlit(self.yyleng);
+					addlit(yytext, yyleng, yyscanner);
 				}
 <xe>{xeinside}  {
-					// addlit(yytext, yyleng, yyscanner);
-					// self.literal += self.input[self.index_bytes..self.index_bytes + self.yyleng];
-					self.addlit(self.yyleng);
+					addlit(yytext, yyleng, yyscanner);
 				}
 <xe>{xeunicode} {
-					// pg_wchar	c = strtoul(yytext + 2, NULL, 16);
-					// let c = u32::from_str_radix(&self.input[self.index_bytes+2..self.index_bytes + self.yyleng], 16).unwrap();
-					// let c = char::from_u32(c).unwrap();
+					pg_wchar	c = strtoul(yytext + 2, NULL, 16);
 
 					/*
 					 * For consistency with other productions, issue any
 					 * escape warning with cursor pointing to start of string.
 					 * We might want to change that, someday.
 					 */
-					// check_escape_warning(yyscanner);
+					check_escape_warning(yyscanner);
 
 					/* Remember start of overall string token ... */
-					// PUSH_YYLLOC();
-					// self.push_yylloc();
+					PUSH_YYLLOC();
 					/* ... and set the error cursor to point at this esc seq */
-					// SET_YYLLOC();
-					// self.set_yylloc();
+					SET_YYLLOC();
 
-					// TODO
-					// if is_utf16_surrogate_first(c) {
-					// 	// yyextra->utf16_first_part = c;
-					// 	self.utf16_first_part = c;
-					// 	self.begin(State::xeu);
-					// } else if (is_utf16_surrogate_second(c)) {
-					// 	yyerror("invalid Unicode surrogate pair");
-					// } else {
-					// 	// addunicode(c, yyscanner);
-					// 	self.addunicode(c);
-					// }
-					panic!();
+					if (is_utf16_surrogate_first(c))
+					{
+						yyextra->utf16_first_part = c;
+						BEGIN(xeu);
+					}
+					else if (is_utf16_surrogate_second(c))
+						yyerror("invalid Unicode surrogate pair");
+					else
+						addunicode(c, yyscanner);
 
 					/* Restore yylloc to be start of string token */
-					// POP_YYLLOC();
-					// self.pop_yylloc();
+					POP_YYLLOC();
 				}
 <xeu>{xeunicode} {
-					// pg_wchar	c = strtoul(yytext + 2, NULL, 16);
-					// let c = u32::from_str_radix(&self.input[self.index_bytes+2..self.index_bytes + self.yyleng], 16).unwrap();
-					// let c = char::from_u32(c).unwrap();
+					pg_wchar	c = strtoul(yytext + 2, NULL, 16);
 
 					/* Remember start of overall string token ... */
-					// PUSH_YYLLOC();
-					// self.push_yylloc();
+					PUSH_YYLLOC();
 					/* ... and set the error cursor to point at this esc seq */
-					// self.set_yylloc();
+					SET_YYLLOC();
 
-					// TODO
-					// if !is_utf16_surrogate_second(c) {
-					// 	yyerror("invalid Unicode surrogate pair");
-					// }
+					if (!is_utf16_surrogate_second(c))
+						yyerror("invalid Unicode surrogate pair");
 
-					// // c = surrogate_pair_to_codepoint(yyextra->utf16_first_part, c);
-					// let c = surrogate_pair_to_codepoint(self.utf16_first_part, c);
+					c = surrogate_pair_to_codepoint(yyextra->utf16_first_part, c);
 
-					// // addunicode(c, yyscanner);
-					// self.addunicode(c);
-					panic!();
+					addunicode(c, yyscanner);
 
 					/* Restore yylloc to be start of string token */
-					// POP_YYLLOC();
-					// self.pop_yylloc();
+					POP_YYLLOC();
 
-					// self.begin(State::xe);
+					BEGIN(xe);
 				}
 <xeu>. |
 <xeu>\n |
 <xeu><<EOF>>	{
 					/* Set the error cursor to point at missing esc seq */
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("invalid Unicode surrogate pair");
 				}
 <xe,xeu>{xeunicodefail}	{
 					/* Set the error cursor to point at malformed esc seq */
-					self.set_yylloc();
-
-					// ereport(ERROR,
-					// 		(errcode(ERRCODE_INVALID_ESCAPE_SEQUENCE),
-					// 		 errmsg("invalid Unicode escape"),
-					// 		 errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
-					// 		 lexer_errposition()));
-					panic!();
+					SET_YYLLOC();
+					ereport(ERROR,
+							(errcode(ERRCODE_INVALID_ESCAPE_SEQUENCE),
+							 errmsg("invalid Unicode escape"),
+							 errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
+							 lexer_errposition()));
 				}
 <xe>{xeescape}  {
-					/*
 					if (yytext[1] == '\'')
 					{
-						if (self.backslash_quote == BACKSLASH_QUOTE_OFF ||
-							(self.backslash_quote == BACKSLASH_QUOTE_SAFE_ENCODING &&
+						if (yyextra->backslash_quote == BACKSLASH_QUOTE_OFF ||
+							(yyextra->backslash_quote == BACKSLASH_QUOTE_SAFE_ENCODING &&
 							 PG_ENCODING_IS_CLIENT_ONLY(pg_get_client_encoding())))
-							// ereport(ERROR,
-							// 		(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
-							// 		 errmsg("unsafe use of \\' in a string literal"),
-							// 		 errhint("Use '' to write quotes in strings. \\' is insecure in client-only encodings."),
-							// 		 lexer_errposition()));
+							ereport(ERROR,
+									(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
+									 errmsg("unsafe use of \\' in a string literal"),
+									 errhint("Use '' to write quotes in strings. \\' is insecure in client-only encodings."),
+									 lexer_errposition()));
 					}
 					check_string_escape_warning(yytext[1], yyscanner);
-					*/
-					// addlitchar(unescape_single_char(yytext[1], yyscanner),
-					// 		   yyscanner);
-					// let c = unescape_single_char(self.input[self.index_bytes + 1]);
-					// self.addlitchar(unescape_single_char(c));
-					// TODO
-					panic!();
+					addlitchar(unescape_single_char(yytext[1], yyscanner),
+							   yyscanner);
 				}
 <xe>{xeoctesc}  {
-					// unsigned char c = strtoul(yytext + 1, NULL, 8);
-					let c = u32::from_str_radix(&self.input[self.index_bytes+1..self.index_bytes + self.yyleng], 8).unwrap();
-					let c = char::from_u32(c).unwrap();
+					unsigned char c = strtoul(yytext + 1, NULL, 8);
 
-					// check_escape_warning(yyscanner);
-					// addlitchar(c, yyscanner);
-					self.addlitchar(c);
-					// if (c == '\0' || IS_HIGHBIT_SET(c))
-					// 	yyextra->saw_non_ascii = true;
+					check_escape_warning(yyscanner);
+					addlitchar(c, yyscanner);
+					if (c == '\0' || IS_HIGHBIT_SET(c))
+						yyextra->saw_non_ascii = true;
 				}
 <xe>{xehexesc}  {
-					// unsigned char c = strtoul(yytext + 2, NULL, 16);
-					let c = u32::from_str_radix(&self.input[self.index_bytes+1..self.index_bytes + self.yyleng], 16).unwrap();
-					let c = char::from_u32(c).unwrap();
+					unsigned char c = strtoul(yytext + 2, NULL, 16);
 
-					// check_escape_warning(yyscanner);
-					// addlitchar(c, yyscanner);
-					self.addlitchar(c);
-					// if (c == '\0' || IS_HIGHBIT_SET(c))
-					// 	yyextra->saw_non_ascii = true;
+					check_escape_warning(yyscanner);
+					addlitchar(c, yyscanner);
+					if (c == '\0' || IS_HIGHBIT_SET(c))
+						yyextra->saw_non_ascii = true;
 				}
 <xe>.			{
 					/* This is only needed for \ just before EOF */
-					// addlitchar(yytext[0], yyscanner);
-					let c = self.input[self.index_bytes..].chars().next().unwrap();
-					self.addlitchar(c);
-
+					addlitchar(yytext[0], yyscanner);
 				}
 <xq,xe,xus><<EOF>>		{ yyerror("unterminated quoted string"); }
 
 {dolqdelim}		{
-					self.set_yylloc();
-					self.dolqstart = self.yytext();
-					// yyextra->dolqstart = pstrdup(yytext);
-					self.begin(State::xdolq);
-					self.literal.clear();
+					SET_YYLLOC();
+					yyextra->dolqstart = pstrdup(yytext);
+					BEGIN(xdolq);
+					startlit();
 				}
 {dolqfailed}	{
-					self.set_yylloc();
+					SET_YYLLOC();
 					/* throw back all but the initial "$" */
-					self.yyless(1);
+					yyless(1);
 					/* and treat it as {other} */
-					// これ何だろう
-					return Some(TokenKind::RAW(self.yytext()));
+					return yytext[0];
 				}
 <xdolq>{dolqdelim} {
-					// if (strcmp(yytext, yyextra->dolqstart) == 0)
-					if self.yytext() == self.dolqstart {
-						// pfree(yyextra->dolqstart);
-						// yyextra->dolqstart = NULL;
-						self.dolqstart = "".to_string();
-						self.begin(State::INITIAL);
-						// yylval->str = litbufdup(yyscanner);
-						self.yylval = Yylval::Str(self.literal.clone());
-						// yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-						self.set_yyllocend();
-						return Some(TokenKind::SCONST);
+					if (strcmp(yytext, yyextra->dolqstart) == 0)
+					{
+						pfree(yyextra->dolqstart);
+						yyextra->dolqstart = NULL;
+						BEGIN(INITIAL);
+						yylval->str = litbufdup(yyscanner);
+						yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+						return SCONST;
 					}
 					else
 					{
@@ -874,143 +783,120 @@ other			.
 						 * the $... part to the output, but put back the final
 						 * $ for rescanning.  Consider $delim$...$junk$delim$
 						 */
-						// addlit(yytext, yyleng - 1, yyscanner);
-						self.addlit(self.yyleng - 1);
-						self.yyless(self.yyleng - 1);
+						addlit(yytext, yyleng - 1, yyscanner);
+						yyless(yyleng - 1);
 					}
 				}
 <xdolq>{dolqinside} {
-					// addlit(yytext, yyleng, yyscanner);
-					self.addlit(self.yyleng);
+					addlit(yytext, yyleng, yyscanner);
 				}
 <xdolq>{dolqfailed} {
-					// addlit(yytext, yyleng, yyscanner);
-					self.addlit(self.yyleng);
+					addlit(yytext, yyleng, yyscanner);
 				}
 <xdolq>.		{
 					/* This is only needed for $ inside the quoted text */
-					// addlitchar(yytext[0], yyscanner);
-					let c = self.yytext().chars().next().unwrap();
-					self.addlitchar(c);
+					addlitchar(yytext[0], yyscanner);
 				}
 <xdolq><<EOF>>	{ yyerror("unterminated dollar-quoted string"); }
 
 {xdstart}		{
-					self.set_yylloc();
-					self.begin(State::xd);
-					self.literal.clear();
+					SET_YYLLOC();
+					BEGIN(xd);
+					startlit();
 				}
 {xuistart}		{
-					self.set_yylloc();
-					self.begin(State::xui);
-					self.literal.clear();
+					SET_YYLLOC();
+					BEGIN(xui);
+					startlit();
 				}
 <xd>{xdstop}	{
-					// char	   *ident;
+					char	   *ident;
 
-					self.begin(State::INITIAL);
-					// if (yyextra->literallen == 0)
-					if self.literal.len() == 0 {
+					BEGIN(INITIAL);
+					if (yyextra->literallen == 0)
 						yyerror("zero-length delimited identifier");
-					}
-					// ident = litbufdup(yyscanner);
-					let ident = self.literal.clone();
-					// if (yyextra->literallen >= NAMEDATALEN)
-					if self.literal.len() >= NAMEDATALEN {
-						// truncate_identifier(ident, yyextra->literallen, true);
-						// truncate_identifier(&mut ident, self.literal.len(), true);
-						panic!();
-					}
-					// yylval->str = ident;
-					self.yylval = Yylval::Str(ident);
-					// yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					self.set_yyllocend();
-					return Some(TokenKind::IDENT);
+					ident = litbufdup(yyscanner);
+					if (yyextra->literallen >= NAMEDATALEN)
+						truncate_identifier(ident, yyextra->literallen, true);
+					yylval->str = ident;
+					yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+					return IDENT;
 				}
 <xui>{dquote}	{
-					self.begin(State::INITIAL);
-					if self.literal.len() == 0 {
+					BEGIN(INITIAL);
+					if (yyextra->literallen == 0)
 						yyerror("zero-length delimited identifier");
-					}
 					/* can't truncate till after we de-escape the ident */
-					// yylval->str = litbufdup(yyscanner);
-					self.yylval = Yylval::Str(self.yytext());
-					// yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					self.set_yyllocend();
-					return Some(TokenKind::UIDENT);
+					yylval->str = litbufdup(yyscanner);
+					yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+					return UIDENT;
 				}
 <xd,xui>{xddouble}	{
-					// addlitchar('"', yyscanner);
-					self.addlitchar('"');
+					addlitchar('"', yyscanner);
 				}
 <xd,xui>{xdinside}	{
-					// addlit(yytext, yyleng, yyscanner);
-					self.addlit(self.yyleng);
+					addlit(yytext, yyleng, yyscanner);
 				}
 <xd,xui><<EOF>>		{ yyerror("unterminated quoted identifier"); }
 
 {xufailed}	{
-					// char	   *ident;
+					char	   *ident;
 
-					self.set_yylloc();
+					SET_YYLLOC();
 					/* throw back all but the initial u/U */
-					self.yyless(1);
+					yyless(1);
 					/* and treat it as {identifier} */
-					// ident = downcase_truncate_identifier(yytext, yyleng, true);
-					// let ident = self.downcase_truncate_identifier(self.yyleng, true);
-					// // yylval->str = ident;
-					// self.yylval = Yylval::Str(ident);
-					// // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					// self.set_yyllocend();
-					// return Some(TokenKind::IDENT);
-					panic!();
+					ident = downcase_truncate_identifier(yytext, yyleng, true);
+					yylval->str = ident;
+					yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+					return IDENT;
 				}
 
 {typecast}		{
-					self.set_yylloc();
-					return Some(TokenKind::TYPECAST);
+					SET_YYLLOC();
+					return TYPECAST;
 				}
 
 {dot_dot}		{
-					self.set_yylloc();
-					return Some(TokenKind::DOT_DOT);
+					SET_YYLLOC();
+					return DOT_DOT;
 				}
 
 {colon_equals}	{
-					self.set_yylloc();
-					return Some(TokenKind::COLON_EQUALS);
+					SET_YYLLOC();
+					return COLON_EQUALS;
 				}
 
 {equals_greater} {
-					self.set_yylloc();
-					return Some(TokenKind::EQUALS_GREATER);
+					SET_YYLLOC();
+					return EQUALS_GREATER;
 				}
 
 {less_equals}	{
-					self.set_yylloc();
-					return Some(TokenKind::LESS_EQUALS);
+					SET_YYLLOC();
+					return LESS_EQUALS;
 				}
 
 {greater_equals} {
-					self.set_yylloc();
-					return Some(TokenKind::GREATER_EQUALS);
+					SET_YYLLOC();
+					return GREATER_EQUALS;
 				}
 
 {less_greater}	{
 					/* We accept both "<>" and "!=" as meaning NOT_EQUALS */
-					self.set_yylloc();
-					return Some(TokenKind::NOT_EQUALS);
+					SET_YYLLOC();
+					return NOT_EQUALS;
 				}
 
 {not_equals}	{
 					/* We accept both "<>" and "!=" as meaning NOT_EQUALS */
-					self.set_yylloc();
-					return Some(TokenKind::NOT_EQUALS);
+					SET_YYLLOC();
+					return NOT_EQUALS;
 				}
 
 {self}			{
-					self.set_yylloc();
-					return Some(TokenKind::RAW(self.yytext()[0..1].to_string()));
+					SET_YYLLOC();
+					return yytext[0];
 				}
 
 {operator}		{
@@ -1020,38 +906,20 @@ other			.
 					 * Note that slash-star or dash-dash at the first
 					 * character will match a prior rule, not this one.
 					 */
-					// int			nchars = yyleng;
-					let mut nchars = self.yyleng;
-					// char	   *slashstar = strstr(yytext, "/*");
-					// char	   *dashdash = strstr(yytext, "--");
-					let yytext = self.yytext();
-					let mut slashstar = yytext.find("/*");
-					let dashdash = yytext.find("--");
+					int			nchars = yyleng;
+					char	   *slashstar = strstr(yytext, "/*");
+					char	   *dashdash = strstr(yytext, "--");
 
-					// if (slashstar && dashdash)
-					// {
-					// 	/* if both appear, take the first one */
-					// 	if (slashstar > dashdash)
-					// 		slashstar = dashdash;
-					// }
-					// else if (!slashstar)
-					// 	slashstar = dashdash;
-					// if (slashstar)
-					// 	nchars = slashstar - yytext;
-
-					let dashdash_first = match (&slashstar, &dashdash) {
-						(Some(slashstar_index), Some(dashdash_index)) if slashstar_index > dashdash_index => true,
-						(None, Some(_)) => true,
-						_ => false,
-					};
-
-					if dashdash_first {
+					if (slashstar && dashdash)
+					{
+						/* if both appear, take the first one */
+						if (slashstar > dashdash)
+							slashstar = dashdash;
+					}
+					else if (!slashstar)
 						slashstar = dashdash;
-					}
-
-					if let Some(i) = slashstar {
-						nchars = i;
-					}
+					if (slashstar)
+						nchars = slashstar - yytext;
 
 					/*
 					 * For SQL compatibility, '+' and '-' cannot be the
@@ -1061,124 +929,68 @@ other			.
 					 * to forbid operator names like '?-' that could not be
 					 * sequences of SQL operators.
 					 */
-					// 	if (nchars > 1 &&
-					// 		(yytext[nchars - 1] == '+' ||
-					// 		 yytext[nchars - 1] == '-'))
-					// 	{
-					// 		int			ic;
-					// 	
-					// 		for (ic = nchars - 2; ic >= 0; ic--)
-					// 		{
-					// 			char c = yytext[ic];
-					// 			if (c == '~' || c == '!' || c == '@' ||
-					// 				c == '#' || c == '^' || c == '&' ||
-					// 				c == '|' || c == '`' || c == '?' ||
-					// 				c == '%')
-					// 				break;
-					// 		}
-					// 		if (ic < 0)
-					// 		{
-					// 			/*
-					// 			 * didn't find a qualifying character, so remove
-					// 			 * all trailing [+-]
-					// 			 */
-					// 			do {
-					// 				nchars--;
-					// 			} while (nchars > 1 &&
-					// 				 (yytext[nchars - 1] == '+' ||
-					// 				  yytext[nchars - 1] == '-'));
-					// 		}
-					// 	}
-
-					if nchars > 1 &&
-							(get_char_by_byte_pos(&yytext, nchars - 1) == '+' ||
-							 get_char_by_byte_pos(&yytext, nchars - 1) == '-')
+					if (nchars > 1 &&
+						(yytext[nchars - 1] == '+' ||
+						 yytext[nchars - 1] == '-'))
 					{
-						let b = (0..nchars-1).any(|ic| matches!(get_char_by_byte_pos(&yytext, ic), '~' | '!' | '@' |  '#' | '^' | '&' | '|' | '`' | '?' | '%'));
-						if !b
-						{
-							loop {
-								nchars -= 1;
+						int			ic;
 
-								if nchars > 1 &&
-									(get_char_by_byte_pos(&yytext, nchars - 1) == '+' ||
-									get_char_by_byte_pos(&yytext, nchars - 1) == '-') {
-									break;
-								}
-							}
+						for (ic = nchars - 2; ic >= 0; ic--)
+						{
+							char c = yytext[ic];
+							if (c == '~' || c == '!' || c == '@' ||
+								c == '#' || c == '^' || c == '&' ||
+								c == '|' || c == '`' || c == '?' ||
+								c == '%')
+								break;
+						}
+						if (ic < 0)
+						{
+							/*
+							 * didn't find a qualifying character, so remove
+							 * all trailing [+-]
+							 */
+							do {
+								nchars--;
+							} while (nchars > 1 &&
+								 (yytext[nchars - 1] == '+' ||
+								  yytext[nchars - 1] == '-'));
 						}
 					}
 
-					self.set_yylloc();
+					SET_YYLLOC();
 
-					// if (nchars < yyleng)
-					// {
-					// 	/* Strip the unwanted chars from the token */
-					// 	yyless(nchars);
-					// 	/*
-					// 	 * If what we have left is only one char, and it's
-					// 	 * one of the characters matching "self", then
-					// 	 * return it as a character token the same way
-					// 	 * that the "self" rule would have.
-					// 	 */
-					// 	if (nchars == 1 &&
-					// 		strchr(",()[].;:+-*/%^<>=", yytext[0]))
-					// 		return yytext[0];
-					// 	/*
-					// 	 * Likewise, if what we have left is two chars, and
-					// 	 * those match the tokens ">=", "<=", "=>", "<>" or
-					// 	 * "!=", then we must return the appropriate token
-					// 	 * rather than the generic Op.
-					// 	 */
-					// 	if (nchars == 2)
-					// 	{
-					// 		if (yytext[0] == '=' && yytext[1] == '>')
-					// 			return EQUALS_GREATER;
-					// 		if (yytext[0] == '>' && yytext[1] == '=')
-					// 			return GREATER_EQUALS;
-					// 		if (yytext[0] == '<' && yytext[1] == '=')
-					// 			return LESS_EQUALS;
-					// 		if (yytext[0] == '<' && yytext[1] == '>')
-					// 			return NOT_EQUALS;
-					// 		if (yytext[0] == '!' && yytext[1] == '=')
-					// 			return NOT_EQUALS;
-					// 	}
-					// }
-
-					if nchars < self.yyleng {
+					if (nchars < yyleng)
+					{
 						/* Strip the unwanted chars from the token */
-						self.yyless(nchars);
+						yyless(nchars);
 						/*
 						 * If what we have left is only one char, and it's
 						 * one of the characters matching "self", then
 						 * return it as a character token the same way
 						 * that the "self" rule would have.
 						 */
-						if nchars == 1 && ",()[].;:+-*/%^<>=".find(get_char_by_byte_pos(&yytext, 0)).is_some() {
-							return Some(TokenKind::RAW(yytext[0..1].to_string()));
-						}
+						if (nchars == 1 &&
+							strchr(",()[].;:+-*/%^<>=", yytext[0]))
+							return yytext[0];
 						/*
 						 * Likewise, if what we have left is two chars, and
 						 * those match the tokens ">=", "<=", "=>", "<>" or
 						 * "!=", then we must return the appropriate token
 						 * rather than the generic Op.
 						 */
-						if nchars == 2 {
-							if &yytext[0..2] == "=>" {
-								return Some(TokenKind::EQUALS_GREATER);
-							}
-							if &yytext[0..2] == ">=" {
-								return Some(TokenKind::GREATER_EQUALS);
-							}
-							if &yytext[0..2] == "<=" {
-								return Some(TokenKind::LESS_EQUALS);
-							}
-							if &yytext[0..2] == "<>" {
-								return Some(TokenKind::NOT_EQUALS);
-							}
-							if &yytext[0..2] == "!=" {
-								return Some(TokenKind::NOT_EQUALS);
-							}
+						if (nchars == 2)
+						{
+							if (yytext[0] == '=' && yytext[1] == '>')
+								return EQUALS_GREATER;
+							if (yytext[0] == '>' && yytext[1] == '=')
+								return GREATER_EQUALS;
+							if (yytext[0] == '<' && yytext[1] == '=')
+								return LESS_EQUALS;
+							if (yytext[0] == '<' && yytext[1] == '>')
+								return NOT_EQUALS;
+							if (yytext[0] == '!' && yytext[1] == '=')
+								return NOT_EQUALS;
 						}
 					}
 
@@ -1188,147 +1000,127 @@ other			.
 					 * and-truncate, because the odds are we are looking at
 					 * a syntactic mistake anyway.
 					 */
-					if nchars >= NAMEDATALEN {
+					if (nchars >= NAMEDATALEN)
 						yyerror("operator too long");
-					}
 
-					// yylval->str = pstrdup(yytext);
-					// return Op;
-					self.yylval = Yylval::Str(yytext);
-					return Some(TokenKind::Op);
+					yylval->str = pstrdup(yytext);
+					return Op;
 				}
 
 {param}			{
-					self.set_yylloc();
-					self.yylval = Yylval::I(i32::from_str_radix(&self.yytext()[1..], 10).unwrap());
-					return Some(TokenKind::PARAM);
+					SET_YYLLOC();
+					yylval->ival = atol(yytext + 1);
+					return PARAM;
 				}
 
 {decinteger}	{
-					self.set_yylloc();
-					// return self.process_integer_literal(yytext, yylval, 10);
-					return self.process_integer_literal(10);
+					SET_YYLLOC();
+					return process_integer_literal(yytext, yylval, 10);
 				}
 {hexinteger}	{
-					self.set_yylloc();
-					// return self.process_integer_literal(yytext, yylval, 16);
-					return self.process_integer_literal(16);
+					SET_YYLLOC();
+					return process_integer_literal(yytext, yylval, 16);
 				}
 {octinteger}	{
-					self.set_yylloc();
-					// return process_integer_literal(yytext, yylval, 8);
-					return self.process_integer_literal(8);
+					SET_YYLLOC();
+					return process_integer_literal(yytext, yylval, 8);
 				}
 {bininteger}	{
-					self.set_yylloc();
-					// return process_integer_literal(yytext, yylval, 2);
-					return self.process_integer_literal(2);
+					SET_YYLLOC();
+					return process_integer_literal(yytext, yylval, 2);
 				}
 {hexfail}		{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("invalid hexadecimal integer");
 				}
 {octfail}		{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("invalid octal integer");
 				}
 {binfail}		{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("invalid binary integer");
 				}
 {numeric}		{
-					self.set_yylloc();
-					// yylval->str = pstrdup(yytext);
-					self.yylval = Yylval::Str(self.yytext());
-					return Some(TokenKind::FCONST);
+					SET_YYLLOC();
+					yylval->str = pstrdup(yytext);
+					return FCONST;
 				}
 {numericfail}	{
 					/* throw back the .., and treat as integer */
-					// yyless(yyleng - 2);
-					self.yyless(self.yyleng - 2);
-					self.set_yylloc();
-					// return process_integer_literal(yytext, yylval, 10);
-					return self.process_integer_literal(10);
+					yyless(yyleng - 2);
+					SET_YYLLOC();
+					return process_integer_literal(yytext, yylval, 10);
 				}
 {real}			{
-					self.set_yylloc();
-					// yylval->str = pstrdup(yytext);
-					self.yylval = Yylval::Str(self.yytext());
-					return Some(TokenKind::FCONST);
+					SET_YYLLOC();
+					yylval->str = pstrdup(yytext);
+					return FCONST;
 				}
 {realfail}		{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("trailing junk after numeric literal");
 				}
 {decinteger_junk}	{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("trailing junk after numeric literal");
 				}
 {hexinteger_junk}	{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("trailing junk after numeric literal");
 				}
 {octinteger_junk}	{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("trailing junk after numeric literal");
 				}
 {bininteger_junk}	{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("trailing junk after numeric literal");
 				}
 {numeric_junk}	{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("trailing junk after numeric literal");
 				}
 {real_junk}		{
-					self.set_yylloc();
+					SET_YYLLOC();
 					yyerror("trailing junk after numeric literal");
 				}
 
 
 {identifier}	{
-					// int			kwnum;
-					// char	   *ident;
+					int			kwnum;
+					char	   *ident;
 
-					self.set_yylloc();
+					SET_YYLLOC();
 
 					/* Is it a keyword? */
-					// kwnum = ScanKeywordLookup(yytext,
-					// 						  yyextra->keywordlist);
-					// if (kwnum >= 0)
-					// {
-						// yylval->keyword = GetScanKeyword(kwnum,
-						// 								 yyextra->keywordlist);
-						// return yyextra->keyword_tokens[kwnum];
-					// }
-
-					let yytext = self.yytext();
-					if let Some((kw, kw_token)) = self.get_keyword(&yytext) {
-						self.yylval = Yylval::Keyword(kw);
-						return Some(TokenKind::KEYWORD(kw_token));
+					kwnum = ScanKeywordLookup(yytext,
+											  yyextra->keywordlist);
+					if (kwnum >= 0)
+					{
+						yylval->keyword = GetScanKeyword(kwnum,
+														 yyextra->keywordlist);
+						return yyextra->keyword_tokens[kwnum];
 					}
 
 					/*
 					 * No.  Convert the identifier to lower case, and truncate
 					 * if necessary.
 					 */
-					// ident = downcase_truncate_identifier(yytext, yyleng, true);
-					// yylval->str = ident;
-					// yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-					let ident = self.downcase_truncate_identifier(self.yyleng, true);
-					self.yylval = Yylval::Str(ident);
-					self.set_yyllocend();
-					return Some(TokenKind::IDENT);
+					ident = downcase_truncate_identifier(yytext, yyleng, true);
+					yylval->str = ident;
+					yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+					return IDENT;
 				}
 
 {other}			{
-					self.set_yylloc();
-					return Some(TokenKind::RAW(yytext[0..1].to_string()));
+					SET_YYLLOC();
+					return yytext[0];
 				}
 
 <<EOF>>			{
-					self.set_yylloc();
-					yyterminate!();
+					SET_YYLLOC();
+					yyterminate();
 				}
 
 %%
