@@ -1,5 +1,7 @@
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
+.PHONY clean prepare-source prepare-original-source make-patch
+
 prepare-source: prepare-original-source
 	patch -p1 < $(ROOT_DIR)/patches/patch_scan.patch
 
