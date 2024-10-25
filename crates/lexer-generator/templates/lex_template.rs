@@ -3,7 +3,6 @@
 
 use std::collections::HashMap;
 
-// use regex::{Match, Regex};
 use regex::bytes::Regex;
 
 use super::{
