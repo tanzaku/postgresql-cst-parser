@@ -129,7 +129,7 @@ fn construct_rule_defs(flex_file: &FlexFile) -> String {
                 // {original_pattern}
                 Rule {{
                     state: State::{s},
-                    pattern: Regex::new(r#"^({pattern})"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^({pattern})"#).unwrap(),
                     kind: RuleKind::{rule_kind},
                 }}"###,
                 original_pattern = rule.pattern,

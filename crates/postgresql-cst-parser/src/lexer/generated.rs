@@ -1229,679 +1229,679 @@ pub fn get_rules() -> Vec<Rule> {
                 // {whitespace}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((([ \t\n\r\f])+)))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((([ \t\n\r\f])+)))"#).unwrap(),
                     kind: RuleKind::INITIAL1,
                 },
 
                 // {comment}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((--([^\n\r])*)))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((--([^\n\r])*)))"#).unwrap(),
                     kind: RuleKind::INITIAL2,
                 },
 
                 // {xcstart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((\/\*([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])*))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\/\*([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])*))"#).unwrap(),
                     kind: RuleKind::INITIAL3,
                 },
 
                 // {xcstart}
                 Rule {
                     state: State::xc,
-                    pattern: Regex::new(r#"^((\/\*([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])*))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\/\*([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])*))"#).unwrap(),
                     kind: RuleKind::xc1,
                 },
 
                 // {xcstop}
                 Rule {
                     state: State::xc,
-                    pattern: Regex::new(r#"^((\*+\/))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\*+\/))"#).unwrap(),
                     kind: RuleKind::xc2,
                 },
 
                 // {xcinside}
                 Rule {
                     state: State::xc,
-                    pattern: Regex::new(r#"^(([^*/]+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^*/]+))"#).unwrap(),
                     kind: RuleKind::xc3,
                 },
 
                 // {op_chars}
                 Rule {
                     state: State::xc,
-                    pattern: Regex::new(r#"^(([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=]))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=]))"#).unwrap(),
                     kind: RuleKind::xc4,
                 },
 
                 // \*+
                 Rule {
                     state: State::xc,
-                    pattern: Regex::new(r#"^(\*+)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(\*+)"#).unwrap(),
                     kind: RuleKind::xc5,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xc,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xc6,
                 },
 
                 // {xbstart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(([bB](')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([bB](')))"#).unwrap(),
                     kind: RuleKind::INITIAL4,
                 },
 
                 // {xhinside}
                 Rule {
                     state: State::xh,
-                    pattern: Regex::new(r#"^(([^']*))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^']*))"#).unwrap(),
                     kind: RuleKind::xh1,
                 },
 
                 // {xbinside}
                 Rule {
                     state: State::xb,
-                    pattern: Regex::new(r#"^(([^']*))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^']*))"#).unwrap(),
                     kind: RuleKind::xb1,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xb,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xb2,
                 },
 
                 // {xhstart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(([xX](')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([xX](')))"#).unwrap(),
                     kind: RuleKind::INITIAL5,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xh,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xh2,
                 },
 
                 // {xnstart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(([nN](')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([nN](')))"#).unwrap(),
                     kind: RuleKind::INITIAL6,
                 },
 
                 // {xqstart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((')))"#).unwrap(),
                     kind: RuleKind::INITIAL7,
                 },
 
                 // {xestart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(([eE](')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([eE](')))"#).unwrap(),
                     kind: RuleKind::INITIAL8,
                 },
 
                 // {xusstart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(([uU]&(')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([uU]&(')))"#).unwrap(),
                     kind: RuleKind::INITIAL9,
                 },
 
                 // {quote}
                 Rule {
                     state: State::xb,
-                    pattern: Regex::new(r#"^(('))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xb3,
                 },
 
                 // {quote}
                 Rule {
                     state: State::xh,
-                    pattern: Regex::new(r#"^(('))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xh3,
                 },
 
                 // {quote}
                 Rule {
                     state: State::xq,
-                    pattern: Regex::new(r#"^(('))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xq1,
                 },
 
                 // {quote}
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(('))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xe1,
                 },
 
                 // {quote}
                 Rule {
                     state: State::xus,
-                    pattern: Regex::new(r#"^(('))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xus1,
                 },
 
                 // {quotecontinue}
                 Rule {
                     state: State::xqs,
-                    pattern: Regex::new(r#"^((((((([ \t\f])))*([\n\r])((([ \t\n\r\f])+))*))(')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((((((([ \t\f])))*([\n\r])((([ \t\n\r\f])+))*))(')))"#).unwrap(),
                     kind: RuleKind::xqs1,
                 },
 
                 // {quotecontinuefail}
                 Rule {
                     state: State::xqs,
-                    pattern: Regex::new(r#"^((((([ \t\n\r\f])+))*-?))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((((([ \t\n\r\f])+))*-?))"#).unwrap(),
                     kind: RuleKind::xqs2,
                 },
 
                 // {other}
                 Rule {
                     state: State::xqs,
-                    pattern: Regex::new(r#"^((.))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((.))"#).unwrap(),
                     kind: RuleKind::xqs3,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xqs,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xqs4,
                 },
 
                 // {xqdouble}
                 Rule {
                     state: State::xq,
-                    pattern: Regex::new(r#"^(((')(')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((')(')))"#).unwrap(),
                     kind: RuleKind::xq2,
                 },
 
                 // {xqdouble}
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(((')(')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((')(')))"#).unwrap(),
                     kind: RuleKind::xe2,
                 },
 
                 // {xqdouble}
                 Rule {
                     state: State::xus,
-                    pattern: Regex::new(r#"^(((')(')))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((')(')))"#).unwrap(),
                     kind: RuleKind::xus2,
                 },
 
                 // {xqinside}
                 Rule {
                     state: State::xq,
-                    pattern: Regex::new(r#"^(([^']+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^']+))"#).unwrap(),
                     kind: RuleKind::xq3,
                 },
 
                 // {xqinside}
                 Rule {
                     state: State::xus,
-                    pattern: Regex::new(r#"^(([^']+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^']+))"#).unwrap(),
                     kind: RuleKind::xus3,
                 },
 
                 // {xeinside}
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(([^\\']+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^\\']+))"#).unwrap(),
                     kind: RuleKind::xe3,
                 },
 
                 // {xeunicode}
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(([\\](u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([\\](u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})))"#).unwrap(),
                     kind: RuleKind::xe4,
                 },
 
                 // {xeunicode}
                 Rule {
                     state: State::xeu,
-                    pattern: Regex::new(r#"^(([\\](u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([\\](u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})))"#).unwrap(),
                     kind: RuleKind::xeu1,
                 },
 
                 // .
                 Rule {
                     state: State::xeu,
-                    pattern: Regex::new(r#"^(.)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(.)"#).unwrap(),
                     kind: RuleKind::xeu2,
                 },
 
                 // \n
                 Rule {
                     state: State::xeu,
-                    pattern: Regex::new(r#"^(\n)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(\n)"#).unwrap(),
                     kind: RuleKind::xeu3,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xeu,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xeu4,
                 },
 
                 // {xeunicodefail}
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(([\\](u[0-9A-Fa-f]{0,3}|U[0-9A-Fa-f]{0,7})))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([\\](u[0-9A-Fa-f]{0,3}|U[0-9A-Fa-f]{0,7})))"#).unwrap(),
                     kind: RuleKind::xe5,
                 },
 
                 // {xeunicodefail}
                 Rule {
                     state: State::xeu,
-                    pattern: Regex::new(r#"^(([\\](u[0-9A-Fa-f]{0,3}|U[0-9A-Fa-f]{0,7})))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([\\](u[0-9A-Fa-f]{0,3}|U[0-9A-Fa-f]{0,7})))"#).unwrap(),
                     kind: RuleKind::xeu5,
                 },
 
                 // {xeescape}
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(([\\][^0-7]))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([\\][^0-7]))"#).unwrap(),
                     kind: RuleKind::xe6,
                 },
 
                 // {xeoctesc}
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(([\\][0-7]{1,3}))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([\\][0-7]{1,3}))"#).unwrap(),
                     kind: RuleKind::xe7,
                 },
 
                 // {xehexesc}
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(([\\]x[0-9A-Fa-f]{1,2}))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([\\]x[0-9A-Fa-f]{1,2}))"#).unwrap(),
                     kind: RuleKind::xe8,
                 },
 
                 // .
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(.)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(.)"#).unwrap(),
                     kind: RuleKind::xe9,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xq,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xq4,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xe,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xe10,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xus,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xus4,
                 },
 
                 // {dolqdelim}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((\$(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*)?\$))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\$(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*)?\$))"#).unwrap(),
                     kind: RuleKind::INITIAL10,
                 },
 
                 // {dolqfailed}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((\$([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\$([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*))"#).unwrap(),
                     kind: RuleKind::INITIAL11,
                 },
 
                 // {dolqdelim}
                 Rule {
                     state: State::xdolq,
-                    pattern: Regex::new(r#"^((\$(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*)?\$))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\$(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*)?\$))"#).unwrap(),
                     kind: RuleKind::xdolq1,
                 },
 
                 // {dolqinside}
                 Rule {
                     state: State::xdolq,
-                    pattern: Regex::new(r#"^(([^$]+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^$]+))"#).unwrap(),
                     kind: RuleKind::xdolq2,
                 },
 
                 // {dolqfailed}
                 Rule {
                     state: State::xdolq,
-                    pattern: Regex::new(r#"^((\$([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\$([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*))"#).unwrap(),
                     kind: RuleKind::xdolq3,
                 },
 
                 // .
                 Rule {
                     state: State::xdolq,
-                    pattern: Regex::new(r#"^(.)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(.)"#).unwrap(),
                     kind: RuleKind::xdolq4,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xdolq,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xdolq5,
                 },
 
                 // {xdstart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((\")))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((\")))"#).unwrap(),
                     kind: RuleKind::INITIAL12,
                 },
 
                 // {xuistart}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(([uU]&(\")))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([uU]&(\")))"#).unwrap(),
                     kind: RuleKind::INITIAL13,
                 },
 
                 // {xdstop}
                 Rule {
                     state: State::xd,
-                    pattern: Regex::new(r#"^(((\")))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((\")))"#).unwrap(),
                     kind: RuleKind::xd1,
                 },
 
                 // {dquote}
                 Rule {
                     state: State::xui,
-                    pattern: Regex::new(r#"^((\"))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\"))"#).unwrap(),
                     kind: RuleKind::xui1,
                 },
 
                 // {xddouble}
                 Rule {
                     state: State::xd,
-                    pattern: Regex::new(r#"^(((\")(\")))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((\")(\")))"#).unwrap(),
                     kind: RuleKind::xd2,
                 },
 
                 // {xddouble}
                 Rule {
                     state: State::xui,
-                    pattern: Regex::new(r#"^(((\")(\")))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((\")(\")))"#).unwrap(),
                     kind: RuleKind::xui2,
                 },
 
                 // {xdinside}
                 Rule {
                     state: State::xd,
-                    pattern: Regex::new(r#"^(([^"]+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^"]+))"#).unwrap(),
                     kind: RuleKind::xd3,
                 },
 
                 // {xdinside}
                 Rule {
                     state: State::xui,
-                    pattern: Regex::new(r#"^(([^"]+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([^"]+))"#).unwrap(),
                     kind: RuleKind::xui3,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xd,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xd4,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::xui,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xui4,
                 },
 
                 // {xufailed}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(([uU]&))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([uU]&))"#).unwrap(),
                     kind: RuleKind::INITIAL14,
                 },
 
                 // {typecast}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((::))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((::))"#).unwrap(),
                     kind: RuleKind::INITIAL15,
                 },
 
                 // {dot_dot}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((\.\.))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\.\.))"#).unwrap(),
                     kind: RuleKind::INITIAL16,
                 },
 
                 // {colon_equals}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((:=))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((:=))"#).unwrap(),
                     kind: RuleKind::INITIAL17,
                 },
 
                 // {equals_greater}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((=>))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((=>))"#).unwrap(),
                     kind: RuleKind::INITIAL18,
                 },
 
                 // {less_equals}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((<=))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((<=))"#).unwrap(),
                     kind: RuleKind::INITIAL19,
                 },
 
                 // {greater_equals}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((>=))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((>=))"#).unwrap(),
                     kind: RuleKind::INITIAL20,
                 },
 
                 // {less_greater}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((<>))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((<>))"#).unwrap(),
                     kind: RuleKind::INITIAL21,
                 },
 
                 // {not_equals}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((!=))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((!=))"#).unwrap(),
                     kind: RuleKind::INITIAL22,
                 },
 
                 // {self}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(([,()\[\].;\:\+\-\*\/\%\^<>\=]))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(([,()\[\].;\:\+\-\*\/\%\^<>\=]))"#).unwrap(),
                     kind: RuleKind::INITIAL23,
                 },
 
                 // {operator}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])+))"#).unwrap(),
                     kind: RuleKind::INITIAL24,
                 },
 
                 // {param}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((\$([0-9])+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((\$([0-9])+))"#).unwrap(),
                     kind: RuleKind::INITIAL25,
                 },
 
                 // {decinteger}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((([0-9])(_?([0-9]))*))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((([0-9])(_?([0-9]))*))"#).unwrap(),
                     kind: RuleKind::INITIAL26,
                 },
 
                 // {hexinteger}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((0[xX](_?([0-9A-Fa-f]))+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((0[xX](_?([0-9A-Fa-f]))+))"#).unwrap(),
                     kind: RuleKind::INITIAL27,
                 },
 
                 // {octinteger}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((0[oO](_?([0-7]))+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((0[oO](_?([0-7]))+))"#).unwrap(),
                     kind: RuleKind::INITIAL28,
                 },
 
                 // {bininteger}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((0[bB](_?([0-1]))+))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((0[bB](_?([0-1]))+))"#).unwrap(),
                     kind: RuleKind::INITIAL29,
                 },
 
                 // {hexfail}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((0[xX]_?))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((0[xX]_?))"#).unwrap(),
                     kind: RuleKind::INITIAL30,
                 },
 
                 // {octfail}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((0[oO]_?))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((0[oO]_?))"#).unwrap(),
                     kind: RuleKind::INITIAL31,
                 },
 
                 // {binfail}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((0[bB]_?))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((0[bB]_?))"#).unwrap(),
                     kind: RuleKind::INITIAL32,
                 },
 
                 // {numeric}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))"#).unwrap(),
                     kind: RuleKind::INITIAL33,
                 },
 
                 // {numericfail}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((([0-9])+\.\.))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((([0-9])+\.\.))"#).unwrap(),
                     kind: RuleKind::INITIAL34,
                 },
 
                 // {real}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]?(([0-9])(_?([0-9]))*)))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]?(([0-9])(_?([0-9]))*)))"#).unwrap(),
                     kind: RuleKind::INITIAL35,
                 },
 
                 // {realfail}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]))"#).unwrap(),
                     kind: RuleKind::INITIAL36,
                 },
 
                 // {decinteger_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((([0-9])(_?([0-9]))*)([A-Za-z\x80-\xFF_])))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((([0-9])(_?([0-9]))*)([A-Za-z\x80-\xFF_])))"#).unwrap(),
                     kind: RuleKind::INITIAL37,
                 },
 
                 // {hexinteger_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((0[xX](_?([0-9A-Fa-f]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((0[xX](_?([0-9A-Fa-f]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
                     kind: RuleKind::INITIAL38,
                 },
 
                 // {octinteger_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((0[oO](_?([0-7]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((0[oO](_?([0-7]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
                     kind: RuleKind::INITIAL39,
                 },
 
                 // {bininteger_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((0[bB](_?([0-1]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((0[bB](_?([0-1]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
                     kind: RuleKind::INITIAL40,
                 },
 
                 // {numeric_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*))))([A-Za-z\x80-\xFF_])))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*))))([A-Za-z\x80-\xFF_])))"#).unwrap(),
                     kind: RuleKind::INITIAL41,
                 },
 
                 // {real_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]?(([0-9])(_?([0-9]))*))([A-Za-z\x80-\xFF_])))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]?(([0-9])(_?([0-9]))*))([A-Za-z\x80-\xFF_])))"#).unwrap(),
                     kind: RuleKind::INITIAL42,
                 },
 
                 // {identifier}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*))"#).unwrap(),
                     kind: RuleKind::INITIAL43,
                 },
 
                 // {other}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((.))"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^((.))"#).unwrap(),
                     kind: RuleKind::INITIAL44,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(^$)"#).unwrap(),
+                    pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::INITIAL45,
                 }]
 }
