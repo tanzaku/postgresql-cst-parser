@@ -972,9 +972,9 @@ impl Lexer {
                                 loop {
                                     nchars -= 1;
 
-                                    if nchars > 1
+                                    if !(nchars > 1
                                         && (get_char_by_byte_pos(&yytext, nchars - 1) == '+'
-                                            || get_char_by_byte_pos(&yytext, nchars - 1) == '-')
+                                            || get_char_by_byte_pos(&yytext, nchars - 1) == '-'))
                                     {
                                         break;
                                     }
