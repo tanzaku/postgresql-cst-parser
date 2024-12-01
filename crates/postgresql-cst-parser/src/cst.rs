@@ -545,6 +545,124 @@ from
 where
     /*val*/ = 1;
 "#;
+
+        let expected = r#"
+Root@0..117
+  parse_toplevel@0..117
+    stmtmulti@0..117
+      stmtmulti@0..116
+        toplevel_stmt@0..116
+          stmt@0..116
+            SelectStmt@0..116
+              select_no_parens@0..116
+                simple_select@0..116
+                  SELECT@0..6 "select"
+                  Whitespace@6..11 "\n    "
+                  C_COMMENT@11..19 "/*hoge*/"
+                  opt_all_clause@19..19
+                  opt_target_list@19..74
+                    target_list@19..74
+                      target_list@19..57
+                        target_list@19..40
+                          target_list@19..27
+                            target_el@19..27
+                              a_expr@19..19
+                                c_expr@19..19
+                                  AexprConst@19..19
+                                    Sconst@19..19
+                                      SCONST@19..19 ""
+                              Whitespace@19..20 " "
+                              AS@20..22 "as"
+                              Whitespace@22..23 " "
+                              ColLabel@23..27
+                                IDENT@23..27 "hoge"
+                          Whitespace@27..28 "\n"
+                          Comma@28..29 ","
+                          Whitespace@29..32 "   "
+                          C_COMMENT@32..40 "/*fuga*/"
+                          target_el@40..40
+                            a_expr@40..40
+                              c_expr@40..40
+                                AexprConst@40..40
+                                  Sconst@40..40
+                                    SCONST@40..40 ""
+                        Whitespace@40..41 "\n"
+                        Comma@41..42 ","
+                        Whitespace@42..45 "   "
+                        C_COMMENT@45..53 "/*fuga*/"
+                        target_el@53..57
+                          a_expr@53..57
+                            a_expr@53..53
+                              c_expr@53..53
+                                AexprConst@53..53
+                                  Sconst@53..53
+                                    SCONST@53..53 ""
+                            Whitespace@53..54 " "
+                            Star@54..55 "*"
+                            Whitespace@55..56 " "
+                            a_expr@56..57
+                              c_expr@56..57
+                                AexprConst@56..57
+                                  Iconst@56..57
+                                    ICONST@56..57 "1"
+                      Whitespace@57..58 "\n"
+                      Comma@58..59 ","
+                      Whitespace@59..62 "   "
+                      C_COMMENT@62..70 "/*fuga*/"
+                      target_el@70..74
+                        a_expr@70..74
+                          a_expr@70..70
+                            c_expr@70..70
+                              AexprConst@70..70
+                                Sconst@70..70
+                                  SCONST@70..70 ""
+                          Whitespace@70..71 " "
+                          qual_Op@71..73
+                            Op@71..73 "||"
+                          Whitespace@73..74 " "
+                          a_expr@74..74
+                            c_expr@74..74
+                              AexprConst@74..74
+                                Sconst@74..74
+                                  SCONST@74..74 ""
+                  Whitespace@74..75 "\n"
+                  from_clause@75..94
+                    FROM@75..79 "from"
+                    Whitespace@79..84 "\n    "
+                    C_COMMENT@84..92 "/*#tbl*/"
+                    from_list@92..94
+                      table_ref@92..94
+                        relation_expr@92..92
+                          qualified_name@92..92
+                            ColId@92..92
+                              IDENT@92..92 ""
+                        Whitespace@92..93 " "
+                        opt_alias_clause@93..94
+                          alias_clause@93..94
+                            ColId@93..94
+                              IDENT@93..94 "t"
+                  Whitespace@94..95 "\n"
+                  where_clause@95..116
+                    WHERE@95..100 "where"
+                    Whitespace@100..105 "\n    "
+                    C_COMMENT@105..112 "/*val*/"
+                    a_expr@112..116
+                      a_expr@112..112
+                        c_expr@112..112
+                          AexprConst@112..112
+                            Sconst@112..112
+                              SCONST@112..112 ""
+                      Whitespace@112..113 " "
+                      Equals@113..114 "="
+                      Whitespace@114..115 " "
+                      a_expr@115..116
+                        c_expr@115..116
+                          AexprConst@115..116
+                            Iconst@115..116
+                              ICONST@115..116 "1"
+      Semicolon@116..117 ";"
+ */"#;
+
         eprintln!("sql:{s}");
         dbg!(parse(s).unwrap());
     }
