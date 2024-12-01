@@ -176,6 +176,62 @@ fn init_tokens(tokens: &mut [Token]) {
     }
 }
 
+#[inline]
+fn is_bind_variable_comment(s: impl AsRef<str>) -> bool {
+    let s = s.as_ref();
+    s.starts_with("/*") && s.ends_with("*/") && !s.contains('\n')
+}
+
+#[inline]
+fn is_missing_bind_variable(
+    extras: &[(SyntaxKind, usize, usize, &str)],
+    action_table: &[i16],
+    state: u32,
+) -> bool {
+    match extras.last() {
+        Some((_, _, _, s)) => {
+            dbg!(s, is_bind_variable_comment(s));
+        }
+        _ => (),
+    }
+    match extras.last() {
+        Some((_, _, _, s)) if is_bind_variable_comment(s) => {
+            let action_index =
+                (state * num_terminal_symbol()) as usize + SyntaxKind::SCONST as usize;
+
+            let a = action_table[action_index];
+            dbg!(a);
+            a != 0x7FFF
+        }
+        _ => false,
+    }
+}
+
+// #[inline]
+// fn decide_action(
+//     extras: &[(SyntaxKind, usize, usize, &str)],
+//     action_table: &[i16],
+//     state: u32,
+//     cid: u32,
+// ) -> Action {
+//     let action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
+//         0x7FFF => Action::Error,
+//         v if v > 0 => Action::Shift((v - 1) as usize),
+//         v if v < 0 => Action::Reduce((-v - 1) as usize),
+//         _ => Action::Accept,
+//     };
+
+//     if action == Action::Error {
+//         if is_missing_bind_variable(extras, action_table, state) {
+//             let next_state = action_table
+//                 [(state * num_terminal_symbol()) as usize + SyntaxKind::SCONST as usize];
+//             return Action::Shift(next_state as usize - 1);
+//         }
+//     }
+
+//     action
+// }
+
 /// Parsing a string as PostgreSQL syntax and converting it into a ResolvedNode
 pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
     let mut tokens = lex(input);
@@ -213,8 +269,8 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
 
     loop {
         let state = stack.last().unwrap().0;
-        let token = match tokens.peek() {
-            Some(token) => token,
+        let mut token = match tokens.peek() {
+            Some(token) => token.clone(),
             None => {
                 return Err(ParseError {
                     message: "unexpected end of input".to_string(),
@@ -224,7 +280,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
             }
         };
 
-        let cid = token_kind_to_component_id(&token.kind);
+        let mut cid = token_kind_to_component_id(&token.kind);
 
         if matches!(token.kind, TokenKind::C_COMMENT | TokenKind::SQL_COMMENT) {
             if last_pos < token.start_byte_pos {
@@ -250,12 +306,63 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
             continue;
         }
 
-        let action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
+        let mut insert_dummy_token = false;
+        let mut action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
             0x7FFF => Action::Error,
             v if v > 0 => Action::Shift((v - 1) as usize),
             v if v < 0 => Action::Reduce((-v - 1) as usize),
             _ => Action::Accept,
         };
+        // dbg!(&action);
+
+        dbg!(
+            &token.value,
+            is_missing_bind_variable(&extras, action_table, state),
+        );
+        // if action == Action::Error {
+        //     dbg!(
+        //         token.start_byte_pos,
+        //         &token.value,
+        //         is_missing_bind_variable(&extras, action_table, state),
+        //         extras.last()
+        //     );
+        if is_missing_bind_variable(&extras, action_table, state) {
+            let last_extra = extras.last().unwrap();
+            if token.start_byte_pos != last_extra.2 {
+                token = Token {
+                    start_byte_pos: last_extra.2,
+                    end_byte_pos: last_extra.2,
+                    kind: TokenKind::SCONST, // とりあえず文字列としておく
+                    value: String::new(),
+                };
+                cid = SyntaxKind::SCONST as u32;
+
+                // let node = Node {
+                //     token: Some(Token {
+                //         start_byte_pos: token.start_byte_pos,
+                //         end_byte_pos: token.start_byte_pos,
+                //         kind: TokenKind::SCONST, // とりあえず文字列としておく
+                //         value: String::new(),
+                //     }),
+                //     component_id: SyntaxKind::SCONST as u32,
+                //     children: Vec::new(),
+                //     start_byte_pos: token.start_byte_pos,
+                //     end_byte_pos: token.end_byte_pos,
+                // };
+
+                // stack.push((next_state as u32, node));
+
+                action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
+                    0x7FFF => Action::Error,
+                    v if v > 0 => Action::Shift((v - 1) as usize),
+                    v if v < 0 => Action::Reduce((-v - 1) as usize),
+                    _ => Action::Accept,
+                };
+                insert_dummy_token = true;
+            }
+        }
+        //     dbg!(&action, &token);
+        // }
 
         match action {
             Action::Shift(next_state) => {
@@ -279,7 +386,9 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                 last_pos = token.end_byte_pos;
 
                 stack.push((next_state as u32, node));
-                tokens.next();
+                if !insert_dummy_token {
+                    tokens.next();
+                }
             }
             Action::Reduce(rule_index) => {
                 let rule = &RULES[rule_index];
@@ -388,4 +497,26 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
     let (ast, resolver) = parser.parse(&root, extras);
 
     Ok(SyntaxNode::new_root_with_resolver(ast, resolver))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse;
+
+    #[test]
+    fn test_missing_sample_value() {
+        let s = r#"
+select
+    /*hoge*/ as hoge
+,   /*fuga*/
+,   /*fuga*/ * 1
+,   /*fuga*/ || 'hoge'
+from
+    tbl t
+where
+    /*val*/ = 1;
+"#;
+        eprintln!("sql:{s}");
+        dbg!(parse(s).unwrap());
+    }
 }
