@@ -7,7 +7,7 @@ import { Box, CssBaseline, TextField, Typography } from '@mui/material';
 import init, { parse_sql } from "./postgresql-cst-parser/postgresql_cst_parser_wasm.js";
 
 function App() {
-  const [sql, setSQL] = useState('SELECT\n\ttbl.a as a\nfrom\n\tTBL tbl')
+  const [sql, setSQL] = useState("select\n    /*hoge*/ as hoge\n,   /*fuga*/\n,   /*fuga*/ * 1\n,   /*fuga*/ || 'hoge'\nfrom\n    /*#tbl*/ t\nwhere\n    /*val*/ = 1;")
   const [parseResult, setParseResult] = useState('')
 
   useEffect(() => {

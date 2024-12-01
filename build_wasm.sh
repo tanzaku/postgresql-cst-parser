@@ -2,9 +2,8 @@
 
 set -eux
 
-cd crates/postgresql-cst-parser-wasm
-rm -rf ./pkg
-wasm-pack build --release --target web
-cp pkg/*.js pkg/*.ts pkg/*.wasm ../../docs/js
-cd ../../docs
+cd demo
+npm run copy-wasm
+npm run build
+cd ../docs
 python3 -m http.server 8000

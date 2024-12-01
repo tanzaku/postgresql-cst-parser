@@ -22,8 +22,5 @@ Root@0..89
                 any_name@75..87
                   ColId@75..87
                     IDENT@75..87 "distributors"
-              opt_drop_behavior@87..87
       Semicolon@87..88 ";"
-      toplevel_stmt@88..88
-        stmt@88..88
   Whitespace@88..89 "\n"

@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use cstree::{
     build::GreenNodeBuilder, green::GreenNode, interning::Resolver, RawSyntaxKind, Syntax,
 };
@@ -56,7 +58,16 @@ impl Parser {
         &mut self,
         node: &Node,
         peekable: &mut std::iter::Peekable<std::vec::IntoIter<(SyntaxKind, usize, usize, &str)>>,
+        complement_node_or_token: &HashSet<usize>,
     ) {
+        if cfg!(feature = "remove-empty-node") {
+            if node.start_byte_pos == node.end_byte_pos
+                && !complement_node_or_token.contains(&node.start_byte_pos)
+            {
+                return;
+            }
+        }
+
         while let Some((kind, start, _, text)) = peekable.peek() {
             // TODO: Consider whether the presence or absence of an equals sign changes the position of comments. Determine which option is preferable
             if *start >= node.start_byte_pos {
@@ -74,7 +85,7 @@ impl Parser {
             self.builder.start_node(kind);
             node.children
                 .iter()
-                .for_each(|c| self.parse_rec(c, peekable));
+                .for_each(|c| self.parse_rec(c, peekable, complement_node_or_token));
             self.builder.finish_node();
         }
     }
@@ -83,13 +94,14 @@ impl Parser {
         mut self,
         nodes: &Vec<&Node>,
         extras: Vec<(SyntaxKind, usize, usize, &str)>,
+        complement_node_or_token: &HashSet<usize>,
     ) -> (GreenNode, impl Resolver) {
         let mut peekable = extras.into_iter().peekable();
 
         self.builder.start_node(SyntaxKind::Root);
 
         for node in nodes {
-            self.parse_rec(node, &mut peekable);
+            self.parse_rec(node, &mut peekable, complement_node_or_token);
         }
 
         while let Some((kind, _, _, text)) = peekable.peek() {
@@ -177,9 +189,40 @@ fn init_tokens(tokens: &mut [Token]) {
 }
 
 #[inline]
+fn is_replacement_value_comment(s: impl AsRef<str>) -> bool {
+    let s = s.as_ref();
+    s.starts_with("/*#") && s.ends_with("*/") && !s.contains('\n')
+}
+
+#[inline]
+fn is_missing_from_replacement_value(
+    stack: &[(u32, Node)],
+    extras: &[(SyntaxKind, usize, usize, &str)],
+    action_table: &[i16],
+    state: u32,
+) -> bool {
+    match extras.last() {
+        Some((_, _, _, s))
+            if is_replacement_value_comment(s)
+                && stack.last().unwrap().1.component_id == SyntaxKind::FROM as u32 =>
+        {
+            let action_index =
+                (state * num_terminal_symbol()) as usize + SyntaxKind::IDENT as usize;
+
+            let a = action_table[action_index];
+            a != 0x7FFF
+        }
+        _ => false,
+    }
+}
+
+#[inline]
 fn is_bind_variable_comment(s: impl AsRef<str>) -> bool {
     let s = s.as_ref();
-    s.starts_with("/*") && s.ends_with("*/") && !s.contains('\n')
+    s.starts_with("/*")
+        && s.ends_with("*/")
+        && !s.contains('\n')
+        && !matches!(s.chars().nth(2).unwrap(), '$' | '#')
 }
 
 #[inline]
@@ -189,18 +232,11 @@ fn is_missing_bind_variable(
     state: u32,
 ) -> bool {
     match extras.last() {
-        Some((_, _, _, s)) => {
-            dbg!(s, is_bind_variable_comment(s));
-        }
-        _ => (),
-    }
-    match extras.last() {
         Some((_, _, _, s)) if is_bind_variable_comment(s) => {
             let action_index =
                 (state * num_terminal_symbol()) as usize + SyntaxKind::SCONST as usize;
 
             let a = action_table[action_index];
-            dbg!(a);
             a != 0x7FFF
         }
         _ => false,
@@ -266,6 +302,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
 
     let mut last_pos = 0;
     let mut extras: Vec<(SyntaxKind, usize, usize, &str)> = Vec::new();
+    let mut complement_node_or_token = HashSet::new();
 
     loop {
         let state = stack.last().unwrap().0;
@@ -313,22 +350,30 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
             v if v < 0 => Action::Reduce((-v - 1) as usize),
             _ => Action::Accept,
         };
-        // dbg!(&action);
 
-        dbg!(
-            &token.value,
-            is_missing_bind_variable(&extras, action_table, state),
-        );
-        // if action == Action::Error {
-        //     dbg!(
-        //         token.start_byte_pos,
-        //         &token.value,
-        //         is_missing_bind_variable(&extras, action_table, state),
-        //         extras.last()
-        //     );
-        if is_missing_bind_variable(&extras, action_table, state) {
-            let last_extra = extras.last().unwrap();
-            if token.start_byte_pos != last_extra.2 {
+        if Some(token.start_byte_pos) != extras.last().map(|e| e.2) {
+            if is_missing_from_replacement_value(&stack, &extras, action_table, state) {
+                let last_extra = extras.last().unwrap();
+                token = Token {
+                    start_byte_pos: last_extra.2,
+                    end_byte_pos: last_extra.2,
+                    kind: TokenKind::IDENT, // とりあえず識別子としておく
+                    value: String::new(),
+                };
+                cid = SyntaxKind::IDENT as u32;
+                complement_node_or_token.insert(token.start_byte_pos);
+
+                action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
+                    0x7FFF => Action::Error,
+                    v if v > 0 => Action::Shift((v - 1) as usize),
+                    v if v < 0 => Action::Reduce((-v - 1) as usize),
+                    _ => Action::Accept,
+                };
+                insert_dummy_token = true;
+            }
+
+            if is_missing_bind_variable(&extras, action_table, state) {
+                let last_extra = extras.last().unwrap();
                 token = Token {
                     start_byte_pos: last_extra.2,
                     end_byte_pos: last_extra.2,
@@ -336,21 +381,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                     value: String::new(),
                 };
                 cid = SyntaxKind::SCONST as u32;
-
-                // let node = Node {
-                //     token: Some(Token {
-                //         start_byte_pos: token.start_byte_pos,
-                //         end_byte_pos: token.start_byte_pos,
-                //         kind: TokenKind::SCONST, // とりあえず文字列としておく
-                //         value: String::new(),
-                //     }),
-                //     component_id: SyntaxKind::SCONST as u32,
-                //     children: Vec::new(),
-                //     start_byte_pos: token.start_byte_pos,
-                //     end_byte_pos: token.end_byte_pos,
-                // };
-
-                // stack.push((next_state as u32, node));
+                complement_node_or_token.insert(token.start_byte_pos);
 
                 action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
                     0x7FFF => Action::Error,
@@ -361,8 +392,6 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                 insert_dummy_token = true;
             }
         }
-        //     dbg!(&action, &token);
-        // }
 
         match action {
             Action::Shift(next_state) => {
@@ -494,7 +523,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
         builder: GreenNodeBuilder::new(),
     };
     let root: Vec<&Node> = stack[1..].iter().map(|s| &s.1).collect();
-    let (ast, resolver) = parser.parse(&root, extras);
+    let (ast, resolver) = parser.parse(&root, extras, &complement_node_or_token);
 
     Ok(SyntaxNode::new_root_with_resolver(ast, resolver))
 }
@@ -512,7 +541,7 @@ select
 ,   /*fuga*/ * 1
 ,   /*fuga*/ || 'hoge'
 from
-    tbl t
+    /*#tbl*/ t
 where
     /*val*/ = 1;
 "#;
