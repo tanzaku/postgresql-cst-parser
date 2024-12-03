@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use cstree::{
     build::GreenNodeBuilder, green::GreenNode, interning::Resolver, RawSyntaxKind, Syntax,
@@ -58,11 +58,11 @@ impl Parser {
         &mut self,
         node: &Node,
         peekable: &mut std::iter::Peekable<std::vec::IntoIter<(SyntaxKind, usize, usize, &str)>>,
-        complement_node_or_token: &HashSet<usize>,
+        complement_token: &HashSet<usize>,
     ) {
         if cfg!(feature = "remove-empty-node") {
             if node.start_byte_pos == node.end_byte_pos
-                && !complement_node_or_token.contains(&node.start_byte_pos)
+                && !complement_token.contains(&node.start_byte_pos)
             {
                 return;
             }
@@ -85,7 +85,7 @@ impl Parser {
             self.builder.start_node(kind);
             node.children
                 .iter()
-                .for_each(|c| self.parse_rec(c, peekable, complement_node_or_token));
+                .for_each(|c| self.parse_rec(c, peekable, complement_token));
             self.builder.finish_node();
         }
     }
@@ -94,14 +94,14 @@ impl Parser {
         mut self,
         nodes: &Vec<&Node>,
         extras: Vec<(SyntaxKind, usize, usize, &str)>,
-        complement_node_or_token: &HashSet<usize>,
+        complement_token: &HashSet<usize>,
     ) -> (GreenNode, impl Resolver) {
         let mut peekable = extras.into_iter().peekable();
 
         self.builder.start_node(SyntaxKind::Root);
 
         for node in nodes {
-            self.parse_rec(node, &mut peekable, complement_node_or_token);
+            self.parse_rec(node, &mut peekable, complement_token);
         }
 
         while let Some((kind, _, _, text)) = peekable.peek() {
@@ -188,88 +188,215 @@ fn init_tokens(tokens: &mut [Token]) {
     }
 }
 
-#[inline]
-fn is_replacement_value_comment(s: impl AsRef<str>) -> bool {
-    let s = s.as_ref();
-    s.starts_with("/*#") && s.ends_with("*/") && !s.contains('\n')
+pub enum ParseTransform {
+    InsertToken(TokenKind),
+    SkipToken,
 }
 
-#[inline]
-fn is_missing_from_replacement_value(
-    stack: &[(u32, Node)],
-    extras: &[(SyntaxKind, usize, usize, &str)],
-    action_table: &[i16],
+pub struct LRParseState<'a> {
     state: u32,
-) -> bool {
-    match extras.last() {
-        Some((_, _, _, s))
-            if is_replacement_value_comment(s)
-                && stack.last().unwrap().1.component_id == SyntaxKind::FROM as u32 =>
+    stack: &'a [(u32, Node)],
+    action_table: &'a [i16],
+    goto_table: &'a [i16],
+    extras: &'a [(SyntaxKind, usize, usize, &'a str)],
+    token: &'a Token,
+}
+
+impl<'a> LRParseState<'a> {
+    pub fn adjacent_c_comment(&self) -> bool {
+        match self.extras.last() {
+            // 手前のCコメントと、これから処理しようとしているtokenが隣接していないこと
+            Some(e) if e.2 != self.token.start_byte_pos && e.0 == SyntaxKind::C_COMMENT => true,
+            _ => false,
+        }
+    }
+}
+
+pub trait ParseTransformer {
+    fn transform<'a>(&self, lr_parse_state: &LRParseState<'a>) -> Option<ParseTransform>;
+}
+
+/// 欠落しているバインド変数のサンプル値を補間
+struct ComplementMissingSampleValueTransformer;
+
+impl ComplementMissingSampleValueTransformer {
+    fn is_bind_variable_comment(s: impl AsRef<str>) -> bool {
+        let s = s.as_ref();
+        s.starts_with("/*")
+            && s.ends_with("*/")
+            && !s.contains('\n')
+            && !matches!(s.chars().nth(2).unwrap(), '$' | '#')
+    }
+
+    fn is_missing_bind_variable<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
+        match lr_parse_state.extras.last() {
+            Some((_, _, _, s)) if Self::is_bind_variable_comment(s) => {
+                let action_index = (lr_parse_state.state * num_terminal_symbol()) as usize
+                    + SyntaxKind::SCONST as usize;
+
+                let a = lr_parse_state.action_table[action_index];
+                a != 0x7FFF
+            }
+            _ => false,
+        }
+    }
+}
+
+impl ParseTransformer for ComplementMissingSampleValueTransformer {
+    fn transform<'a>(&self, lr_parse_state: &LRParseState<'a>) -> Option<ParseTransform> {
+        if !lr_parse_state.adjacent_c_comment() {
+            return None;
+        }
+
+        if !Self::is_missing_bind_variable(&lr_parse_state) {
+            return None;
+        }
+
+        Some(ParseTransform::InsertToken(TokenKind::SCONST))
+    }
+}
+
+/// 欠落している置換文字列のサンプル値(FROM句のみ)を補間
+struct ComplementMissingFromTableTransformer;
+
+impl ComplementMissingFromTableTransformer {
+    fn is_replacement_value_comment(s: impl AsRef<str>) -> bool {
+        let s = s.as_ref();
+        s.starts_with("/*#") && s.ends_with("*/") && !s.contains('\n')
+    }
+
+    fn is_from_table<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
+        match SyntaxKind::from_raw(RawSyntaxKind(
+            lr_parse_state.stack.last().unwrap().1.component_id,
+        )) {
+            SyntaxKind::FROM => true,
+            SyntaxKind::Comma => {
+                let prev2_kind = lr_parse_state
+                    .stack
+                    .iter()
+                    .nth_back(1)
+                    .map(|(_, node)| SyntaxKind::from_raw(RawSyntaxKind(node.component_id)));
+
+                if prev2_kind == Some(SyntaxKind::from_list) {
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+
+    fn is_missing_from_replacement_value<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
+        match lr_parse_state.extras.last() {
+            Some((_, _, _, s))
+                if Self::is_replacement_value_comment(s) && Self::is_from_table(lr_parse_state) =>
+            {
+                let action_index = (lr_parse_state.state * num_terminal_symbol()) as usize
+                    + SyntaxKind::IDENT as usize;
+
+                let a = lr_parse_state.action_table[action_index];
+                a != 0x7FFF
+            }
+            _ => false,
+        }
+    }
+}
+
+impl ParseTransformer for ComplementMissingFromTableTransformer {
+    fn transform<'a>(&self, lr_parse_state: &LRParseState<'a>) -> Option<ParseTransform> {
+        if !lr_parse_state.adjacent_c_comment() {
+            return None;
+        }
+
+        if !Self::is_missing_from_replacement_value(&lr_parse_state) {
+            return None;
+        }
+
+        Some(ParseTransform::InsertToken(TokenKind::IDENT))
+    }
+}
+
+/// WHERE句の先頭にある余分なAND/ORをスキップする
+struct SkipExtraOperator;
+
+impl SkipExtraOperator {
+    fn allow_extra_operator<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
+        match lr_parse_state
+            .stack
+            .last()
+            .map(|(_, node)| SyntaxKind::from_raw(RawSyntaxKind(node.component_id)))
         {
-            let action_index =
-                (state * num_terminal_symbol()) as usize + SyntaxKind::IDENT as usize;
-
-            let a = action_table[action_index];
-            a != 0x7FFF
+            Some(SyntaxKind::WHERE) => true,
+            _ => false,
         }
-        _ => false,
     }
 }
 
-#[inline]
-fn is_bind_variable_comment(s: impl AsRef<str>) -> bool {
-    let s = s.as_ref();
-    s.starts_with("/*")
-        && s.ends_with("*/")
-        && !s.contains('\n')
-        && !matches!(s.chars().nth(2).unwrap(), '$' | '#')
-}
-
-#[inline]
-fn is_missing_bind_variable(
-    extras: &[(SyntaxKind, usize, usize, &str)],
-    action_table: &[i16],
-    state: u32,
-) -> bool {
-    match extras.last() {
-        Some((_, _, _, s)) if is_bind_variable_comment(s) => {
-            let action_index =
-                (state * num_terminal_symbol()) as usize + SyntaxKind::SCONST as usize;
-
-            let a = action_table[action_index];
-            a != 0x7FFF
+impl ParseTransformer for SkipExtraOperator {
+    fn transform<'a>(&self, lr_parse_state: &LRParseState<'a>) -> Option<ParseTransform> {
+        if !Self::allow_extra_operator(&lr_parse_state) {
+            return None;
         }
-        _ => false,
+
+        if matches!(lr_parse_state.token.kind, TokenKind::KEYWORD(_)) {
+            let cid = token_kind_to_component_id(&lr_parse_state.token.kind);
+            let syntax_kind = SyntaxKind::from_raw(RawSyntaxKind(cid));
+
+            if !matches!(syntax_kind, SyntaxKind::AND | SyntaxKind::OR) {
+                return None;
+            }
+        }
+
+        Some(ParseTransform::SkipToken)
     }
 }
 
-// #[inline]
-// fn decide_action(
-//     extras: &[(SyntaxKind, usize, usize, &str)],
-//     action_table: &[i16],
-//     state: u32,
-//     cid: u32,
-// ) -> Action {
-//     let action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
-//         0x7FFF => Action::Error,
-//         v if v > 0 => Action::Shift((v - 1) as usize),
-//         v if v < 0 => Action::Reduce((-v - 1) as usize),
-//         _ => Action::Accept,
-//     };
+/// SELECT句、FROM句、ORDER BY句の先頭にある余分なカンマをスキップする
+struct SkipExtraComma;
 
-//     if action == Action::Error {
-//         if is_missing_bind_variable(extras, action_table, state) {
-//             let next_state = action_table
-//                 [(state * num_terminal_symbol()) as usize + SyntaxKind::SCONST as usize];
-//             return Action::Shift(next_state as usize - 1);
-//         }
-//     }
+impl SkipExtraComma {
+    fn allow_extra_comma<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
+        match lr_parse_state
+            .stack
+            .last()
+            .map(|(_, node)| SyntaxKind::from_raw(RawSyntaxKind(node.component_id)))
+        {
+            Some(SyntaxKind::FROM) | Some(SyntaxKind::BY) | Some(SyntaxKind::SELECT) => true,
+            _ => false,
+        }
+    }
+}
 
-//     action
-// }
+impl ParseTransformer for SkipExtraComma {
+    fn transform<'a>(&self, lr_parse_state: &LRParseState<'a>) -> Option<ParseTransform> {
+        if !Self::allow_extra_comma(&lr_parse_state) {
+            return None;
+        }
+
+        if matches!(lr_parse_state.token.kind, TokenKind::RAW(_)) {
+            let cid = token_kind_to_component_id(&lr_parse_state.token.kind);
+            let syntax_kind = SyntaxKind::from_raw(RawSyntaxKind(cid));
+
+            if !matches!(syntax_kind, SyntaxKind::Comma) {
+                return None;
+            }
+        }
+
+        Some(ParseTransform::SkipToken)
+    }
+}
 
 /// Parsing a string as PostgreSQL syntax and converting it into a ResolvedNode
 pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
+    parse_with_transformer(input, &[])
+}
+
+/// Parsing a string as PostgreSQL syntax and converting it into a ResolvedNode
+pub fn parse_with_transformer(
+    input: &str,
+    transformers: &[&dyn ParseTransformer],
+) -> Result<ResolvedNode, ParseError> {
     let mut tokens = lex(input);
 
     init_tokens(&mut tokens);
@@ -302,7 +429,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
 
     let mut last_pos = 0;
     let mut extras: Vec<(SyntaxKind, usize, usize, &str)> = Vec::new();
-    let mut complement_node_or_token = HashSet::new();
+    let mut complement_token = HashSet::new();
 
     loop {
         let state = stack.last().unwrap().0;
@@ -351,45 +478,67 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
             _ => Action::Accept,
         };
 
-        if Some(token.start_byte_pos) != extras.last().map(|e| e.2) {
-            if is_missing_from_replacement_value(&stack, &extras, action_table, state) {
-                let last_extra = extras.last().unwrap();
-                token = Token {
-                    start_byte_pos: last_extra.2,
-                    end_byte_pos: last_extra.2,
-                    kind: TokenKind::IDENT, // とりあえず識別子としておく
-                    value: String::new(),
-                };
-                cid = SyntaxKind::IDENT as u32;
-                complement_node_or_token.insert(token.start_byte_pos);
+        {
+            let lr_parse_state = LRParseState {
+                state,
+                stack: &stack,
+                action_table,
+                goto_table,
+                extras: &extras,
+                token: &token,
+            };
 
-                action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
-                    0x7FFF => Action::Error,
-                    v if v > 0 => Action::Shift((v - 1) as usize),
-                    v if v < 0 => Action::Reduce((-v - 1) as usize),
-                    _ => Action::Accept,
-                };
-                insert_dummy_token = true;
-            }
+            if let Some(parse_transform) = transformers
+                .iter()
+                .find_map(|t| t.transform(&lr_parse_state))
+            {
+                match parse_transform {
+                    ParseTransform::InsertToken(token_kind) => {
+                        let last_extra = extras.last().unwrap();
 
-            if is_missing_bind_variable(&extras, action_table, state) {
-                let last_extra = extras.last().unwrap();
-                token = Token {
-                    start_byte_pos: last_extra.2,
-                    end_byte_pos: last_extra.2,
-                    kind: TokenKind::SCONST, // とりあえず文字列としておく
-                    value: String::new(),
-                };
-                cid = SyntaxKind::SCONST as u32;
-                complement_node_or_token.insert(token.start_byte_pos);
+                        cid = token_kind_to_component_id(&token_kind);
+                        token = Token {
+                            start_byte_pos: last_extra.2,
+                            end_byte_pos: last_extra.2,
+                            kind: token_kind,
+                            value: String::new(),
+                        };
+                        complement_token.insert(token.start_byte_pos);
 
-                action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
-                    0x7FFF => Action::Error,
-                    v if v > 0 => Action::Shift((v - 1) as usize),
-                    v if v < 0 => Action::Reduce((-v - 1) as usize),
-                    _ => Action::Accept,
-                };
-                insert_dummy_token = true;
+                        action = match action_table[(state * num_terminal_symbol() + cid) as usize]
+                        {
+                            0x7FFF => Action::Error,
+                            v if v > 0 => Action::Shift((v - 1) as usize),
+                            v if v < 0 => Action::Reduce((-v - 1) as usize),
+                            _ => Action::Accept,
+                        };
+                        insert_dummy_token = true;
+                    }
+
+                    ParseTransform::SkipToken => {
+                        // extraとして扱う
+                        if last_pos < token.start_byte_pos {
+                            extras.push((
+                                SyntaxKind::Whitespace,
+                                last_pos,
+                                token.start_byte_pos,
+                                &input[last_pos..token.start_byte_pos],
+                            ));
+                        }
+
+                        last_pos = token.end_byte_pos;
+
+                        let kind = SyntaxKind::from_raw(RawSyntaxKind(cid));
+                        extras.push((
+                            kind,
+                            token.start_byte_pos,
+                            token.end_byte_pos,
+                            &input[token.start_byte_pos..token.end_byte_pos],
+                        ));
+                        tokens.next();
+                        continue;
+                    }
+                }
             }
         }
 
@@ -523,41 +672,61 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
         builder: GreenNodeBuilder::new(),
     };
     let root: Vec<&Node> = stack[1..].iter().map(|s| &s.1).collect();
-    let (ast, resolver) = parser.parse(&root, extras, &complement_node_or_token);
+    let (ast, resolver) = parser.parse(&root, extras, &complement_token);
 
     Ok(SyntaxNode::new_root_with_resolver(ast, resolver))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::parse;
+    use crate::cst::{
+        parse_with_transformer, ComplementMissingFromTableTransformer,
+        ComplementMissingSampleValueTransformer, SkipExtraComma, SkipExtraOperator,
+    };
 
     #[test]
     fn test_missing_sample_value() {
         let s = r#"
 select
-    /*hoge*/ as hoge
+,   /*hoge*/ as hoge
 ,   /*fuga*/
 ,   /*fuga*/ * 1
 ,   /*fuga*/ || 'hoge'
 from
-    /*#tbl*/ t
+,   /*#tbl1*/ t1
+,   /*#tbl2*/ t2
 where
-    /*val*/ = 1;
-"#;
+and    /*val*/ = 1;
+"#
+        .trim();
+
+        eprintln!("sql:{s}");
+        // dbg!(parse(s).unwrap());
+        dbg!(parse_with_transformer(
+            s,
+            &[
+                &ComplementMissingFromTableTransformer,
+                &ComplementMissingSampleValueTransformer,
+                &SkipExtraOperator,
+                &SkipExtraComma,
+            ]
+        )
+        .unwrap());
 
         let expected = r#"
-Root@0..117
-  parse_toplevel@0..117
-    stmtmulti@0..117
-      stmtmulti@0..116
-        toplevel_stmt@0..116
-          stmt@0..116
-            SelectStmt@0..116
-              select_no_parens@0..116
-                simple_select@0..116
+Root@0..139
+  parse_toplevel@0..139
+    stmtmulti@0..139
+      stmtmulti@0..138
+        toplevel_stmt@0..138
+          stmt@0..138
+            SelectStmt@0..138
+              select_no_parens@0..138
+                simple_select@0..138
                   SELECT@0..6 "select"
-                  Whitespace@6..11 "\n    "
+                  Whitespace@6..7 "\n"
+                  Comma@7..8 ","
+                  Whitespace@8..11 "   "
                   C_COMMENT@11..19 "/*hoge*/"
                   opt_all_clause@19..19
                   opt_target_list@19..74
@@ -626,44 +795,60 @@ Root@0..117
                                 Sconst@74..74
                                   SCONST@74..74 ""
                   Whitespace@74..75 "\n"
-                  from_clause@75..94
+                  from_clause@75..113
                     FROM@75..79 "from"
-                    Whitespace@79..84 "\n    "
-                    C_COMMENT@84..92 "/*#tbl*/"
-                    from_list@92..94
-                      table_ref@92..94
-                        relation_expr@92..92
-                          qualified_name@92..92
-                            ColId@92..92
-                              IDENT@92..92 ""
-                        Whitespace@92..93 " "
-                        opt_alias_clause@93..94
-                          alias_clause@93..94
-                            ColId@93..94
-                              IDENT@93..94 "t"
-                  Whitespace@94..95 "\n"
-                  where_clause@95..116
-                    WHERE@95..100 "where"
-                    Whitespace@100..105 "\n    "
-                    C_COMMENT@105..112 "/*val*/"
-                    a_expr@112..116
-                      a_expr@112..112
-                        c_expr@112..112
-                          AexprConst@112..112
-                            Sconst@112..112
-                              SCONST@112..112 ""
-                      Whitespace@112..113 " "
-                      Equals@113..114 "="
-                      Whitespace@114..115 " "
-                      a_expr@115..116
-                        c_expr@115..116
-                          AexprConst@115..116
-                            Iconst@115..116
-                              ICONST@115..116 "1"
-      Semicolon@116..117 ";"
+                    Whitespace@79..80 "\n"
+                    Comma@80..81 ","
+                    Whitespace@81..84 "   "
+                    C_COMMENT@84..93 "/*#tbl1*/"
+                    from_list@93..113
+                      from_list@93..96
+                        table_ref@93..96
+                          relation_expr@93..93
+                            qualified_name@93..93
+                              ColId@93..93
+                                IDENT@93..93 ""
+                          Whitespace@93..94 " "
+                          opt_alias_clause@94..96
+                            alias_clause@94..96
+                              ColId@94..96
+                                IDENT@94..96 "t1"
+                      Whitespace@96..97 "\n"
+                      Comma@97..98 ","
+                      Whitespace@98..101 "   "
+                      C_COMMENT@101..110 "/*#tbl2*/"
+                      table_ref@110..113
+                        relation_expr@110..110
+                          qualified_name@110..110
+                            ColId@110..110
+                              IDENT@110..110 ""
+                        Whitespace@110..111 " "
+                        opt_alias_clause@111..113
+                          alias_clause@111..113
+                            ColId@111..113
+                              IDENT@111..113 "t2"
+                  Whitespace@113..114 "\n"
+                  where_clause@114..138
+                    WHERE@114..119 "where"
+                    Whitespace@119..120 "\n"
+                    AND@120..123 "and"
+                    Whitespace@123..127 "    "
+                    C_COMMENT@127..134 "/*val*/"
+                    a_expr@134..138
+                      a_expr@134..134
+                        c_expr@134..134
+                          AexprConst@134..134
+                            Sconst@134..134
+                              SCONST@134..134 ""
+                      Whitespace@134..135 " "
+                      Equals@135..136 "="
+                      Whitespace@136..137 " "
+                      a_expr@137..138
+                        c_expr@137..138
+                          AexprConst@137..138
+                            Iconst@137..138
+                              ICONST@137..138 "1"
+      Semicolon@138..139 ";"
  */"#;
-
-        eprintln!("sql:{s}");
-        dbg!(parse(s).unwrap());
     }
 }
