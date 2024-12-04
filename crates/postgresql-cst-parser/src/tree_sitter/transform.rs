@@ -1,7 +1,8 @@
-use cstree::{build::GreenNodeBuilder, green::GreenNode, interning::Interner};
+use cstree::{build::GreenNodeBuilder, green::GreenNode, interning::Interner, Syntax};
 
 use crate::{syntax_kind::SyntaxKind, PostgreSQLSyntax, ResolvedNode};
 
+// TODO(refactor): TreeBuilderにしなくても、(ResolvedNode -> ResolvedNode) な純粋関数でいいかも
 struct TreeBuilder {
     // lexer がいらない
     builder: GreenNodeBuilder<'static, 'static, PostgreSQLSyntax>,
@@ -29,19 +30,39 @@ impl TreeBuilder {
         while let Some(child) = children.next() {
             match child {
                 NodeOrToken::Node(n) => {
-                    self.builder.start_node(n.kind());
+                    // for debug
+                    if format!("{}", n.kind()).starts_with("opt_") {
+                        println!("Node  (kind: {})", n.kind());
+                    }
 
-                    self.walk_and_build(n)?;
+                    // thinking: opt_* でマッチして処理するか、match で全列挙するか？
+                    //     node.kind って Enum か Raw Value しかないから、前方一致で分岐させるのは厳しいか
+                    //     format!("{}", n.kind()).starts_with("opt_") とはできるけど、これってオーバーヘッドないのか？
+                    //     tree_sitter::is_flattern_all では列挙してるからそれに従おう
 
-                    self.builder.finish_node();
+                    match n.kind() {
+                        // TODO:
+                        // SyntaxKind::target_list=> {},
+
+                        // all pattern
+                        kind @ _ => {
+                            self.builder.start_node(kind);
+
+                            self.walk_and_build(n)?;
+
+                            self.builder.finish_node();
+                        }
+                    }
                 }
                 NodeOrToken::Token(t) => {
-                    let kind = t.kind();
-                    let text = t.text();
-                    println!("Token (kind: {kind:?}, text: {text})");
+                    // for debug
+                    // println!(
+                    //     "Token (kind: {}, text: \"{}\")",
+                    //     t.kind(),
+                    //     t.text().escape_debug()
+                    // );
 
-                    // build
-                    self.builder.token(kind, text);
+                    self.builder.token(t.kind(), t.text());
                 }
             }
         }
@@ -77,8 +98,8 @@ FROM
         let (tree, interner) = tree_builder.finish();
         let new_root = SyntaxNode::new_root_with_resolver(tree, interner);
 
-        dbg!(&root);
-        dbg!(&new_root);
+        // dbg!(&root);
+        // dbg!(&new_root);
         assert_eq!(format!("{root}"), format!("{new_root}"));
 
         Ok(())
