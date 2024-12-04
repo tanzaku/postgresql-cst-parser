@@ -2,8 +2,15 @@ use cstree::{build::GreenNodeBuilder, syntax::SyntaxNode};
 
 use crate::{syntax_kind::SyntaxKind, PostgreSQLSyntax, ResolvedNode};
 
+/// Function call flow:
+///  transform_cst (public)
+///    +- walk_and_build 
+///      +- flatten 
+///      +- remove_exact <- 消した後どうやって復帰するか、簡単に復帰できるかは未検討
+
 pub fn transform_cst(root: &ResolvedNode) -> ResolvedNode {
     let mut builder = GreenNodeBuilder::new();
+
     builder.start_node(SyntaxKind::Root);
     walk_and_build(&mut builder, root);
     builder.finish_node();
@@ -11,16 +18,17 @@ pub fn transform_cst(root: &ResolvedNode) -> ResolvedNode {
     let (tree, cache) = builder.finish();
     let new_root =
         SyntaxNode::new_root_with_resolver(tree, cache.unwrap().into_interner().unwrap());
+
     new_root
 }
 
-/// CST を走査し、いくつかのNodeを書き換える
+/// CST を走査し、いくつかの Node を書き換える
 /// e.g. flatten list node, remove option node
 fn walk_and_build(
     builder: &mut GreenNodeBuilder<'static, 'static, PostgreSQLSyntax>,
     node: &ResolvedNode,
 ) {
-    // for now, just walk
+    //TODO: transform cst. but for now, just walk
     use cstree::util::NodeOrToken;
     let mut children = node.children_with_tokens();
 
@@ -70,7 +78,7 @@ mod tests {
     use crate::{cst, tree_sitter::transform::transform_cst};
 
     #[test]
-    fn test() {
+    fn compare_new_tree_and_old_tree() {
         let input = r#"
 SELECT
 	1 as X
