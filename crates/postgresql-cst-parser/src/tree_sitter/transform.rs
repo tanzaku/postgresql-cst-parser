@@ -68,7 +68,7 @@ SELECT
 FROM
 	A
 ,	B"#;
-        dbg!(input);
+        // dbg!(input);
         let root = cst::parse(input).unwrap();
 
         let mut tree_builder = TreeBuilder::new();
@@ -79,6 +79,7 @@ FROM
 
         dbg!(&root);
         dbg!(&new_root);
+        assert_eq!(format!("{root}"), format!("{new_root}"));
 
         Ok(())
     }
