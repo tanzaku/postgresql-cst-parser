@@ -28,9 +28,7 @@ Root@0..213
                                   SimpleTypename@78..85
                                     Numeric@78..85
                                       INTEGER@78..85 "integer"
-                                  opt_array_bounds@85..85
                           RParen@85..86 ")"
-                    opt_drop_behavior@86..86
             Semicolon@86..87 ";"
             Whitespace@87..88 "\n"
             toplevel_stmt@88..129
@@ -55,7 +53,6 @@ Root@0..213
                                   SimpleTypename@107..114
                                     Numeric@107..114
                                       INTEGER@107..114 "integer"
-                                  opt_array_bounds@114..114
                           RParen@114..115 ")"
                     Comma@115..116 ","
                     Whitespace@116..117 " "
@@ -72,9 +69,7 @@ Root@0..213
                                 SimpleTypename@122..128
                                   Numeric@122..128
                                     BIGINT@122..128 "bigint"
-                                opt_array_bounds@128..128
                         RParen@128..129 ")"
-                  opt_drop_behavior@129..129
           Semicolon@129..130 ";"
           Whitespace@130..131 "\n"
           toplevel_stmt@131..169
@@ -88,7 +83,6 @@ Root@0..213
                   function_with_argtypes@145..169
                     ColId@145..169
                       IDENT@145..169 "update_employee_salaries"
-                opt_drop_behavior@169..169
         Semicolon@169..170 ";"
         Whitespace@170..171 "\n"
         toplevel_stmt@171..211
@@ -106,8 +100,5 @@ Root@0..213
                   func_args@209..211
                     LParen@209..210 "("
                     RParen@210..211 ")"
-              opt_drop_behavior@211..211
       Semicolon@211..212 ";"
-      toplevel_stmt@212..212
-        stmt@212..212
   Whitespace@212..213 "\n"

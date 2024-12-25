@@ -155,6 +155,8 @@ pub fn lex(input: &str) -> Vec<Token> {
         if kind == TokenKind::EOF {
             break;
         }
+
+        let start_byte_pos = lexer.yylloc_bytes;
         let end_byte_pos = if matches!(
             kind,
             TokenKind::SCONST
@@ -169,10 +171,11 @@ pub fn lex(input: &str) -> Vec<Token> {
         };
 
         tokens.push(Token {
-            start_byte_pos: lexer.yylloc_bytes,
+            start_byte_pos,
             end_byte_pos,
             kind,
-            value: lexer.yytext(),
+            // value: lexer.yytext(),
+            value: input[start_byte_pos..end_byte_pos].to_string(),
         });
         lexer.advance();
     }

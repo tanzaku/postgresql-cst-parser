@@ -108,3 +108,4 @@ SELECT /*$c*/0 as a, -- d
 b b -- f
 ,       c -- g
 ; -- h
+SELECT 1*-1 as あ;
