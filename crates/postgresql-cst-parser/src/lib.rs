@@ -20,6 +20,8 @@ pub use cst::SyntaxElementRef;
 pub use cst::SyntaxNode;
 pub use cst::SyntaxToken;
 
+pub use tree_sitter::parse as ts_parse;
+
 pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
     cst::parse(input)
 }
