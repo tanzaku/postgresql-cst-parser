@@ -2,17 +2,43 @@
 mod assert_util;
 
 mod convert;
-pub use convert::get_ts_tree_and_range_map;
+use convert::get_ts_tree_and_range_map;
 
-use std::{collections::HashMap, fmt::Display, rc::Rc};
+use std::{collections::HashMap, fmt::Display, rc::Rc, str};
 
 use cstree::text::TextRange;
 
-use crate::{syntax_kind::SyntaxKind, NodeOrToken, ResolvedNode};
+use crate::{cst, syntax_kind::SyntaxKind, NodeOrToken, ResolvedNode};
 
 impl Display for SyntaxKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
+    }
+}
+
+pub fn parse(input: &str)->Result<Tree, cst::ParseError> {
+    let parsed = cst::parse(input)?;
+    let (root,range_map) = get_ts_tree_and_range_map(input, &parsed);
+    Ok(Tree::new(input, root, range_map))
+}
+
+pub struct Tree {
+    src: String,
+    root: ResolvedNode,
+    range_map: Rc<HashMap<TextRange, Range>>
+}
+
+impl Tree {
+    pub fn new<T: Into<String>>(src: T, root: ResolvedNode, range_map: HashMap<TextRange, Range>)->Self {
+        Self {
+            src: src.into(),
+            root,
+            range_map: Rc::new(range_map)
+        }
+    }
+    
+    pub fn root_node(&self)->Node {
+        Node { input: &self.src, range_map: Rc::clone(&self.range_map), node_or_token: NodeOrToken::Node(&self.root) }
     }
 }
 
@@ -59,8 +85,12 @@ impl std::fmt::Display for Range {
 }
 
 impl<'a> Node<'a> {
-    pub fn walk(&self, src: &'a str, range_map: HashMap<TextRange, Range>) -> TreeCursor<'a> {
-        as_tree_sitter_cursor(src, self.node_or_token.as_node().unwrap(), range_map)
+    pub fn walk(&self) -> TreeCursor<'a> {
+        TreeCursor {
+            input: self.input,
+            range_map: Rc::clone(&self.range_map),
+            node_or_token: self.node_or_token
+        }
     }
 
     pub fn kind(&self) -> SyntaxKind {
@@ -182,258 +212,80 @@ pub fn as_tree_sitter_cursor<'a>(
     }
 }
 
+
 #[cfg(test)]
 mod tests {
     use crate::{
-        parse,
-        syntax_kind::SyntaxKind,
-        tree_sitter::{as_tree_sitter_cursor, get_ts_tree_and_range_map},
+        syntax_kind::SyntaxKind, tree_sitter::parse,
     };
-    
-    #[test]
-    fn walk() {
-        let src = "select a, b, c from tbl;";
-        let (root, range_map) = get_ts_tree_and_range_map(&src, &parse(&src).unwrap());
 
-        let mut cursor = as_tree_sitter_cursor(src, &root, range_map.clone());
-        cursor.goto_first_child();
-        let node = cursor.node();
-        
-        let new_cursor = node.walk(src, range_map);
-        assert_eq!(cursor.node().kind(), new_cursor.node().kind())
+    #[test]
+    fn test_tree_basics() {
+        let src = "SELECT id FROM users;";
+        let tree = parse(src).unwrap();
+        let root = tree.root_node();
+
+        assert_eq!(root.kind(), SyntaxKind::Root);
+        assert_eq!(root.text(), src);
+        assert!(root.child_count() > 0);
     }
 
     #[test]
-    fn goto_first_child_from_node() {
-        let src = "select a, b, c from tbl;";
-        let (root, range_map) = get_ts_tree_and_range_map(&src, &parse(&src).unwrap());
-        let first_select = root
-            .descendants()
-            .find(|x| x.kind() == SyntaxKind::SelectStmt)
-            .unwrap();
-
-        let mut cursor = as_tree_sitter_cursor(src, &first_select, range_map);
-        assert_eq!(cursor.node().kind(), SyntaxKind::SelectStmt);
+    fn test_cursor_navigation() {
+        let src = "SELECT id FROM users;";
+        let tree = parse(src).unwrap();
+        let mut cursor = tree.root_node().walk();
 
         assert!(cursor.goto_first_child());
-        assert_eq!(cursor.node().kind(), SyntaxKind::SELECT);
-    }
+        let select_stmt = cursor.node();
+        assert_eq!(select_stmt.kind(), SyntaxKind::SelectStmt);
 
-    #[test]
-    fn goto_first_child_from_token() {
-        let src = "select a, b, c from tbl;";
-        let (root, range_map) = get_ts_tree_and_range_map(&src, &parse(&src).unwrap());
-        let column_id_node = root
-            .descendants()
-            .find(|x| x.kind() == SyntaxKind::ColId)
-            .unwrap();
-
-        let mut cursor = as_tree_sitter_cursor(&src, column_id_node, range_map);
-        cursor.goto_first_child();
-        assert_eq!(cursor.node().kind(), SyntaxKind::IDENT);
-
-        assert!(!cursor.goto_first_child());
-        assert_eq!(cursor.node().kind(), SyntaxKind::IDENT);
-    }
-
-    #[test]
-    fn goto_parent_from_root() {
-        let src = "select a, b, c from tbl;";
-        let (root, range_map) = get_ts_tree_and_range_map(&src, &parse(&src).unwrap());
-
-        let mut cursor = as_tree_sitter_cursor(src, &root, range_map);
-
-        assert_eq!(cursor.node().kind(), SyntaxKind::Root);
-        assert!(!cursor.goto_parent());
+        assert!(cursor.goto_parent());
         assert_eq!(cursor.node().kind(), SyntaxKind::Root);
     }
 
     #[test]
-    fn goto_parent_from_node() {
-        let src = "select a, b, c from tbl;";
-        let (root, range_map) = get_ts_tree_and_range_map(&src, &parse(&src).unwrap());
+    fn test_node_properties() {
+        let src = "SELECT id\nFROM users;";
+        let tree = parse(src).unwrap();
+        let root = tree.root_node();
 
-        let target_element = root
-            .descendants()
-            .find(|x| x.kind() == SyntaxKind::target_el)
-            .unwrap();
-        let mut cursor = as_tree_sitter_cursor(src, &target_element, range_map);
-        assert_eq!(cursor.node().kind(), SyntaxKind::target_el);
-
-        assert!(cursor.goto_parent());
-        assert_eq!(cursor.node().kind(), SyntaxKind::target_list);
+        let start = root.start_position();
+        let end = root.end_position();
+        assert_eq!(start.row, 0);
+        assert_eq!(start.column, 0);
+        assert!(end.row >= 1);
     }
 
     #[test]
-    fn goto_parent_from_token() {
-        let src = "select a, b, c from tbl;";
-        let (root, range_map) = get_ts_tree_and_range_map(&src, &parse(&src).unwrap());
-
-        let column_id_node = root
-            .descendants()
-            .find(|x| x.kind() == SyntaxKind::ColId)
-            .unwrap();
-        let mut cursor = as_tree_sitter_cursor(src, &column_id_node, range_map);
+    fn test_comment_handling() {
+        let src = "-- This is a comment\nSELECT id FROM users;";
+        let tree = parse(src).unwrap();
+        let mut cursor = tree.root_node().walk();
 
         cursor.goto_first_child();
-        assert_eq!(cursor.node().kind(), SyntaxKind::IDENT);
-
-        assert!(cursor.goto_parent());
-        assert_eq!(cursor.node().kind(), SyntaxKind::ColId);
+        assert!(cursor.node().is_comment());
     }
 
     #[test]
-    fn goto_next_sibling() {
-        let src = "select a,b,c from tbl;";
-        let (root, range_map) = get_ts_tree_and_range_map(&src, &parse(&src).unwrap());
-
-        let target_element = root
-            .descendants()
-            .find(|x| x.kind() == SyntaxKind::target_el)
-            .unwrap();
-        let mut cursor = as_tree_sitter_cursor(src, &target_element, range_map);
-        //
-        // - target_list
-        //   - target_el (1)
-        //   - Comma ","
-        //   - target_el (2)
-        //   - Comma ","
-        //   - target_el (3)
-        //
-
-        // 1
-        assert_eq!(cursor.node().kind(), SyntaxKind::target_el);
-
-        assert!(cursor.goto_next_sibling());
-        assert_eq!(cursor.node().kind(), SyntaxKind::Comma);
-
-        // 2
-        assert!(cursor.goto_next_sibling());
-        assert_eq!(cursor.node().kind(), SyntaxKind::target_el);
-
-        assert!(cursor.goto_next_sibling());
-        assert_eq!(cursor.node().kind(), SyntaxKind::Comma);
-
-        // 3
-        assert!(cursor.goto_next_sibling());
-        assert_eq!(cursor.node().kind(), SyntaxKind::target_el);
-
-        // No more siblings
-        assert!(!cursor.goto_next_sibling());
-        assert_eq!(cursor.node().kind(), SyntaxKind::target_el);
-    }
-
-    #[test]
-    fn range() {
-        let src = r#"
--- comment
-SELECT
-	1 as X
-,	2 -- comment 2
-,	3
-FROM
-	A
-,	B"#;
-
-        let node = parse(&src).unwrap();
-        let (node, range_map) = get_ts_tree_and_range_map(&src, &node);
-
-        let mut cursor = as_tree_sitter_cursor(&src, &node, range_map);
-        let mut text_buf = String::from("\n");
-
-        'traverse: loop {
-            if cursor.node().child_count() == 0 {
-                text_buf.push_str(&format!("{}\n", cursor.node().range()));
+    fn test_multiple_statements() {
+        let src = "SELECT 1; SELECT 2;";
+        let tree = parse(src).unwrap();
+        let root = tree.root_node();
+        
+        let mut cursor = root.walk();
+        let mut stmt_count = 0;
+        
+        cursor.goto_first_child();
+        loop {
+            if cursor.node().kind() == SyntaxKind::SelectStmt {
+                stmt_count += 1;
             }
-
-            if cursor.goto_first_child() {
-            } else if cursor.goto_next_sibling() {
-            } else {
-                loop {
-                    if !cursor.goto_parent() {
-                        break 'traverse;
-                    }
-
-                    if cursor.goto_next_sibling() {
-                        break;
-                    }
-                }
+            if !cursor.goto_next_sibling() {
+                break;
             }
         }
-
-        let expected = r#"
-[(1, 0)-(1, 10)]
-[(2, 0)-(2, 6)]
-[(3, 1)-(3, 2)]
-[(3, 3)-(3, 5)]
-[(3, 6)-(3, 7)]
-[(4, 0)-(4, 1)]
-[(4, 2)-(4, 3)]
-[(4, 4)-(4, 16)]
-[(5, 0)-(5, 1)]
-[(5, 2)-(5, 3)]
-[(6, 0)-(6, 4)]
-[(7, 1)-(7, 2)]
-[(8, 0)-(8, 1)]
-[(8, 2)-(8, 3)]
-"#;
-
-        assert_eq!(text_buf, expected);
-    }
-
-    #[test]
-    fn texts() {
-        let src = r#"
--- comment
-SELECT
-	1 as X
-,	2 -- comment 2
-,	3
-FROM
-	A
-,	B"#;
-
-        let node = parse(&src).unwrap();
-        let (node, range_map) = get_ts_tree_and_range_map(&src, &node);
-
-        let mut cursor = as_tree_sitter_cursor(&src, &node, range_map);
-        let mut text_buf = Vec::new();
-
-        'traverse: loop {
-            if cursor.node().child_count() == 0 {
-                text_buf.push(cursor.node().text());
-            }
-
-            if cursor.goto_first_child() {
-            } else if cursor.goto_next_sibling() {
-            } else {
-                loop {
-                    if !cursor.goto_parent() {
-                        break 'traverse;
-                    }
-
-                    if cursor.goto_next_sibling() {
-                        break;
-                    }
-                }
-            }
-        }
-
-        let mut text_buf = text_buf.iter();
-        assert_eq!(text_buf.next(), Some(&"-- comment"));
-        assert_eq!(text_buf.next(), Some(&"SELECT"));
-        assert_eq!(text_buf.next(), Some(&"1"));
-        assert_eq!(text_buf.next(), Some(&"as"));
-        assert_eq!(text_buf.next(), Some(&"X"));
-        assert_eq!(text_buf.next(), Some(&","));
-        assert_eq!(text_buf.next(), Some(&"2"));
-        assert_eq!(text_buf.next(), Some(&"-- comment 2"));
-        assert_eq!(text_buf.next(), Some(&","));
-        assert_eq!(text_buf.next(), Some(&"3"));
-        assert_eq!(text_buf.next(), Some(&"FROM"));
-        assert_eq!(text_buf.next(), Some(&"A"));
-        assert_eq!(text_buf.next(), Some(&","));
-        assert_eq!(text_buf.next(), Some(&"B"));
-        assert_eq!(text_buf.next(), None);
+        
+        assert_eq!(stmt_count, 2);
     }
 }

@@ -1,6 +1,6 @@
 use postgresql_cst_parser::{
-    parse,
-    tree_sitter::{as_tree_sitter_cursor, get_ts_tree_and_range_map, TreeCursor},
+    ts_parse,
+    tree_sitter::TreeCursor,
 };
 
 fn main() {
@@ -21,9 +21,9 @@ select
 
 "#;
 
-    let node = parse(&src).unwrap();
-    let (node, range_map) = get_ts_tree_and_range_map(&src, &node);
-    let mut cursor = as_tree_sitter_cursor(src, &node, range_map);
+    let tree = ts_parse(&src).unwrap();
+    let root = tree.root_node();
+    let mut cursor = root.walk();
 
     visit(&mut cursor, 0, &src);
 }
