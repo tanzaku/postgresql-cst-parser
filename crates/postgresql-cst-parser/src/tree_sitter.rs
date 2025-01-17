@@ -72,10 +72,10 @@ impl std::fmt::Display for Point {
 // https://github.com/tree-sitter/tree-sitter/blob/90666c951d53c13cc6cf5002d971a6debed74244/lib/binding_rust/lib.rs#L80-L88
 #[derive(Debug, Clone)]
 pub struct Range {
-    start_byte: usize,
-    end_byte: usize,
-    start_position: Point,
-    end_position: Point,
+    pub start_byte: usize,
+    pub end_byte: usize,
+    pub start_position: Point,
+    pub end_position: Point,
 }
 
 impl std::fmt::Display for Range {
