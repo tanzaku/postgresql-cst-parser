@@ -85,10 +85,9 @@ fn get_row_column_range(node_or_token: &NodeOrToken, new_line_indices: &[usize])
     let end_position = Point {
         row: before_end_new_line_count,
         column: usize::from(text_range.end())
-            - 1
             - match before_end_new_line_count {
                 0 => 0,
-                i => new_line_indices[i - 1],
+                i => new_line_indices[i - 1] + 1,
             },
     };
 

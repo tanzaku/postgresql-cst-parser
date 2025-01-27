@@ -16,29 +16,37 @@ impl Display for SyntaxKind {
     }
 }
 
-pub fn parse(input: &str)->Result<Tree, cst::ParseError> {
+pub fn parse(input: &str) -> Result<Tree, cst::ParseError> {
     let parsed = cst::parse(input)?;
-    let (root,range_map) = get_ts_tree_and_range_map(input, &parsed);
+    let (root, range_map) = get_ts_tree_and_range_map(input, &parsed);
     Ok(Tree::new(input, root, range_map))
 }
 
 pub struct Tree {
     src: String,
     root: ResolvedNode,
-    range_map: Rc<HashMap<TextRange, Range>>
+    range_map: Rc<HashMap<TextRange, Range>>,
 }
 
 impl Tree {
-    pub fn new<T: Into<String>>(src: T, root: ResolvedNode, range_map: HashMap<TextRange, Range>)->Self {
+    pub fn new<T: Into<String>>(
+        src: T,
+        root: ResolvedNode,
+        range_map: HashMap<TextRange, Range>,
+    ) -> Self {
         Self {
             src: src.into(),
             root,
-            range_map: Rc::new(range_map)
+            range_map: Rc::new(range_map),
         }
     }
-    
-    pub fn root_node(&self)->Node {
-        Node { input: &self.src, range_map: Rc::clone(&self.range_map), node_or_token: NodeOrToken::Node(&self.root) }
+
+    pub fn root_node(&self) -> Node {
+        Node {
+            input: &self.src,
+            range_map: Rc::clone(&self.range_map),
+            node_or_token: NodeOrToken::Node(&self.root),
+        }
     }
 }
 
@@ -89,7 +97,7 @@ impl<'a> Node<'a> {
         TreeCursor {
             input: self.input,
             range_map: Rc::clone(&self.range_map),
-            node_or_token: self.node_or_token
+            node_or_token: self.node_or_token,
         }
     }
 
@@ -212,12 +220,133 @@ pub fn as_tree_sitter_cursor<'a>(
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::{
-        syntax_kind::SyntaxKind, tree_sitter::parse,
-    };
+    use crate::{syntax_kind::SyntaxKind, tree_sitter::parse};
+
+    #[test]
+    fn empty_src_range() {
+        let src = "";
+        let tree = parse(src).unwrap();
+        let root = tree.root_node();
+
+        assert_eq!(root.range().to_string(), "[(0, 0)-(0, 0)]");
+    }
+
+    #[test]
+    fn range_single_line() {
+        let src = "select a from b;";
+        let tree = parse(src).unwrap();
+        let root = tree.root_node();
+        let mut cursor = root.walk();
+
+        // extract tokens
+        let mut tokens = vec![];
+        'traverse: loop {
+            if cursor.node().child_count() == 0 {
+                tokens.push((cursor.node().text(), cursor.node().range()));
+            }
+
+            if cursor.goto_first_child() {
+            } else if cursor.goto_next_sibling() {
+            } else {
+                loop {
+                    if !cursor.goto_parent() {
+                        break 'traverse;
+                    }
+
+                    if cursor.goto_next_sibling() {
+                        break;
+                    }
+                }
+            }
+        }
+
+        assert_eq!(tokens.len(), 5);
+        let mut tokens = tokens.iter();
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, "select");
+        assert_eq!(range.to_string(), "[(0, 0)-(0, 6)]");
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, "a");
+        assert_eq!(range.to_string(), "[(0, 7)-(0, 8)]");
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, "from");
+        assert_eq!(range.to_string(), "[(0, 9)-(0, 13)]");
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, "b");
+        assert_eq!(range.to_string(), "[(0, 14)-(0, 15)]");
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, ";");
+        assert_eq!(range.to_string(), "[(0, 15)-(0, 16)]");
+
+        assert!(tokens.next().is_none());
+    }
+
+    #[test]
+    fn range_multiple_line() {
+        let src = r#"
+select
+	a
+from
+	b
+;"#;
+        let tree = parse(src).unwrap();
+        let root = tree.root_node();
+        let mut cursor = root.walk();
+
+        // extract tokens
+        let mut tokens = vec![];
+        'traverse: loop {
+            if cursor.node().child_count() == 0 {
+                tokens.push((cursor.node().text(), cursor.node().range()));
+            }
+
+            if cursor.goto_first_child() {
+            } else if cursor.goto_next_sibling() {
+            } else {
+                loop {
+                    if !cursor.goto_parent() {
+                        break 'traverse;
+                    }
+
+                    if cursor.goto_next_sibling() {
+                        break;
+                    }
+                }
+            }
+        }
+
+        assert_eq!(tokens.len(), 5);
+        let mut tokens = tokens.iter();
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, "select");
+        assert_eq!(range.to_string(), "[(1, 0)-(1, 6)]");
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, "a");
+        assert_eq!(range.to_string(), "[(2, 1)-(2, 2)]");
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, "from");
+        assert_eq!(range.to_string(), "[(3, 0)-(3, 4)]");
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, "b");
+        assert_eq!(range.to_string(), "[(4, 1)-(4, 2)]");
+
+        let (text, range) = tokens.next().unwrap();
+        assert_eq!(*text, ";");
+        assert_eq!(range.to_string(), "[(5, 0)-(5, 1)]");
+
+        assert!(tokens.next().is_none());
+    }
 
     #[test]
     fn test_tree_basics() {
@@ -272,10 +401,10 @@ mod tests {
         let src = "SELECT 1; SELECT 2;";
         let tree = parse(src).unwrap();
         let root = tree.root_node();
-        
+
         let mut cursor = root.walk();
         let mut stmt_count = 0;
-        
+
         cursor.goto_first_child();
         loop {
             if cursor.node().kind() == SyntaxKind::SelectStmt {
@@ -285,7 +414,7 @@ mod tests {
                 break;
             }
         }
-        
+
         assert_eq!(stmt_count, 2);
     }
 }

@@ -1,7 +1,4 @@
-use postgresql_cst_parser::{
-    ts_parse,
-    tree_sitter::TreeCursor,
-};
+use postgresql_cst_parser::{tree_sitter::TreeCursor, ts_parse};
 
 fn main() {
     let src = r#"
