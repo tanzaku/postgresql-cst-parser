@@ -138,7 +138,9 @@ fn walk_and_build(
         match child {
             NodeOrToken::Node(child_node) => {
                 match child_node.kind() {
-                    child_kind @ (SyntaxKind::target_list | SyntaxKind::from_list) => {
+                    child_kind @ (SyntaxKind::target_list
+                    | SyntaxKind::from_list
+                    | SyntaxKind::indirection) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -310,6 +312,16 @@ FROM
             let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::from_list);
+        }
+
+        #[test]
+        fn no_nested_indirection() {
+            let input =
+                "select t.a, t.b.c, t1.*, a[1], a[4][5], a[2:5], a[3].b, a[3][4].b, a[3:5].b;";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::indirection);
         }
     }
 }
