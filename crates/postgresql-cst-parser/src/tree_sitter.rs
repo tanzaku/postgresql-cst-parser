@@ -148,6 +148,14 @@ impl<'a> Node<'a> {
             })
     }
 
+    pub fn parent(&self) -> Option<Node<'a>> {
+        self.node_or_token.parent().map(|parent| Node {
+            input: self.input,
+            range_map: Rc::clone(&self.range_map),
+            node_or_token: NodeOrToken::Node(parent),
+        })
+    }
+
     pub fn is_comment(&self) -> bool {
         matches!(self.kind(), SyntaxKind::C_COMMENT | SyntaxKind::SQL_COMMENT)
     }
@@ -231,6 +239,38 @@ mod tests {
         let root = tree.root_node();
 
         assert_eq!(root.range().to_string(), "[(0, 0)-(0, 0)]");
+    }
+
+    #[test]
+    fn test_parent_method() {
+        let src = "SELECT id FROM users;";
+        let tree = parse(src).unwrap();
+        let root = tree.root_node();
+
+        // ルートノードの親はない
+        assert!(root.parent().is_none());
+
+        // 子ノードから親ノードへの参照をテスト
+        let mut cursor = root.walk();
+        assert!(cursor.goto_first_child());
+
+        let select_stmt = cursor.node();
+        assert_eq!(select_stmt.kind(), SyntaxKind::SelectStmt);
+
+        // 子ノードの親はルートノード
+        let parent = select_stmt.parent().unwrap();
+        assert_eq!(parent.kind(), SyntaxKind::Root);
+
+        // さらに深いノードの階層関係をテスト
+        if cursor.goto_first_child() {
+            let child_node = cursor.node();
+            let parent_node = child_node.parent().unwrap();
+            assert_eq!(parent_node.kind(), SyntaxKind::SelectStmt);
+
+            // 親の親はルートノード
+            let grandparent = parent_node.parent().unwrap();
+            assert_eq!(grandparent.kind(), SyntaxKind::Root);
+        }
     }
 
     #[test]
