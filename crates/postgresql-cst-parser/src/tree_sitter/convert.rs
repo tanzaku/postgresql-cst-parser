@@ -140,7 +140,8 @@ fn walk_and_build(
                 match child_node.kind() {
                     child_kind @ (SyntaxKind::target_list
                     | SyntaxKind::from_list
-                    | SyntaxKind::indirection) => {
+                    | SyntaxKind::indirection
+                    | SyntaxKind::expr_list) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -322,6 +323,15 @@ FROM
             let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::indirection);
+        }
+
+        #[test]
+        fn no_nested_expr_list() {
+            let input = "select a from t where a in (1,2,3);";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::expr_list);
         }
     }
 }
