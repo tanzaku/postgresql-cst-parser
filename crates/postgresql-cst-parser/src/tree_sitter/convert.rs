@@ -141,7 +141,8 @@ fn walk_and_build(
                     child_kind @ (SyntaxKind::target_list
                     | SyntaxKind::from_list
                     | SyntaxKind::indirection
-                    | SyntaxKind::expr_list) => {
+                    | SyntaxKind::expr_list
+                    | SyntaxKind::func_arg_list) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -332,6 +333,15 @@ FROM
             let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::expr_list);
+        }
+
+        #[test]
+        fn no_nested_func_arg_list() {
+            let input = "select func(1, 2, func2(3, 4), 5);";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::func_arg_list);
         }
     }
 }
