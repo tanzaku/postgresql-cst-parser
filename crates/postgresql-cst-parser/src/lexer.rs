@@ -11,6 +11,7 @@ use self::generated::{RuleKind, State};
 
 pub const NAMEDATALEN: usize = 64;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum Yylval {
     Str(String),

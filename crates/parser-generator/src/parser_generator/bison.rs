@@ -39,12 +39,12 @@ pub enum RawComponent {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ComponentId(pub u16);
 
-/// 構文規則のコンポーネント
+/// Component of the syntax rule
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Component {
-    /// 非終端記号
+    /// Non-terminal symbol
     NonTerminal(String),
-    /// 終端記号
+    /// Terminal symbol
     Terminal(TokenKind),
 }
 
@@ -134,25 +134,6 @@ pub struct Bison {
     pub rules: Vec<Rule>,
 
     pub rule_names: Vec<String>,
-    // これ使ってる？
-    // pub comments: Vec<Token>,
-
-    // 構文解析表作るやつなので消す
-    // pub components: Vec<Component>,
-    // pub component_map: HashMap<Component, ComponentId>,
-
-    // pub name_to_rules: HashMap<String, Vec<usize>>,
-
-    // pub first_set: HashMap<ComponentId, HashSet<ComponentId>>,
-    // pub nullable: HashMap<ComponentId, bool>,
-
-    // pub state_set: StateSet,
-    // pub action_table: HashMap<(usize, ComponentId), Action>,
-    // pub goto_table: HashMap<(usize, ComponentId), usize>,
-    // pub accept_rule_component_id: ComponentId,
-    // pub accept_rule_component: Component,
-    // pub end_rule_component_id: ComponentId,
-    // pub end_rule_component: Component,
 }
 
 impl Bison {
@@ -191,7 +172,7 @@ fn parse_type(bison: &mut Bison, line: &str, deq: &mut VecDeque<String>) {
                 .insert(non_terminal_symbol.to_string(), typ.to_string());
         }
 
-        // 空白スタートの場合継続業とみなす
+        // If it starts with a space, consider it as a continuation line
         if deq.front().map_or(false, is_start_whitespace) {
             line = deq.pop_front().unwrap();
         } else {
@@ -221,7 +202,7 @@ fn parse_token(bison: &mut Bison, line: &str, deq: &mut VecDeque<String>) {
             bison.token.insert(terminal_symbol.to_string(), typ.clone());
         }
 
-        // 空白スタートの場合継続業とみなす
+        // If it starts with a space, consider it as a continuation line
         if deq
             .front()
             .map_or(false, |line| is_start_whitespace(line) || line.is_empty())
@@ -249,8 +230,8 @@ fn parse_assoc(
 
     loop {
         for name in line.split_whitespace() {
-            // ブロックコメントの開始を見つけたら終了
-            // 雑だがpostgresqlのgrammerをparseする分には問題ない
+            // If we find the start of a block comment, end
+            // This is rough but works fine for parsing postgresql's grammar
             if name == "/*" {
                 break;
             }
@@ -264,7 +245,7 @@ fn parse_assoc(
             bison.assoc.insert(name.to_string(), assoc);
         }
 
-        // 空白スタートの場合継続業とみなす
+        // If it starts with a space, consider it as a continuation line
         if deq.front().map_or(false, is_start_whitespace) {
             line = deq.pop_front().unwrap();
         } else {
@@ -603,29 +584,6 @@ pub fn parse_bison(s: impl AsRef<str>) -> Bison {
         assoc: HashMap::new(),
         rules: Vec::new(),
         rule_names: Vec::new(),
-        // 未使用
-        // comments: Vec::new(),
-
-        // Lalr構造体に移動
-        // components: Vec::new(),
-        // component_map: HashMap::new(),
-
-        // name_to_rules: HashMap::new(),
-
-        // first_set: HashMap::new(),
-        // nullable: HashMap::new(),
-
-        // state_set: StateSet {
-        //     states: Vec::new(),
-        //     need_update: HashSet::new(),
-        // },
-        // action_table: HashMap::new(),
-        // goto_table: HashMap::new(),
-
-        // accept_rule_component: Component::NonTerminal("dummy".to_string()),
-        // accept_rule_component_id: ComponentId(0),
-        // end_rule_component: Component::NonTerminal("dummy".to_string()),
-        // end_rule_component_id: ComponentId(0),
     };
 
     while let Some(line) = deq.pop_front() {

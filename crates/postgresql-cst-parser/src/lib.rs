@@ -20,6 +20,3 @@ pub use cst::SyntaxToken;
 pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
     cst::parse(input)
 }
-
-#[cfg(test)]
-mod tests {}

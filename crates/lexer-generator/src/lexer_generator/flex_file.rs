@@ -109,6 +109,14 @@ fn parse_rules(states: Vec<String>, it: &mut impl Iterator<Item = String>) -> Ve
     rules
 }
 
+fn skip_c_source(it: &mut impl Iterator<Item = String>) {
+    while let Some(line) = it.next() {
+        if line == "%}" {
+            break;
+        }
+    }
+}
+
 pub fn parse_flex_file(s: impl AsRef<str>) -> FlexFile {
     let s = s.as_ref().lines().map(str::to_owned).collect::<Vec<_>>();
 
@@ -117,9 +125,15 @@ pub fn parse_flex_file(s: impl AsRef<str>) -> FlexFile {
 
     flex_file.all_states.push("INITIAL".to_owned());
     let mut it = s.iter().cloned();
+
     while let Some(line) = it.next() {
         if line.starts_with("%%") {
             break;
+        }
+
+        if line.starts_with("%{") {
+            skip_c_source(&mut it);
+            continue;
         }
 
         if line.starts_with("%x ") {

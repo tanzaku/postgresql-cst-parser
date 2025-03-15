@@ -4,7 +4,7 @@ use self::flex_file::{parse_flex_file, FlexFile};
 
 mod flex_file;
 
-/// 各状態の全ルールに一意な名前を付ける
+/// Assign unique names to all rules in each state
 fn construct_rule_kinds(flex_file: &FlexFile) -> String {
     let mut res = Vec::new();
     let mut map: HashMap<&String, usize> = HashMap::new();
@@ -20,7 +20,7 @@ fn construct_rule_kinds(flex_file: &FlexFile) -> String {
     res.join(",\n")
 }
 
-/// action部分のコードを生成する
+/// Generate code for the action part
 fn construct_actions(flex_file: &FlexFile) -> String {
     let mut res = Vec::new();
     let mut map: HashMap<&String, usize> = HashMap::new();
@@ -30,7 +30,7 @@ fn construct_actions(flex_file: &FlexFile) -> String {
             let e = map.entry(s).or_default();
             *e += 1;
 
-            // actionが | の場合、後続のルールが実行される
+            // If the action is |, the subsequent rule will be executed
             if rule.actions.trim() == "|" {
                 res.push(format!(
                     r#"RuleKind::{kind}|"#,
@@ -51,17 +51,17 @@ fn construct_actions(flex_file: &FlexFile) -> String {
     res.join("\n")
 }
 
-/// ルールのパターンを正規表現に変換する
+/// Convert rule patterns to regular expressions
 fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> String {
     if pattern == "<<EOF>>" {
         return "^$".to_string();
     }
 
-    // {xxx}のパターンを抽出する正規表現パターン
+    // Regular expression pattern to extract {xxx} patterns
     let p = regex::Regex::new(r#"\{([a-zA-Z0-9_]+)\}"#).unwrap();
 
-    // flexではダブルクオートをエスケープする必要があるが、正規表現では不要である
-    // そのため、正規表現パターンにする前にダブルクオートのエスケープを除外する
+    // In flex, double quotes need to be escaped, but not in regular expressions
+    // Therefore, remove the escaping of double quotes before converting to regex pattern
     fn remove_unnecessary_quote(s: &str) -> String {
         let chars = s.chars().collect::<Vec<_>>();
         let mut remove = vec![false; chars.len()];
@@ -98,11 +98,11 @@ fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> String {
             .collect()
     }
 
-    // {xxx}を実際の正規表現パターンに展開する
+    // Expand {xxx} to actual regular expression patterns
     p.replace_all(&pattern, |caps: &regex::Captures| {
         let name = caps.get(1).unwrap().as_str();
 
-        // {xxx}のxxxが定義されているかをチェックする
+        // Check if xxx in {xxx} is defined
         if let Some(def) = flex_file.definitions.iter().find(|def| def.name == name) {
             let pattern = remove_unnecessary_quote(&def.def);
             let rep = extract_rule_pattern(flex_file, &pattern);
@@ -114,7 +114,7 @@ fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> String {
     .to_string()
 }
 
-/// Rule構造体を生成する
+/// Generate Rule structures
 fn construct_rule_defs(flex_file: &FlexFile) -> String {
     let mut res = Vec::new();
     let mut map: HashMap<&String, usize> = HashMap::new();
@@ -142,22 +142,22 @@ fn construct_rule_defs(flex_file: &FlexFile) -> String {
     res.join(",\n")
 }
 
-/// 状態を表すenumを生成する
+/// Generate enum representing states
 fn construct_states(flex_file: &FlexFile) -> String {
     flex_file.all_states.clone().join(",\n")
 }
 
-/// scan.lに基づいてLexerを生成する
+/// Generate Lexer based on scan.l
 pub fn generate() {
     let flex_file = parse_flex_file(include_str!("../resources/scan.l"));
-    let template = include_str!("../resources/lex_template.rs");
+    let template = include_str!("../templates/lex_template.rs");
 
     let rule_kinds = construct_rule_kinds(&flex_file);
     let actions = construct_actions(&flex_file);
     let rule_defs = construct_rule_defs(&flex_file);
     let states = construct_states(&flex_file);
 
-    // キーワード一覧を抽出する
+    // Extract keyword list
     let mut keywords = Vec::new();
     for line in include_str!("../resources/kwlist.h").lines() {
         if line.starts_with("PG_KEYWORD") {

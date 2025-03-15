@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "rm -rf ../docs && tsc && vite build",
+    "update-gh-page": "tsc && vite build --emptyOutDir",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "copy-wasm": "rm ./src/postgresql-cst-parser/* && cd ../crates/postgresql-cst-parser-wasm && rm -rf ./pkg && wasm-pack build --release --target web && cp pkg/*.js pkg/*.ts pkg/*.wasm ../../demo/src/postgresql-cst-parser"
+    "copy-wasm": "rm -rf ./src/postgresql-cst-parser/* && cd ../crates/postgresql-cst-parser-wasm && rm -rf ./pkg && wasm-pack build --release --target web && cp pkg/*.js pkg/*.ts pkg/*.wasm ../../demo/src/postgresql-cst-parser"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
