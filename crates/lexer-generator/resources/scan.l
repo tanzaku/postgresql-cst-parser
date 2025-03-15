@@ -22,7 +22,7 @@
  * Postgres 9.2, this check is made automatically by the Makefile.)
  *
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * IDENTIFICATION
@@ -213,16 +213,16 @@ extern void core_yyset_column(int column_no, yyscan_t yyscanner);
  * versions of Postgres failed to recognize -- as a comment if the input
  * did not end with a newline.
  *
- * XXX perhaps \f (formfeed) should be treated as a newline as well?
+ * non_newline_space tracks all the other space characters except newlines.
  *
  * XXX if you change the set of whitespace characters, fix scanner_isspace()
  * to agree.
  */
 
-space			[ \t\n\r\f]
-horiz_space		[ \t\f]
-newline			[\n\r]
-non_newline		[^\n\r]
+space				[ \t\n\r\f\v]
+non_newline_space	[ \t\f\v]
+newline				[\n\r]
+non_newline			[^\n\r]
 
 comment			("--"{non_newline}*)
 
@@ -236,8 +236,8 @@ whitespace		({space}+)
  */
 
 special_whitespace		({space}+)
-horiz_whitespace		({horiz_space})
-whitespace_with_newline	({horiz_whitespace}*{newline}{special_whitespace}*)
+non_newline_whitespace	({non_newline_space})
+whitespace_with_newline	({non_newline_whitespace}*{newline}{special_whitespace}*)
 
 quote			'
 /* If we see {quote} then {quotecontinue}, the quoted string continues */
@@ -407,19 +407,34 @@ octfail			0[oO]_?
 binfail			0[bB]_?
 
 numeric			(({decinteger}\.{decinteger}?)|(\.{decinteger}))
-numericfail		{decdigit}+\.\.
+numericfail		{decinteger}\.\.
 
 real			({decinteger}|{numeric})[Ee][-+]?{decinteger}
 realfail		({decinteger}|{numeric})[Ee][-+]
 
-decinteger_junk	{decinteger}{ident_start}
-hexinteger_junk	{hexinteger}{ident_start}
-octinteger_junk	{octinteger}{ident_start}
-bininteger_junk	{bininteger}{ident_start}
-numeric_junk	{numeric}{ident_start}
-real_junk		{real}{ident_start}
-
+/* Positional parameters don't accept underscores. */
 param			\${decdigit}+
+
+/*
+ * An identifier immediately following an integer literal is disallowed because
+ * in some cases it's ambiguous what is meant: for example, 0x1234 could be
+ * either a hexinteger or a decinteger "0" and an identifier "x1234".  We can
+ * detect such problems by seeing if integer_junk matches a longer substring
+ * than any of the XXXinteger patterns (decinteger, hexinteger, octinteger,
+ * bininteger).  One "junk" pattern is sufficient because
+ * {decinteger}{identifier} will match all the same strings we'd match with
+ * {hexinteger}{identifier} etc.
+ *
+ * Note that the rule for integer_junk must appear after the ones for
+ * XXXinteger to make this work correctly: 0x1234 will match both hexinteger
+ * and integer_junk, and we need hexinteger to be chosen in that case.
+ *
+ * Also disallow strings matched by numeric_junk, real_junk and param_junk
+ * for consistency.
+ */
+integer_junk	{decinteger}{identifier}
+numeric_junk	{numeric}{identifier}
+real_junk		{real}{identifier}
 
 other			.
 
@@ -532,9 +547,11 @@ other			.
 					 * We will pass this along as a normal character string,
 					 * but preceded with an internally-generated "NCHAR".
 					 */
-					self.set_yylloc();
-					self.yyless(1);	/* eat only 'n' this time */
-
+					// int		kwnum;
+					// 
+					// SET_YYLLOC();
+					// yyless(1);	/* eat only 'n' this time */
+					// 
 					// kwnum = ScanKeywordLookup("nchar",
 					// 						  yyextra->keywordlist);
 					// if (kwnum >= 0)
@@ -551,6 +568,9 @@ other			.
 					// 	return IDENT;
 					// }
 
+					self.set_yylloc();
+					self.yyless(1);	/* eat only 'n' this time */
+
 					if let Some((kw, kw_token)) = self.get_keyword("nchar") {
 						self.yylval = Yylval::Keyword(kw);
 						return Some(TokenKind::KEYWORD(kw_token));
@@ -563,9 +583,17 @@ other			.
 				}
 
 {xqstart}		{
-					self.set_yylloc();
+					// yyextra->warn_on_first_escape = true;
+					// yyextra->saw_non_ascii = false;
+					// SET_YYLLOC();
 					// if (yyextra->standard_conforming_strings)
-					if true {
+					// 	BEGIN(xq);
+					// else
+					// 	BEGIN(xe);
+					// startlit();
+
+					self.set_yylloc();
+					if STANDARD_CONFORMING_STRINGS {
 						self.begin(State::xq);
 					} else {
 						self.begin(State::xe);
@@ -573,14 +601,29 @@ other			.
 					self.literal.clear();
 				}
 {xestart}		{
+					// yyextra->warn_on_first_escape = false;
+					// yyextra->saw_non_ascii = false;
+					// SET_YYLLOC();
+					// BEGIN(xe);
+					// startlit();
+
 					self.set_yylloc();
 					self.begin(State::xe);
 					self.literal.clear();
 				}
 {xusstart}		{
-					self.set_yylloc();
+					// SET_YYLLOC();
 					// if (!yyextra->standard_conforming_strings)
-					if false {
+					// 	ereport(ERROR,
+					// 			(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+					// 			 errmsg("unsafe use of string constant with Unicode escapes"),
+					// 			 errdetail("String constants with Unicode escapes cannot be used when \"standard_conforming_strings\" is off."),
+					// 			 lexer_errposition()));
+					// BEGIN(xus);
+					// startlit();
+
+					self.set_yylloc();
+					if !STANDARD_CONFORMING_STRINGS {
 						// ereport(ERROR,
 						// 		(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
 						// 		 errmsg("unsafe use of string constant with Unicode escapes"),
@@ -1182,6 +1225,12 @@ other			.
 					 * and-truncate, because the odds are we are looking at
 					 * a syntactic mistake anyway.
 					 */
+					// if (nchars >= NAMEDATALEN)
+					// 	yyerror("operator too long");
+					// 
+					// yylval->str = pstrdup(yytext);
+					// return Op;
+
 					if nchars >= NAMEDATALEN {
 						yyerror("operator too long");
 					}
@@ -1193,88 +1242,118 @@ other			.
 				}
 
 {param}			{
+					// SET_YYLLOC();
+					// yylval->ival = atol(yytext + 1);
+					// return PARAM;
+
 					self.set_yylloc();
 					self.yylval = Yylval::I(i32::from_str_radix(&self.yytext()[1..], 10).unwrap());
 					return Some(TokenKind::PARAM);
 				}
 
 {decinteger}	{
+					// SET_YYLLOC();
+					// return process_integer_literal(yytext, yylval, 10);
+
 					self.set_yylloc();
-					// return self.process_integer_literal(yytext, yylval, 10);
 					return self.process_integer_literal(10);
 				}
 {hexinteger}	{
+					// SET_YYLLOC();
+					// return process_integer_literal(yytext, yylval, 16);
+
 					self.set_yylloc();
-					// return self.process_integer_literal(yytext, yylval, 16);
 					return self.process_integer_literal(16);
 				}
 {octinteger}	{
-					self.set_yylloc();
+					// SET_YYLLOC();
 					// return process_integer_literal(yytext, yylval, 8);
+
+					self.set_yylloc();
 					return self.process_integer_literal(8);
 				}
 {bininteger}	{
-					self.set_yylloc();
+					// SET_YYLLOC();
 					// return process_integer_literal(yytext, yylval, 2);
+
+					self.set_yylloc();
 					return self.process_integer_literal(2);
 				}
 {hexfail}		{
+					// SET_YYLLOC();
+					// yyerror("invalid hexadecimal integer");
+
 					self.set_yylloc();
 					yyerror("invalid hexadecimal integer");
 				}
 {octfail}		{
+					// SET_YYLLOC();
+					// yyerror("invalid octal integer");
+
 					self.set_yylloc();
 					yyerror("invalid octal integer");
 				}
 {binfail}		{
+					// SET_YYLLOC();
+					// yyerror("invalid binary integer");
+
 					self.set_yylloc();
 					yyerror("invalid binary integer");
 				}
 {numeric}		{
-					self.set_yylloc();
+					// SET_YYLLOC();
 					// yylval->str = pstrdup(yytext);
+					// return FCONST;
+
+					self.set_yylloc();
 					self.yylval = Yylval::Str(self.yytext());
 					return Some(TokenKind::FCONST);
 				}
 {numericfail}	{
 					/* throw back the .., and treat as integer */
 					// yyless(yyleng - 2);
+					// SET_YYLLOC();
+					// return process_integer_literal(yytext, yylval, 10);
+
+					/* throw back the .., and treat as integer */
 					self.yyless(self.yyleng - 2);
 					self.set_yylloc();
-					// return process_integer_literal(yytext, yylval, 10);
 					return self.process_integer_literal(10);
 				}
 {real}			{
-					self.set_yylloc();
+					// SET_YYLLOC();
 					// yylval->str = pstrdup(yytext);
+					// return FCONST;
+
+					self.set_yylloc();
 					self.yylval = Yylval::Str(self.yytext());
 					return Some(TokenKind::FCONST);
 				}
 {realfail}		{
+					// SET_YYLLOC();
+					// yyerror("trailing junk after numeric literal");
+
 					self.set_yylloc();
 					yyerror("trailing junk after numeric literal");
 				}
-{decinteger_junk}	{
-					self.set_yylloc();
-					yyerror("trailing junk after numeric literal");
-				}
-{hexinteger_junk}	{
-					self.set_yylloc();
-					yyerror("trailing junk after numeric literal");
-				}
-{octinteger_junk}	{
-					self.set_yylloc();
-					yyerror("trailing junk after numeric literal");
-				}
-{bininteger_junk}	{
+{integer_junk}	{
+					// SET_YYLLOC();
+					// yyerror("trailing junk after numeric literal");
+
 					self.set_yylloc();
 					yyerror("trailing junk after numeric literal");
 				}
 {numeric_junk}	{
+					// SET_YYLLOC();
+					// yyerror("trailing junk after numeric literal");
+
 					self.set_yylloc();
 					yyerror("trailing junk after numeric literal");
 				}
 {real_junk}		{
+					// SET_YYLLOC();
+					// yyerror("trailing junk after numeric literal");
+
 					self.set_yylloc();
 					yyerror("trailing junk after numeric literal");
 				}
@@ -1283,19 +1362,31 @@ other			.
 {identifier}	{
 					// int			kwnum;
 					// char	   *ident;
-
-					self.set_yylloc();
-
-					/* Is it a keyword? */
+					// 
+					// SET_YYLLOC();
+					// 
+					// /* Is it a keyword? */
 					// kwnum = ScanKeywordLookup(yytext,
 					// 						  yyextra->keywordlist);
 					// if (kwnum >= 0)
 					// {
-						// yylval->keyword = GetScanKeyword(kwnum,
-						// 								 yyextra->keywordlist);
-						// return yyextra->keyword_tokens[kwnum];
+					// 	yylval->keyword = GetScanKeyword(kwnum,
+					// 									 yyextra->keywordlist);
+					// 	return yyextra->keyword_tokens[kwnum];
 					// }
+					// 
+					// /*
+					//  * No.  Convert the identifier to lower case, and truncate
+					//  * if necessary.
+					//  */
+					// ident = downcase_truncate_identifier(yytext, yyleng, true);
+					// yylval->str = ident;
+					// yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+					// return IDENT;
 
+					self.set_yylloc();
+
+					/* Is it a keyword? */
 					let yytext = self.yytext();
 					if let Some((kw, kw_token)) = self.get_keyword(&yytext) {
 						self.yylval = Yylval::Keyword(kw);
@@ -1306,9 +1397,6 @@ other			.
 					 * No.  Convert the identifier to lower case, and truncate
 					 * if necessary.
 					 */
-					// ident = downcase_truncate_identifier(yytext, yyleng, true);
-					// yylval->str = ident;
-					// yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
 					let ident = self.downcase_truncate_identifier(self.yyleng, true);
 					self.yylval = Yylval::Str(ident);
 					self.set_yyllocend();
@@ -1316,11 +1404,17 @@ other			.
 				}
 
 {other}			{
+					// SET_YYLLOC();
+					// return yytext[0];
+
 					self.set_yylloc();
 					return Some(TokenKind::RAW(yytext[0..1].to_string()));
 				}
 
 <<EOF>>			{
+					// SET_YYLLOC();
+					// yyterminate();
+
 					self.set_yylloc();
 					yyterminate!();
 				}
@@ -1630,6 +1724,8 @@ unescape_single_char(unsigned char c, core_yyscan_t yyscanner)
 			return '\r';
 		case 't':
 			return '\t';
+		case 'v':
+			return '\v';
 		default:
 			/* check for backslash followed by non-7-bit-ASCII */
 			if (c == '\0' || IS_HIGHBIT_SET(c))

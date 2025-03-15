@@ -22,6 +22,8 @@ pub enum RuleKind {{rule_kinds}}
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum State {{states}}
 
+const STANDARD_CONFORMING_STRINGS: bool = true;
+
 impl Lexer {
     pub fn parse_token(&mut self) -> Option<TokenKind> {
         loop {
