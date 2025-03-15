@@ -3,7 +3,6 @@
 
 use std::collections::HashMap;
 
-// use regex::{Match, Regex};
 use regex::bytes::Regex;
 
 use super::{
@@ -113,9 +112,6 @@ pub enum RuleKind {
     INITIAL40,
     INITIAL41,
     INITIAL42,
-    INITIAL43,
-    INITIAL44,
-    INITIAL45,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -133,6 +129,8 @@ pub enum State {
     xus,
     xeu,
 }
+
+const STANDARD_CONFORMING_STRINGS: bool = true;
 
 impl Lexer {
     pub fn parse_token(&mut self) -> Option<TokenKind> {
@@ -236,18 +234,17 @@ impl Lexer {
                          * We will pass this along as a normal character string,
                          * but preceded with an internally-generated "NCHAR".
                          */
-                        self.set_yylloc();
-                        self.yyless(1); /* eat only 'n' this time */
-
-                        // kwnumは文字列のキーワード位置のオフセット
+                        // int		kwnum;
+                        //
+                        // SET_YYLLOC();
+                        // yyless(1);	/* eat only 'n' this time */
+                        //
                         // kwnum = ScanKeywordLookup("nchar",
                         // 						  yyextra->keywordlist);
                         // if (kwnum >= 0)
                         // {
-                        //  キーワードの文字列をセット
                         // 	yylval->keyword = GetScanKeyword(kwnum,
                         // 									 yyextra->keywordlist);
-                        //  キーワードのIDを返す。IDはbison grammarのtoken typeの数値で返す
                         // 	return yyextra->keyword_tokens[kwnum];
                         // }
                         // else
@@ -257,6 +254,9 @@ impl Lexer {
                         // 	yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
                         // 	return IDENT;
                         // }
+
+                        self.set_yylloc();
+                        self.yyless(1); /* eat only 'n' this time */
 
                         if let Some((kw, kw_token)) = self.get_keyword("nchar") {
                             self.yylval = Yylval::Keyword(kw);
@@ -271,9 +271,17 @@ impl Lexer {
                 }
                 RuleKind::INITIAL7 => {
                     {
-                        self.set_yylloc();
+                        // yyextra->warn_on_first_escape = true;
+                        // yyextra->saw_non_ascii = false;
+                        // SET_YYLLOC();
                         // if (yyextra->standard_conforming_strings)
-                        if true {
+                        // 	BEGIN(xq);
+                        // else
+                        // 	BEGIN(xe);
+                        // startlit();
+
+                        self.set_yylloc();
+                        if STANDARD_CONFORMING_STRINGS {
                             self.begin(State::xq);
                         } else {
                             self.begin(State::xe);
@@ -282,15 +290,32 @@ impl Lexer {
                     }
                 }
                 RuleKind::INITIAL8 => {
-                    self.set_yylloc();
-                    self.begin(State::xe);
-                    self.literal.clear();
+                    {
+                        // yyextra->warn_on_first_escape = false;
+                        // yyextra->saw_non_ascii = false;
+                        // SET_YYLLOC();
+                        // BEGIN(xe);
+                        // startlit();
+
+                        self.set_yylloc();
+                        self.begin(State::xe);
+                        self.literal.clear();
+                    }
                 }
                 RuleKind::INITIAL9 => {
                     {
-                        self.set_yylloc();
+                        // SET_YYLLOC();
                         // if (!yyextra->standard_conforming_strings)
-                        if false {
+                        // 	ereport(ERROR,
+                        // 			(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+                        // 			 errmsg("unsafe use of string constant with Unicode escapes"),
+                        // 			 errdetail("String constants with Unicode escapes cannot be used when \"standard_conforming_strings\" is off."),
+                        // 			 lexer_errposition()));
+                        // BEGIN(xus);
+                        // startlit();
+
+                        self.set_yylloc();
+                        if !STANDARD_CONFORMING_STRINGS {
                             // ereport(ERROR,
                             // 		(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
                             // 		 errmsg("unsafe use of string constant with Unicode escapes"),
@@ -514,7 +539,6 @@ impl Lexer {
                         // SET_YYLLOC();
                         // self.set_yylloc();
 
-                        // TODO
                         // if is_utf16_surrogate_first(c) {
                         // 	// yyextra->utf16_first_part = c;
                         // 	self.utf16_first_part = c;
@@ -544,7 +568,6 @@ impl Lexer {
                         /* ... and set the error cursor to point at this esc seq */
                         // self.set_yylloc();
 
-                        // TODO
                         // if !is_utf16_surrogate_second(c) {
                         // 	yyerror("invalid Unicode surrogate pair");
                         // }
@@ -686,7 +709,6 @@ impl Lexer {
                         /* throw back all but the initial "$" */
                         self.yyless(1);
                         /* and treat it as {other} */
-                        // これ何だろう
                         return Some(TokenKind::RAW(self.yytext()));
                     }
                 }
@@ -1065,6 +1087,12 @@ impl Lexer {
                          * and-truncate, because the odds are we are looking at
                          * a syntactic mistake anyway.
                          */
+                        // if (nchars >= NAMEDATALEN)
+                        // 	yyerror("operator too long");
+                        //
+                        // yylval->str = pstrdup(yytext);
+                        // return Op;
+
                         if nchars >= NAMEDATALEN {
                             yyerror("operator too long");
                         }
@@ -1076,54 +1104,87 @@ impl Lexer {
                     }
                 }
                 RuleKind::INITIAL25 => {
-                    self.set_yylloc();
-                    self.yylval = Yylval::I(i32::from_str_radix(&self.yytext()[1..], 10).unwrap());
-                    return Some(TokenKind::PARAM);
+                    {
+                        // SET_YYLLOC();
+                        // yylval->ival = atol(yytext + 1);
+                        // return PARAM;
+
+                        self.set_yylloc();
+                        self.yylval =
+                            Yylval::I(i32::from_str_radix(&self.yytext()[1..], 10).unwrap());
+                        return Some(TokenKind::PARAM);
+                    }
                 }
                 RuleKind::INITIAL26 => {
                     {
+                        // SET_YYLLOC();
+                        // return process_integer_literal(yytext, yylval, 10);
+
                         self.set_yylloc();
-                        // return self.process_integer_literal(yytext, yylval, 10);
                         return self.process_integer_literal(10);
                     }
                 }
                 RuleKind::INITIAL27 => {
                     {
+                        // SET_YYLLOC();
+                        // return process_integer_literal(yytext, yylval, 16);
+
                         self.set_yylloc();
-                        // return self.process_integer_literal(yytext, yylval, 16);
                         return self.process_integer_literal(16);
                     }
                 }
                 RuleKind::INITIAL28 => {
                     {
-                        self.set_yylloc();
+                        // SET_YYLLOC();
                         // return process_integer_literal(yytext, yylval, 8);
+
+                        self.set_yylloc();
                         return self.process_integer_literal(8);
                     }
                 }
                 RuleKind::INITIAL29 => {
                     {
-                        self.set_yylloc();
+                        // SET_YYLLOC();
                         // return process_integer_literal(yytext, yylval, 2);
+
+                        self.set_yylloc();
                         return self.process_integer_literal(2);
                     }
                 }
                 RuleKind::INITIAL30 => {
-                    self.set_yylloc();
-                    yyerror("invalid hexadecimal integer");
+                    {
+                        // SET_YYLLOC();
+                        // yyerror("invalid hexadecimal integer");
+
+                        self.set_yylloc();
+                        yyerror("invalid hexadecimal integer");
+                    }
                 }
                 RuleKind::INITIAL31 => {
-                    self.set_yylloc();
-                    yyerror("invalid octal integer");
+                    {
+                        // SET_YYLLOC();
+                        // yyerror("invalid octal integer");
+
+                        self.set_yylloc();
+                        yyerror("invalid octal integer");
+                    }
                 }
                 RuleKind::INITIAL32 => {
-                    self.set_yylloc();
-                    yyerror("invalid binary integer");
+                    {
+                        // SET_YYLLOC();
+                        // yyerror("invalid binary integer");
+
+                        self.set_yylloc();
+                        yyerror("invalid binary integer");
+                    }
                 }
                 RuleKind::INITIAL33 => {
                     {
-                        self.set_yylloc();
+                        // SET_YYLLOC();
                         // yylval->str = pstrdup(yytext);
+                        // return FCONST;
+
+                        self.set_yylloc();
                         self.yylval = Yylval::Str(self.yytext());
                         return Some(TokenKind::FCONST);
                     }
@@ -1132,65 +1193,91 @@ impl Lexer {
                     {
                         /* throw back the .., and treat as integer */
                         // yyless(yyleng - 2);
+                        // SET_YYLLOC();
+                        // return process_integer_literal(yytext, yylval, 10);
+
+                        /* throw back the .., and treat as integer */
                         self.yyless(self.yyleng - 2);
                         self.set_yylloc();
-                        // return process_integer_literal(yytext, yylval, 10);
                         return self.process_integer_literal(10);
                     }
                 }
                 RuleKind::INITIAL35 => {
                     {
-                        self.set_yylloc();
+                        // SET_YYLLOC();
                         // yylval->str = pstrdup(yytext);
+                        // return FCONST;
+
+                        self.set_yylloc();
                         self.yylval = Yylval::Str(self.yytext());
                         return Some(TokenKind::FCONST);
                     }
                 }
                 RuleKind::INITIAL36 => {
-                    self.set_yylloc();
-                    yyerror("trailing junk after numeric literal");
+                    {
+                        // SET_YYLLOC();
+                        // yyerror("trailing junk after numeric literal");
+
+                        self.set_yylloc();
+                        yyerror("trailing junk after numeric literal");
+                    }
                 }
                 RuleKind::INITIAL37 => {
-                    self.set_yylloc();
-                    yyerror("trailing junk after numeric literal");
+                    {
+                        // SET_YYLLOC();
+                        // yyerror("trailing junk after numeric literal");
+
+                        self.set_yylloc();
+                        yyerror("trailing junk after numeric literal");
+                    }
                 }
                 RuleKind::INITIAL38 => {
-                    self.set_yylloc();
-                    yyerror("trailing junk after numeric literal");
+                    {
+                        // SET_YYLLOC();
+                        // yyerror("trailing junk after numeric literal");
+
+                        self.set_yylloc();
+                        yyerror("trailing junk after numeric literal");
+                    }
                 }
                 RuleKind::INITIAL39 => {
-                    self.set_yylloc();
-                    yyerror("trailing junk after numeric literal");
+                    {
+                        // SET_YYLLOC();
+                        // yyerror("trailing junk after numeric literal");
+
+                        self.set_yylloc();
+                        yyerror("trailing junk after numeric literal");
+                    }
                 }
                 RuleKind::INITIAL40 => {
-                    self.set_yylloc();
-                    yyerror("trailing junk after numeric literal");
-                }
-                RuleKind::INITIAL41 => {
-                    self.set_yylloc();
-                    yyerror("trailing junk after numeric literal");
-                }
-                RuleKind::INITIAL42 => {
-                    self.set_yylloc();
-                    yyerror("trailing junk after numeric literal");
-                }
-                RuleKind::INITIAL43 => {
                     {
                         // int			kwnum;
                         // char	   *ident;
-
-                        self.set_yylloc();
-
-                        /* Is it a keyword? */
+                        //
+                        // SET_YYLLOC();
+                        //
+                        // /* Is it a keyword? */
                         // kwnum = ScanKeywordLookup(yytext,
                         // 						  yyextra->keywordlist);
                         // if (kwnum >= 0)
                         // {
-                        // yylval->keyword = GetScanKeyword(kwnum,
-                        // 								 yyextra->keywordlist);
-                        // return yyextra->keyword_tokens[kwnum];
+                        // 	yylval->keyword = GetScanKeyword(kwnum,
+                        // 									 yyextra->keywordlist);
+                        // 	return yyextra->keyword_tokens[kwnum];
                         // }
+                        //
+                        // /*
+                        //  * No.  Convert the identifier to lower case, and truncate
+                        //  * if necessary.
+                        //  */
+                        // ident = downcase_truncate_identifier(yytext, yyleng, true);
+                        // yylval->str = ident;
+                        // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+                        // return IDENT;
 
+                        self.set_yylloc();
+
+                        /* Is it a keyword? */
                         let yytext = self.yytext();
                         if let Some((kw, kw_token)) = self.get_keyword(&yytext) {
                             self.yylval = Yylval::Keyword(kw);
@@ -1201,22 +1288,29 @@ impl Lexer {
                          * No.  Convert the identifier to lower case, and truncate
                          * if necessary.
                          */
-                        // ident = downcase_truncate_identifier(yytext, yyleng, true);
-                        // yylval->str = ident;
-                        // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
                         let ident = self.downcase_truncate_identifier(self.yyleng, true);
                         self.yylval = Yylval::Str(ident);
                         self.set_yyllocend();
                         return Some(TokenKind::IDENT);
                     }
                 }
-                RuleKind::INITIAL44 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::RAW(yytext[0..1].to_string()));
+                RuleKind::INITIAL41 => {
+                    {
+                        // SET_YYLLOC();
+                        // return yytext[0];
+
+                        self.set_yylloc();
+                        return Some(TokenKind::RAW(yytext[0..1].to_string()));
+                    }
                 }
-                RuleKind::INITIAL45 => {
-                    self.set_yylloc();
-                    yyterminate!();
+                RuleKind::INITIAL42 => {
+                    {
+                        // SET_YYLLOC();
+                        // yyterminate();
+
+                        self.set_yylloc();
+                        yyterminate!();
+                    }
                 }
             }
             self.advance();
@@ -1229,7 +1323,7 @@ pub fn get_rules() -> Vec<Rule> {
                 // {whitespace}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((([ \t\n\r\f])+)))"#).unwrap(),
+                    pattern: Regex::new(r#"^(((([ \t\n\r\f\v])+)))"#).unwrap(),
                     kind: RuleKind::INITIAL1,
                 },
 
@@ -1397,14 +1491,14 @@ pub fn get_rules() -> Vec<Rule> {
                 // {quotecontinue}
                 Rule {
                     state: State::xqs,
-                    pattern: Regex::new(r#"^((((((([ \t\f])))*([\n\r])((([ \t\n\r\f])+))*))(')))"#).unwrap(),
+                    pattern: Regex::new(r#"^((((((([ \t\f\v])))*([\n\r])((([ \t\n\r\f\v])+))*))(')))"#).unwrap(),
                     kind: RuleKind::xqs1,
                 },
 
                 // {quotecontinuefail}
                 Rule {
                     state: State::xqs,
-                    pattern: Regex::new(r#"^((((([ \t\n\r\f])+))*-?))"#).unwrap(),
+                    pattern: Regex::new(r#"^((((([ \t\n\r\f\v])+))*-?))"#).unwrap(),
                     kind: RuleKind::xqs2,
                 },
 
@@ -1824,7 +1918,7 @@ pub fn get_rules() -> Vec<Rule> {
                 // {numericfail}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((([0-9])+\.\.))"#).unwrap(),
+                    pattern: Regex::new(r#"^(((([0-9])(_?([0-9]))*)\.\.))"#).unwrap(),
                     kind: RuleKind::INITIAL34,
                 },
 
@@ -1842,67 +1936,46 @@ pub fn get_rules() -> Vec<Rule> {
                     kind: RuleKind::INITIAL36,
                 },
 
-                // {decinteger_junk}
+                // {integer_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((([0-9])(_?([0-9]))*)([A-Za-z\x80-\xFF_])))"#).unwrap(),
+                    pattern: Regex::new(r#"^(((([0-9])(_?([0-9]))*)(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*)))"#).unwrap(),
                     kind: RuleKind::INITIAL37,
-                },
-
-                // {hexinteger_junk}
-                Rule {
-                    state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((0[xX](_?([0-9A-Fa-f]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
-                    kind: RuleKind::INITIAL38,
-                },
-
-                // {octinteger_junk}
-                Rule {
-                    state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((0[oO](_?([0-7]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
-                    kind: RuleKind::INITIAL39,
-                },
-
-                // {bininteger_junk}
-                Rule {
-                    state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((0[bB](_?([0-1]))+)([A-Za-z\x80-\xFF_])))"#).unwrap(),
-                    kind: RuleKind::INITIAL40,
                 },
 
                 // {numeric_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^((((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*))))([A-Za-z\x80-\xFF_])))"#).unwrap(),
-                    kind: RuleKind::INITIAL41,
+                    pattern: Regex::new(r#"^((((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*))))(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*)))"#).unwrap(),
+                    kind: RuleKind::INITIAL38,
                 },
 
                 // {real_junk}
                 Rule {
                     state: State::INITIAL,
-                    pattern: Regex::new(r#"^(((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]?(([0-9])(_?([0-9]))*))([A-Za-z\x80-\xFF_])))"#).unwrap(),
-                    kind: RuleKind::INITIAL42,
+                    pattern: Regex::new(r#"^(((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]?(([0-9])(_?([0-9]))*))(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*)))"#).unwrap(),
+                    kind: RuleKind::INITIAL39,
                 },
 
                 // {identifier}
                 Rule {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"^((([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*))"#).unwrap(),
-                    kind: RuleKind::INITIAL43,
+                    kind: RuleKind::INITIAL40,
                 },
 
                 // {other}
                 Rule {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"^((.))"#).unwrap(),
-                    kind: RuleKind::INITIAL44,
+                    kind: RuleKind::INITIAL41,
                 },
 
                 // <<EOF>>
                 Rule {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"^(^$)"#).unwrap(),
-                    kind: RuleKind::INITIAL45,
+                    kind: RuleKind::INITIAL42,
                 }]
 }
 
@@ -1977,6 +2050,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("committed", "COMMITTED"),
         ("compression", "COMPRESSION"),
         ("concurrently", "CONCURRENTLY"),
+        ("conditional", "CONDITIONAL"),
         ("configuration", "CONFIGURATION"),
         ("conflict", "CONFLICT"),
         ("connection", "CONNECTION"),
@@ -2031,11 +2105,13 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("drop", "DROP"),
         ("each", "EACH"),
         ("else", "ELSE"),
+        ("empty", "EMPTY_P"),
         ("enable", "ENABLE_P"),
         ("encoding", "ENCODING"),
         ("encrypted", "ENCRYPTED"),
         ("end", "END_P"),
         ("enum", "ENUM_P"),
+        ("error", "ERROR_P"),
         ("escape", "ESCAPE"),
         ("event", "EVENT"),
         ("except", "EXCEPT"),
@@ -2117,8 +2193,15 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("json", "JSON"),
         ("json_array", "JSON_ARRAY"),
         ("json_arrayagg", "JSON_ARRAYAGG"),
+        ("json_exists", "JSON_EXISTS"),
         ("json_object", "JSON_OBJECT"),
         ("json_objectagg", "JSON_OBJECTAGG"),
+        ("json_query", "JSON_QUERY"),
+        ("json_scalar", "JSON_SCALAR"),
+        ("json_serialize", "JSON_SERIALIZE"),
+        ("json_table", "JSON_TABLE"),
+        ("json_value", "JSON_VALUE"),
+        ("keep", "KEEP"),
         ("key", "KEY"),
         ("keys", "KEYS"),
         ("label", "LABEL"),
@@ -2148,6 +2231,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("materialized", "MATERIALIZED"),
         ("maxvalue", "MAXVALUE"),
         ("merge", "MERGE"),
+        ("merge_action", "MERGE_ACTION"),
         ("method", "METHOD"),
         ("minute", "MINUTE_P"),
         ("minvalue", "MINVALUE"),
@@ -2159,6 +2243,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("national", "NATIONAL"),
         ("natural", "NATURAL"),
         ("nchar", "NCHAR"),
+        ("nested", "NESTED"),
         ("new", "NEW"),
         ("next", "NEXT"),
         ("nfc", "NFC"),
@@ -2184,6 +2269,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("offset", "OFFSET"),
         ("oids", "OIDS"),
         ("old", "OLD"),
+        ("omit", "OMIT"),
         ("on", "ON"),
         ("only", "ONLY"),
         ("operator", "OPERATOR"),
@@ -2208,7 +2294,9 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("partition", "PARTITION"),
         ("passing", "PASSING"),
         ("password", "PASSWORD"),
+        ("path", "PATH"),
         ("placing", "PLACING"),
+        ("plan", "PLAN"),
         ("plans", "PLANS"),
         ("policy", "POLICY"),
         ("position", "POSITION"),
@@ -2226,6 +2314,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("program", "PROGRAM"),
         ("publication", "PUBLICATION"),
         ("quote", "QUOTE"),
+        ("quotes", "QUOTES"),
         ("range", "RANGE"),
         ("read", "READ"),
         ("real", "REAL"),
@@ -2285,6 +2374,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("smallint", "SMALLINT"),
         ("snapshot", "SNAPSHOT"),
         ("some", "SOME"),
+        ("source", "SOURCE"),
         ("sql", "SQL_P"),
         ("stable", "STABLE"),
         ("standalone", "STANDALONE_P"),
@@ -2296,6 +2386,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("storage", "STORAGE"),
         ("stored", "STORED"),
         ("strict", "STRICT_P"),
+        ("string", "STRING_P"),
         ("strip", "STRIP_P"),
         ("subscription", "SUBSCRIPTION"),
         ("substring", "SUBSTRING"),
@@ -2308,6 +2399,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("tables", "TABLES"),
         ("tablesample", "TABLESAMPLE"),
         ("tablespace", "TABLESPACE"),
+        ("target", "TARGET"),
         ("temp", "TEMP"),
         ("template", "TEMPLATE"),
         ("temporary", "TEMPORARY"),
@@ -2331,6 +2423,7 @@ pub fn get_keyword_map() -> HashMap<&'static str, &'static str> {
         ("uescape", "UESCAPE"),
         ("unbounded", "UNBOUNDED"),
         ("uncommitted", "UNCOMMITTED"),
+        ("unconditional", "UNCONDITIONAL"),
         ("unencrypted", "UNENCRYPTED"),
         ("union", "UNION"),
         ("unique", "UNIQUE"),

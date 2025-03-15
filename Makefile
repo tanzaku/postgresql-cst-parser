@@ -7,7 +7,7 @@ prepare-source: prepare-original-source
 
 prepare-original-source: clean
 	mkdir -p ./tmp
-	cd ./tmp; git clone -b 16-latest --depth=1 git@github.com:pganalyze/libpg_query.git
+	cd ./tmp; git clone -b 17-6.0.0 --depth=1 git@github.com:pganalyze/libpg_query.git
 	sed -i 's/sed -i ""/sed -i/g' ./tmp/libpg_query/Makefile
 	cd ./tmp/libpg_query; make $(ROOT_DIR)tmp/libpg_query/tmp/postgres
 	mkdir -p ./crates/lexer-generator/resources

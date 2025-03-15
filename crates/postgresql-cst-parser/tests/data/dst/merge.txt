@@ -64,9 +64,10 @@ Root@0..318
               merge_when_list@73..316
                 merge_when_list@73..166
                   merge_when_clause@73..166
-                    WHEN@73..77 "WHEN"
-                    Whitespace@77..78 " "
-                    MATCHED@78..85 "MATCHED"
+                    merge_when_tgt_matched@73..85
+                      WHEN@73..77 "WHEN"
+                      Whitespace@77..78 " "
+                      MATCHED@78..85 "MATCHED"
                     opt_merge_when_condition@85..85
                     Whitespace@85..86 " "
                     THEN@86..90 "THEN"
@@ -119,11 +120,12 @@ Root@0..318
                                           IDENT@158..166 "quantity"
                 Whitespace@166..171 "\n    "
                 merge_when_clause@171..316
-                  WHEN@171..175 "WHEN"
-                  Whitespace@175..176 " "
-                  NOT@176..179 "NOT"
-                  Whitespace@179..180 " "
-                  MATCHED@180..187 "MATCHED"
+                  merge_when_tgt_not_matched@171..187
+                    WHEN@171..175 "WHEN"
+                    Whitespace@175..176 " "
+                    NOT@176..179 "NOT"
+                    Whitespace@179..180 " "
+                    MATCHED@180..187 "MATCHED"
                   opt_merge_when_condition@187..187
                   Whitespace@187..188 " "
                   THEN@188..192 "THEN"
@@ -244,6 +246,7 @@ Root@0..318
                                     ColLabel@307..315
                                       IDENT@307..315 "quantity"
                       RParen@315..316 ")"
+              returning_clause@316..316
       Semicolon@316..317 ";"
       toplevel_stmt@317..317
         stmt@317..317
