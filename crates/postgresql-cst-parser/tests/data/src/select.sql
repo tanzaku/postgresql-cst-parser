@@ -108,3 +108,5 @@ SELECT /*$c*/0 as a, -- d
 b b -- f
 ,       c -- g
 ; -- h
+select +-1;
+select カラム;

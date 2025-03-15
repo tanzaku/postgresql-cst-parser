@@ -1,22 +1,22 @@
-Root@0..2074
+Root@0..2119
   SQL_COMMENT@0..67 "-- https://www.postgr ..."
   Whitespace@67..68 "\n"
-  parse_toplevel@68..2073
-    stmtmulti@68..2073
-      stmtmulti@68..2072
-        stmtmulti@68..1966
-          stmtmulti@68..1830
-            stmtmulti@68..1736
-              stmtmulti@68..1653
-                stmtmulti@68..1540
-                  stmtmulti@68..1382
-                    stmtmulti@68..1293
-                      stmtmulti@68..1195
-                        stmtmulti@68..950
-                          stmtmulti@68..823
-                            stmtmulti@68..729
-                              stmtmulti@68..490
-                                stmtmulti@68..442
+  parse_toplevel@68..2118
+    stmtmulti@68..2118
+      stmtmulti@68..2117
+        stmtmulti@68..2011
+          stmtmulti@68..1875
+            stmtmulti@68..1781
+              stmtmulti@68..1698
+                stmtmulti@68..1585
+                  stmtmulti@68..1394
+                    stmtmulti@68..1305
+                      stmtmulti@68..1207
+                        stmtmulti@68..962
+                          stmtmulti@68..833
+                            stmtmulti@68..739
+                              stmtmulti@68..500
+                                stmtmulti@68..452
                                   stmtmulti@68..310
                                     toplevel_stmt@68..310
                                       stmt@68..310
@@ -200,9 +200,9 @@ Root@0..2074
                                           OptTableSpace@310..310
                                   Semicolon@310..311 ";"
                                   Whitespace@311..312 "\n"
-                                  toplevel_stmt@312..442
-                                    stmt@312..442
-                                      CreateStmt@312..442
+                                  toplevel_stmt@312..452
+                                    stmt@312..452
+                                      CreateStmt@312..452
                                         CREATE@312..318 "CREATE"
                                         OptTemp@318..318
                                         Whitespace@318..319 " "
@@ -214,11 +214,11 @@ Root@0..2074
                                         Whitespace@337..338 " "
                                         LParen@338..339 "("
                                         Whitespace@339..345 "\n     "
-                                        OptTableElementList@345..440
-                                          TableElementList@345..440
-                                            TableElementList@345..389
-                                              TableElement@345..389
-                                                columnDef@345..389
+                                        OptTableElementList@345..450
+                                          TableElementList@345..450
+                                            TableElementList@345..397
+                                              TableElement@345..397
+                                                columnDef@345..397
                                                   ColId@345..348
                                                     IDENT@345..348 "did"
                                                   Whitespace@348..352 "    "
@@ -230,7 +230,7 @@ Root@0..2074
                                                   opt_column_storage@359..359
                                                   opt_column_compression@359..359
                                                   create_generic_options@359..359
-                                                  ColQualList@359..389
+                                                  ColQualList@359..397
                                                     ColQualList@359..371
                                                       ColQualList@359..359
                                                       Whitespace@359..360 " "
@@ -242,1428 +242,1428 @@ Root@0..2074
                                                           opt_definition@371..371
                                                           OptConsTableSpace@371..371
                                                     Whitespace@371..372 " "
-                                                    ColConstraint@372..389
-                                                      ColConstraintElem@372..389
+                                                    ColConstraint@372..397
+                                                      ColConstraintElem@372..397
                                                         DEFAULT@372..379 "DEFAULT"
                                                         Whitespace@379..380 " "
-                                                        b_expr@380..389
-                                                          c_expr@380..389
-                                                            func_expr@380..389
-                                                              func_application@380..389
+                                                        b_expr@380..397
+                                                          c_expr@380..397
+                                                            func_expr@380..397
+                                                              func_application@380..397
                                                                 func_name@380..387
                                                                   type_function_name@380..387
                                                                     IDENT@380..387 "nextval"
                                                                 LParen@387..388 "("
-                                                                func_arg_list@388..388
-                                                                  func_arg_expr@388..388
-                                                                    a_expr@388..388
-                                                                      c_expr@388..388
-                                                                        AexprConst@388..388
-                                                                          Sconst@388..388
-                                                                            SCONST@388..388 ""
-                                                                opt_sort_clause@388..388
-                                                                RParen@388..389 ")"
-                                                              within_group_clause@389..389
-                                                              filter_clause@389..389
-                                                              over_clause@389..389
-                                            Comma@389..390 ","
-                                            Whitespace@390..396 "\n     "
-                                            TableElement@396..440
-                                              columnDef@396..440
-                                                ColId@396..400
-                                                  unreserved_keyword@396..400
-                                                    NAME_P@396..400 "name"
-                                                Whitespace@400..403 "   "
-                                                Typename@403..414
-                                                  SimpleTypename@403..414
-                                                    Character@403..414
-                                                      CharacterWithLength@403..414
-                                                        character@403..410
-                                                          VARCHAR@403..410 "varchar"
-                                                        LParen@410..411 "("
-                                                        Iconst@411..413
-                                                          ICONST@411..413 "40"
-                                                        RParen@413..414 ")"
-                                                  opt_array_bounds@414..414
-                                                opt_column_storage@414..414
-                                                opt_column_compression@414..414
-                                                create_generic_options@414..414
-                                                ColQualList@414..440
-                                                  ColQualList@414..423
-                                                    ColQualList@414..414
-                                                    Whitespace@414..415 " "
-                                                    ColConstraint@415..423
-                                                      ColConstraintElem@415..423
-                                                        NOT@415..418 "NOT"
-                                                        Whitespace@418..419 " "
-                                                        NULL_P@419..423 "NULL"
-                                                  Whitespace@423..424 " "
-                                                  ColConstraint@424..440
-                                                    ColConstraintElem@424..440
-                                                      CHECK@424..429 "CHECK"
-                                                      Whitespace@429..430 " "
-                                                      LParen@430..431 "("
-                                                      a_expr@431..439
-                                                        a_expr@431..435
-                                                          c_expr@431..435
-                                                            columnref@431..435
-                                                              ColId@431..435
-                                                                unreserved_keyword@431..435
-                                                                  NAME_P@431..435 "name"
-                                                        Whitespace@435..436 " "
-                                                        NOT_EQUALS@436..438 "<>"
-                                                        Whitespace@438..439 " "
-                                                        a_expr@439..439
-                                                          c_expr@439..439
-                                                            AexprConst@439..439
-                                                              Sconst@439..439
-                                                                SCONST@439..439 ""
-                                                      RParen@439..440 ")"
-                                                      opt_no_inherit@440..440
-                                        Whitespace@440..441 "\n"
-                                        RParen@441..442 ")"
-                                        OptInherit@442..442
-                                        OptPartitionSpec@442..442
-                                        table_access_method_clause@442..442
-                                        OptWith@442..442
-                                        OnCommitOption@442..442
-                                        OptTableSpace@442..442
-                                Semicolon@442..443 ";"
-                                Whitespace@443..444 "\n"
-                                toplevel_stmt@444..490
-                                  stmt@444..490
-                                    CreateStmt@444..490
-                                      CREATE@444..450 "CREATE"
-                                      OptTemp@450..450
-                                      Whitespace@450..451 " "
-                                      TABLE@451..456 "TABLE"
-                                      Whitespace@456..457 " "
-                                      qualified_name@457..466
-                                        ColId@457..466
-                                          IDENT@457..466 "array_int"
+                                                                func_arg_list@388..396
+                                                                  func_arg_expr@388..396
+                                                                    a_expr@388..396
+                                                                      c_expr@388..396
+                                                                        AexprConst@388..396
+                                                                          Sconst@388..396
+                                                                            SCONST@388..396 "'serial'"
+                                                                opt_sort_clause@396..396
+                                                                RParen@396..397 ")"
+                                                              within_group_clause@397..397
+                                                              filter_clause@397..397
+                                                              over_clause@397..397
+                                            Comma@397..398 ","
+                                            Whitespace@398..404 "\n     "
+                                            TableElement@404..450
+                                              columnDef@404..450
+                                                ColId@404..408
+                                                  unreserved_keyword@404..408
+                                                    NAME_P@404..408 "name"
+                                                Whitespace@408..411 "   "
+                                                Typename@411..422
+                                                  SimpleTypename@411..422
+                                                    Character@411..422
+                                                      CharacterWithLength@411..422
+                                                        character@411..418
+                                                          VARCHAR@411..418 "varchar"
+                                                        LParen@418..419 "("
+                                                        Iconst@419..421
+                                                          ICONST@419..421 "40"
+                                                        RParen@421..422 ")"
+                                                  opt_array_bounds@422..422
+                                                opt_column_storage@422..422
+                                                opt_column_compression@422..422
+                                                create_generic_options@422..422
+                                                ColQualList@422..450
+                                                  ColQualList@422..431
+                                                    ColQualList@422..422
+                                                    Whitespace@422..423 " "
+                                                    ColConstraint@423..431
+                                                      ColConstraintElem@423..431
+                                                        NOT@423..426 "NOT"
+                                                        Whitespace@426..427 " "
+                                                        NULL_P@427..431 "NULL"
+                                                  Whitespace@431..432 " "
+                                                  ColConstraint@432..450
+                                                    ColConstraintElem@432..450
+                                                      CHECK@432..437 "CHECK"
+                                                      Whitespace@437..438 " "
+                                                      LParen@438..439 "("
+                                                      a_expr@439..449
+                                                        a_expr@439..443
+                                                          c_expr@439..443
+                                                            columnref@439..443
+                                                              ColId@439..443
+                                                                unreserved_keyword@439..443
+                                                                  NAME_P@439..443 "name"
+                                                        Whitespace@443..444 " "
+                                                        NOT_EQUALS@444..446 "<>"
+                                                        Whitespace@446..447 " "
+                                                        a_expr@447..449
+                                                          c_expr@447..449
+                                                            AexprConst@447..449
+                                                              Sconst@447..449
+                                                                SCONST@447..449 "''"
+                                                      RParen@449..450 ")"
+                                                      opt_no_inherit@450..450
+                                        Whitespace@450..451 "\n"
+                                        RParen@451..452 ")"
+                                        OptInherit@452..452
+                                        OptPartitionSpec@452..452
+                                        table_access_method_clause@452..452
+                                        OptWith@452..452
+                                        OnCommitOption@452..452
+                                        OptTableSpace@452..452
+                                Semicolon@452..453 ";"
+                                Whitespace@453..454 "\n"
+                                toplevel_stmt@454..500
+                                  stmt@454..500
+                                    CreateStmt@454..500
+                                      CREATE@454..460 "CREATE"
+                                      OptTemp@460..460
+                                      Whitespace@460..461 " "
+                                      TABLE@461..466 "TABLE"
                                       Whitespace@466..467 " "
-                                      LParen@467..468 "("
-                                      Whitespace@468..473 "\n    "
-                                      OptTableElementList@473..488
-                                        TableElementList@473..488
-                                          TableElement@473..488
-                                            columnDef@473..488
-                                              ColId@473..479
-                                                IDENT@473..479 "vector"
-                                              Whitespace@479..481 "  "
-                                              Typename@481..488
-                                                SimpleTypename@481..484
-                                                  Numeric@481..484
-                                                    INT_P@481..484 "int"
-                                                opt_array_bounds@484..488
-                                                  opt_array_bounds@484..486
-                                                    opt_array_bounds@484..484
-                                                    LBracket@484..485 "["
-                                                    RBracket@485..486 "]"
-                                                  LBracket@486..487 "["
-                                                  RBracket@487..488 "]"
-                                              opt_column_storage@488..488
-                                              opt_column_compression@488..488
-                                              create_generic_options@488..488
-                                              ColQualList@488..488
-                                      Whitespace@488..489 "\n"
-                                      RParen@489..490 ")"
-                                      OptInherit@490..490
-                                      OptPartitionSpec@490..490
-                                      table_access_method_clause@490..490
-                                      OptWith@490..490
-                                      OnCommitOption@490..490
-                                      OptTableSpace@490..490
-                              Semicolon@490..491 ";"
-                              Whitespace@491..492 "\n"
-                              toplevel_stmt@492..729
-                                stmt@492..729
-                                  CreateStmt@492..729
-                                    CREATE@492..498 "CREATE"
-                                    OptTemp@498..498
-                                    Whitespace@498..499 " "
-                                    TABLE@499..504 "TABLE"
-                                    Whitespace@504..505 " "
-                                    qualified_name@505..510
-                                      ColId@505..510
-                                        IDENT@505..510 "films"
-                                    Whitespace@510..511 " "
-                                    LParen@511..512 "("
-                                    Whitespace@512..517 "\n    "
-                                    OptTableElementList@517..727
-                                      TableElementList@517..727
-                                        TableElementList@517..682
-                                          TableElementList@517..641
-                                            TableElementList@517..612
-                                              TableElementList@517..590
-                                                TableElementList@517..565
-                                                  TableElementList@517..536
-                                                    TableElement@517..536
-                                                      columnDef@517..536
-                                                        ColId@517..521
-                                                          IDENT@517..521 "code"
-                                                        Whitespace@521..529 "        "
-                                                        Typename@529..536
-                                                          SimpleTypename@529..536
-                                                            Character@529..536
-                                                              CharacterWithLength@529..536
-                                                                character@529..533
-                                                                  CHAR_P@529..533 "char"
-                                                                  opt_varying@533..533
-                                                                LParen@533..534 "("
-                                                                Iconst@534..535
-                                                                  ICONST@534..535 "5"
-                                                                RParen@535..536 ")"
-                                                          opt_array_bounds@536..536
-                                                        opt_column_storage@536..536
-                                                        opt_column_compression@536..536
-                                                        create_generic_options@536..536
-                                                        ColQualList@536..536
-                                                  Comma@536..537 ","
-                                                  Whitespace@537..542 "\n    "
-                                                  TableElement@542..565
-                                                    columnDef@542..565
-                                                      ColId@542..547
-                                                        IDENT@542..547 "title"
-                                                      Whitespace@547..554 "       "
-                                                      Typename@554..565
-                                                        SimpleTypename@554..565
-                                                          Character@554..565
-                                                            CharacterWithLength@554..565
-                                                              character@554..561
-                                                                VARCHAR@554..561 "varchar"
-                                                              LParen@561..562 "("
-                                                              Iconst@562..564
-                                                                ICONST@562..564 "40"
-                                                              RParen@564..565 ")"
-                                                        opt_array_bounds@565..565
-                                                      opt_column_storage@565..565
-                                                      opt_column_compression@565..565
-                                                      create_generic_options@565..565
-                                                      ColQualList@565..565
-                                                Comma@565..566 ","
-                                                Whitespace@566..571 "\n    "
-                                                TableElement@571..590
-                                                  columnDef@571..590
-                                                    ColId@571..574
-                                                      IDENT@571..574 "did"
-                                                    Whitespace@574..583 "         "
-                                                    Typename@583..590
-                                                      SimpleTypename@583..590
-                                                        Numeric@583..590
-                                                          INTEGER@583..590 "integer"
-                                                      opt_array_bounds@590..590
-                                                    opt_column_storage@590..590
-                                                    opt_column_compression@590..590
-                                                    create_generic_options@590..590
-                                                    ColQualList@590..590
-                                              Comma@590..591 ","
-                                              Whitespace@591..596 "\n    "
-                                              TableElement@596..612
-                                                columnDef@596..612
-                                                  ColId@596..605
-                                                    IDENT@596..605 "date_prod"
-                                                  Whitespace@605..608 "   "
-                                                  Typename@608..612
-                                                    SimpleTypename@608..612
-                                                      GenericType@608..612
-                                                        type_function_name@608..612
-                                                          IDENT@608..612 "date"
-                                                        opt_type_modifiers@612..612
-                                                    opt_array_bounds@612..612
-                                                  opt_column_storage@612..612
-                                                  opt_column_compression@612..612
-                                                  create_generic_options@612..612
-                                                  ColQualList@612..612
-                                            Comma@612..613 ","
-                                            Whitespace@613..618 "\n    "
-                                            TableElement@618..641
-                                              columnDef@618..641
-                                                ColId@618..622
-                                                  IDENT@618..622 "kind"
-                                                Whitespace@622..630 "        "
-                                                Typename@630..641
-                                                  SimpleTypename@630..641
-                                                    Character@630..641
-                                                      CharacterWithLength@630..641
-                                                        character@630..637
-                                                          VARCHAR@630..637 "varchar"
-                                                        LParen@637..638 "("
-                                                        Iconst@638..640
-                                                          ICONST@638..640 "10"
-                                                        RParen@640..641 ")"
-                                                  opt_array_bounds@641..641
-                                                opt_column_storage@641..641
-                                                opt_column_compression@641..641
-                                                create_generic_options@641..641
-                                                ColQualList@641..641
-                                          Comma@641..642 ","
-                                          Whitespace@642..647 "\n    "
-                                          TableElement@647..682
-                                            columnDef@647..682
-                                              ColId@647..650
-                                                IDENT@647..650 "len"
-                                              Whitespace@650..659 "         "
-                                              Typename@659..682
-                                                SimpleTypename@659..682
-                                                  ConstInterval@659..667
-                                                    INTERVAL@659..667 "interval"
-                                                  Whitespace@667..668 " "
-                                                  opt_interval@668..682
-                                                    HOUR_P@668..672 "hour"
-                                                    Whitespace@672..673 " "
-                                                    TO@673..675 "to"
-                                                    Whitespace@675..676 " "
-                                                    MINUTE_P@676..682 "minute"
-                                                opt_array_bounds@682..682
-                                              opt_column_storage@682..682
-                                              opt_column_compression@682..682
-                                              create_generic_options@682..682
-                                              ColQualList@682..682
-                                        Comma@682..683 ","
-                                        Whitespace@683..688 "\n    "
-                                        TableElement@688..727
-                                          TableConstraint@688..727
-                                            CONSTRAINT@688..698 "CONSTRAINT"
-                                            Whitespace@698..699 " "
-                                            name@699..709
-                                              ColId@699..709
-                                                IDENT@699..709 "production"
-                                            Whitespace@709..710 " "
-                                            ConstraintElem@710..727
-                                              UNIQUE@710..716 "UNIQUE"
-                                              opt_unique_null_treatment@716..716
-                                              LParen@716..717 "("
-                                              columnList@717..726
-                                                columnElem@717..726
-                                                  ColId@717..726
-                                                    IDENT@717..726 "date_prod"
-                                              RParen@726..727 ")"
-                                              opt_c_include@727..727
-                                              opt_definition@727..727
-                                              OptConsTableSpace@727..727
-                                              ConstraintAttributeSpec@727..727
-                                    Whitespace@727..728 "\n"
-                                    RParen@728..729 ")"
-                                    OptInherit@729..729
-                                    OptPartitionSpec@729..729
-                                    table_access_method_clause@729..729
-                                    OptWith@729..729
-                                    OnCommitOption@729..729
-                                    OptTableSpace@729..729
-                            Semicolon@729..730 ";"
-                            Whitespace@730..731 "\n"
-                            toplevel_stmt@731..823
-                              stmt@731..823
-                                CreateStmt@731..823
-                                  CREATE@731..737 "CREATE"
-                                  OptTemp@737..737
-                                  Whitespace@737..738 " "
-                                  TABLE@738..743 "TABLE"
-                                  Whitespace@743..744 " "
-                                  qualified_name@744..756
-                                    ColId@744..756
-                                      IDENT@744..756 "distributors"
-                                  Whitespace@756..757 " "
-                                  LParen@757..758 "("
-                                  Whitespace@758..763 "\n    "
-                                  OptTableElementList@763..821
-                                    TableElementList@763..821
-                                      TableElementList@763..796
-                                        TableElement@763..796
-                                          columnDef@763..796
-                                            ColId@763..766
-                                              IDENT@763..766 "did"
-                                            Whitespace@766..771 "     "
-                                            Typename@771..778
-                                              SimpleTypename@771..778
-                                                Numeric@771..778
-                                                  INTEGER@771..778 "integer"
-                                              opt_array_bounds@778..778
-                                            opt_column_storage@778..778
-                                            opt_column_compression@778..778
-                                            create_generic_options@778..778
-                                            ColQualList@778..796
-                                              ColQualList@778..778
-                                              Whitespace@778..779 " "
-                                              ColConstraint@779..796
-                                                ColConstraintElem@779..796
-                                                  CHECK@779..784 "CHECK"
-                                                  Whitespace@784..785 " "
-                                                  LParen@785..786 "("
-                                                  a_expr@786..795
-                                                    a_expr@786..789
-                                                      c_expr@786..789
-                                                        columnref@786..789
-                                                          ColId@786..789
-                                                            IDENT@786..789 "did"
-                                                    Whitespace@789..790 " "
-                                                    Greater@790..791 ">"
-                                                    Whitespace@791..792 " "
-                                                    a_expr@792..795
-                                                      c_expr@792..795
-                                                        AexprConst@792..795
-                                                          Iconst@792..795
-                                                            ICONST@792..795 "100"
-                                                  RParen@795..796 ")"
-                                                  opt_no_inherit@796..796
-                                      Comma@796..797 ","
-                                      Whitespace@797..802 "\n    "
-                                      TableElement@802..821
-                                        columnDef@802..821
-                                          ColId@802..806
-                                            unreserved_keyword@802..806
-                                              NAME_P@802..806 "name"
-                                          Whitespace@806..810 "    "
-                                          Typename@810..821
-                                            SimpleTypename@810..821
-                                              Character@810..821
-                                                CharacterWithLength@810..821
-                                                  character@810..817
-                                                    VARCHAR@810..817 "varchar"
-                                                  LParen@817..818 "("
-                                                  Iconst@818..820
-                                                    ICONST@818..820 "40"
-                                                  RParen@820..821 ")"
-                                            opt_array_bounds@821..821
-                                          opt_column_storage@821..821
-                                          opt_column_compression@821..821
-                                          create_generic_options@821..821
-                                          ColQualList@821..821
-                                  Whitespace@821..822 "\n"
-                                  RParen@822..823 ")"
-                                  OptInherit@823..823
-                                  OptPartitionSpec@823..823
-                                  table_access_method_clause@823..823
-                                  OptWith@823..823
-                                  OnCommitOption@823..823
-                                  OptTableSpace@823..823
-                          Semicolon@823..824 ";"
-                          Whitespace@824..825 "\n"
-                          toplevel_stmt@825..950
-                            stmt@825..950
-                              CreateStmt@825..950
-                                CREATE@825..831 "CREATE"
-                                OptTemp@831..831
-                                Whitespace@831..832 " "
-                                TABLE@832..837 "TABLE"
-                                Whitespace@837..838 " "
-                                qualified_name@838..850
-                                  ColId@838..850
-                                    IDENT@838..850 "distributors"
-                                Whitespace@850..851 " "
-                                LParen@851..852 "("
-                                Whitespace@852..857 "\n    "
-                                OptTableElementList@857..948
-                                  TableElementList@857..948
-                                    TableElementList@857..872
-                                      TableElement@857..872
-                                        columnDef@857..872
-                                          ColId@857..860
-                                            IDENT@857..860 "did"
-                                          Whitespace@860..865 "     "
-                                          Typename@865..872
-                                            SimpleTypename@865..872
-                                              Numeric@865..872
-                                                INTEGER@865..872 "integer"
-                                            opt_array_bounds@872..872
-                                          opt_column_storage@872..872
-                                          opt_column_compression@872..872
-                                          create_generic_options@872..872
-                                          ColQualList@872..872
-                                    Comma@872..873 ","
-                                    Whitespace@873..878 "\n    "
-                                    TableElement@878..948
-                                      columnDef@878..948
-                                        ColId@878..882
-                                          unreserved_keyword@878..882
-                                            NAME_P@878..882 "name"
-                                        Whitespace@882..886 "    "
-                                        Typename@886..897
-                                          SimpleTypename@886..897
-                                            Character@886..897
-                                              CharacterWithLength@886..897
-                                                character@886..893
-                                                  VARCHAR@886..893 "varchar"
-                                                LParen@893..894 "("
-                                                Iconst@894..896
-                                                  ICONST@894..896 "40"
-                                                RParen@896..897 ")"
-                                          opt_array_bounds@897..897
-                                        opt_column_storage@897..897
-                                        opt_column_compression@897..897
-                                        create_generic_options@897..897
-                                        ColQualList@897..948
-                                          ColQualList@897..897
-                                          Whitespace@897..902 "\n    "
-                                          ColConstraint@902..948
-                                            CONSTRAINT@902..912 "CONSTRAINT"
-                                            Whitespace@912..913 " "
-                                            name@913..917
-                                              ColId@913..917
-                                                IDENT@913..917 "con1"
-                                            Whitespace@917..918 " "
-                                            ColConstraintElem@918..948
-                                              CHECK@918..923 "CHECK"
-                                              Whitespace@923..924 " "
-                                              LParen@924..925 "("
-                                              a_expr@925..947
-                                                a_expr@925..934
-                                                  a_expr@925..928
-                                                    c_expr@925..928
-                                                      columnref@925..928
-                                                        ColId@925..928
-                                                          IDENT@925..928 "did"
-                                                  Whitespace@928..929 " "
-                                                  Greater@929..930 ">"
-                                                  Whitespace@930..931 " "
-                                                  a_expr@931..934
-                                                    c_expr@931..934
-                                                      AexprConst@931..934
-                                                        Iconst@931..934
-                                                          ICONST@931..934 "100"
-                                                Whitespace@934..935 " "
-                                                AND@935..938 "AND"
-                                                Whitespace@938..939 " "
-                                                a_expr@939..947
-                                                  a_expr@939..943
-                                                    c_expr@939..943
-                                                      columnref@939..943
-                                                        ColId@939..943
-                                                          unreserved_keyword@939..943
-                                                            NAME_P@939..943 "name"
-                                                  Whitespace@943..944 " "
-                                                  NOT_EQUALS@944..946 "<>"
-                                                  Whitespace@946..947 " "
-                                                  a_expr@947..947
-                                                    c_expr@947..947
-                                                      AexprConst@947..947
-                                                        Sconst@947..947
-                                                          SCONST@947..947 ""
-                                              RParen@947..948 ")"
-                                              opt_no_inherit@948..948
-                                Whitespace@948..949 "\n"
-                                RParen@949..950 ")"
-                                OptInherit@950..950
-                                OptPartitionSpec@950..950
-                                table_access_method_clause@950..950
-                                OptWith@950..950
-                                OnCommitOption@950..950
-                                OptTableSpace@950..950
-                        Semicolon@950..951 ";"
-                        Whitespace@951..952 "\n"
-                        toplevel_stmt@952..1195
-                          stmt@952..1195
-                            CreateStmt@952..1195
-                              CREATE@952..958 "CREATE"
-                              OptTemp@958..958
-                              Whitespace@958..959 " "
-                              TABLE@959..964 "TABLE"
-                              Whitespace@964..965 " "
-                              qualified_name@965..970
-                                ColId@965..970
-                                  IDENT@965..970 "films"
+                                      qualified_name@467..476
+                                        ColId@467..476
+                                          IDENT@467..476 "array_int"
+                                      Whitespace@476..477 " "
+                                      LParen@477..478 "("
+                                      Whitespace@478..483 "\n    "
+                                      OptTableElementList@483..498
+                                        TableElementList@483..498
+                                          TableElement@483..498
+                                            columnDef@483..498
+                                              ColId@483..489
+                                                IDENT@483..489 "vector"
+                                              Whitespace@489..491 "  "
+                                              Typename@491..498
+                                                SimpleTypename@491..494
+                                                  Numeric@491..494
+                                                    INT_P@491..494 "int"
+                                                opt_array_bounds@494..498
+                                                  opt_array_bounds@494..496
+                                                    opt_array_bounds@494..494
+                                                    LBracket@494..495 "["
+                                                    RBracket@495..496 "]"
+                                                  LBracket@496..497 "["
+                                                  RBracket@497..498 "]"
+                                              opt_column_storage@498..498
+                                              opt_column_compression@498..498
+                                              create_generic_options@498..498
+                                              ColQualList@498..498
+                                      Whitespace@498..499 "\n"
+                                      RParen@499..500 ")"
+                                      OptInherit@500..500
+                                      OptPartitionSpec@500..500
+                                      table_access_method_clause@500..500
+                                      OptWith@500..500
+                                      OnCommitOption@500..500
+                                      OptTableSpace@500..500
+                              Semicolon@500..501 ";"
+                              Whitespace@501..502 "\n"
+                              toplevel_stmt@502..739
+                                stmt@502..739
+                                  CreateStmt@502..739
+                                    CREATE@502..508 "CREATE"
+                                    OptTemp@508..508
+                                    Whitespace@508..509 " "
+                                    TABLE@509..514 "TABLE"
+                                    Whitespace@514..515 " "
+                                    qualified_name@515..520
+                                      ColId@515..520
+                                        IDENT@515..520 "films"
+                                    Whitespace@520..521 " "
+                                    LParen@521..522 "("
+                                    Whitespace@522..527 "\n    "
+                                    OptTableElementList@527..737
+                                      TableElementList@527..737
+                                        TableElementList@527..692
+                                          TableElementList@527..651
+                                            TableElementList@527..622
+                                              TableElementList@527..600
+                                                TableElementList@527..575
+                                                  TableElementList@527..546
+                                                    TableElement@527..546
+                                                      columnDef@527..546
+                                                        ColId@527..531
+                                                          IDENT@527..531 "code"
+                                                        Whitespace@531..539 "        "
+                                                        Typename@539..546
+                                                          SimpleTypename@539..546
+                                                            Character@539..546
+                                                              CharacterWithLength@539..546
+                                                                character@539..543
+                                                                  CHAR_P@539..543 "char"
+                                                                  opt_varying@543..543
+                                                                LParen@543..544 "("
+                                                                Iconst@544..545
+                                                                  ICONST@544..545 "5"
+                                                                RParen@545..546 ")"
+                                                          opt_array_bounds@546..546
+                                                        opt_column_storage@546..546
+                                                        opt_column_compression@546..546
+                                                        create_generic_options@546..546
+                                                        ColQualList@546..546
+                                                  Comma@546..547 ","
+                                                  Whitespace@547..552 "\n    "
+                                                  TableElement@552..575
+                                                    columnDef@552..575
+                                                      ColId@552..557
+                                                        IDENT@552..557 "title"
+                                                      Whitespace@557..564 "       "
+                                                      Typename@564..575
+                                                        SimpleTypename@564..575
+                                                          Character@564..575
+                                                            CharacterWithLength@564..575
+                                                              character@564..571
+                                                                VARCHAR@564..571 "varchar"
+                                                              LParen@571..572 "("
+                                                              Iconst@572..574
+                                                                ICONST@572..574 "40"
+                                                              RParen@574..575 ")"
+                                                        opt_array_bounds@575..575
+                                                      opt_column_storage@575..575
+                                                      opt_column_compression@575..575
+                                                      create_generic_options@575..575
+                                                      ColQualList@575..575
+                                                Comma@575..576 ","
+                                                Whitespace@576..581 "\n    "
+                                                TableElement@581..600
+                                                  columnDef@581..600
+                                                    ColId@581..584
+                                                      IDENT@581..584 "did"
+                                                    Whitespace@584..593 "         "
+                                                    Typename@593..600
+                                                      SimpleTypename@593..600
+                                                        Numeric@593..600
+                                                          INTEGER@593..600 "integer"
+                                                      opt_array_bounds@600..600
+                                                    opt_column_storage@600..600
+                                                    opt_column_compression@600..600
+                                                    create_generic_options@600..600
+                                                    ColQualList@600..600
+                                              Comma@600..601 ","
+                                              Whitespace@601..606 "\n    "
+                                              TableElement@606..622
+                                                columnDef@606..622
+                                                  ColId@606..615
+                                                    IDENT@606..615 "date_prod"
+                                                  Whitespace@615..618 "   "
+                                                  Typename@618..622
+                                                    SimpleTypename@618..622
+                                                      GenericType@618..622
+                                                        type_function_name@618..622
+                                                          IDENT@618..622 "date"
+                                                        opt_type_modifiers@622..622
+                                                    opt_array_bounds@622..622
+                                                  opt_column_storage@622..622
+                                                  opt_column_compression@622..622
+                                                  create_generic_options@622..622
+                                                  ColQualList@622..622
+                                            Comma@622..623 ","
+                                            Whitespace@623..628 "\n    "
+                                            TableElement@628..651
+                                              columnDef@628..651
+                                                ColId@628..632
+                                                  IDENT@628..632 "kind"
+                                                Whitespace@632..640 "        "
+                                                Typename@640..651
+                                                  SimpleTypename@640..651
+                                                    Character@640..651
+                                                      CharacterWithLength@640..651
+                                                        character@640..647
+                                                          VARCHAR@640..647 "varchar"
+                                                        LParen@647..648 "("
+                                                        Iconst@648..650
+                                                          ICONST@648..650 "10"
+                                                        RParen@650..651 ")"
+                                                  opt_array_bounds@651..651
+                                                opt_column_storage@651..651
+                                                opt_column_compression@651..651
+                                                create_generic_options@651..651
+                                                ColQualList@651..651
+                                          Comma@651..652 ","
+                                          Whitespace@652..657 "\n    "
+                                          TableElement@657..692
+                                            columnDef@657..692
+                                              ColId@657..660
+                                                IDENT@657..660 "len"
+                                              Whitespace@660..669 "         "
+                                              Typename@669..692
+                                                SimpleTypename@669..692
+                                                  ConstInterval@669..677
+                                                    INTERVAL@669..677 "interval"
+                                                  Whitespace@677..678 " "
+                                                  opt_interval@678..692
+                                                    HOUR_P@678..682 "hour"
+                                                    Whitespace@682..683 " "
+                                                    TO@683..685 "to"
+                                                    Whitespace@685..686 " "
+                                                    MINUTE_P@686..692 "minute"
+                                                opt_array_bounds@692..692
+                                              opt_column_storage@692..692
+                                              opt_column_compression@692..692
+                                              create_generic_options@692..692
+                                              ColQualList@692..692
+                                        Comma@692..693 ","
+                                        Whitespace@693..698 "\n    "
+                                        TableElement@698..737
+                                          TableConstraint@698..737
+                                            CONSTRAINT@698..708 "CONSTRAINT"
+                                            Whitespace@708..709 " "
+                                            name@709..719
+                                              ColId@709..719
+                                                IDENT@709..719 "production"
+                                            Whitespace@719..720 " "
+                                            ConstraintElem@720..737
+                                              UNIQUE@720..726 "UNIQUE"
+                                              opt_unique_null_treatment@726..726
+                                              LParen@726..727 "("
+                                              columnList@727..736
+                                                columnElem@727..736
+                                                  ColId@727..736
+                                                    IDENT@727..736 "date_prod"
+                                              RParen@736..737 ")"
+                                              opt_c_include@737..737
+                                              opt_definition@737..737
+                                              OptConsTableSpace@737..737
+                                              ConstraintAttributeSpec@737..737
+                                    Whitespace@737..738 "\n"
+                                    RParen@738..739 ")"
+                                    OptInherit@739..739
+                                    OptPartitionSpec@739..739
+                                    table_access_method_clause@739..739
+                                    OptWith@739..739
+                                    OnCommitOption@739..739
+                                    OptTableSpace@739..739
+                            Semicolon@739..740 ";"
+                            Whitespace@740..741 "\n"
+                            toplevel_stmt@741..833
+                              stmt@741..833
+                                CreateStmt@741..833
+                                  CREATE@741..747 "CREATE"
+                                  OptTemp@747..747
+                                  Whitespace@747..748 " "
+                                  TABLE@748..753 "TABLE"
+                                  Whitespace@753..754 " "
+                                  qualified_name@754..766
+                                    ColId@754..766
+                                      IDENT@754..766 "distributors"
+                                  Whitespace@766..767 " "
+                                  LParen@767..768 "("
+                                  Whitespace@768..773 "\n    "
+                                  OptTableElementList@773..831
+                                    TableElementList@773..831
+                                      TableElementList@773..806
+                                        TableElement@773..806
+                                          columnDef@773..806
+                                            ColId@773..776
+                                              IDENT@773..776 "did"
+                                            Whitespace@776..781 "     "
+                                            Typename@781..788
+                                              SimpleTypename@781..788
+                                                Numeric@781..788
+                                                  INTEGER@781..788 "integer"
+                                              opt_array_bounds@788..788
+                                            opt_column_storage@788..788
+                                            opt_column_compression@788..788
+                                            create_generic_options@788..788
+                                            ColQualList@788..806
+                                              ColQualList@788..788
+                                              Whitespace@788..789 " "
+                                              ColConstraint@789..806
+                                                ColConstraintElem@789..806
+                                                  CHECK@789..794 "CHECK"
+                                                  Whitespace@794..795 " "
+                                                  LParen@795..796 "("
+                                                  a_expr@796..805
+                                                    a_expr@796..799
+                                                      c_expr@796..799
+                                                        columnref@796..799
+                                                          ColId@796..799
+                                                            IDENT@796..799 "did"
+                                                    Whitespace@799..800 " "
+                                                    Greater@800..801 ">"
+                                                    Whitespace@801..802 " "
+                                                    a_expr@802..805
+                                                      c_expr@802..805
+                                                        AexprConst@802..805
+                                                          Iconst@802..805
+                                                            ICONST@802..805 "100"
+                                                  RParen@805..806 ")"
+                                                  opt_no_inherit@806..806
+                                      Comma@806..807 ","
+                                      Whitespace@807..812 "\n    "
+                                      TableElement@812..831
+                                        columnDef@812..831
+                                          ColId@812..816
+                                            unreserved_keyword@812..816
+                                              NAME_P@812..816 "name"
+                                          Whitespace@816..820 "    "
+                                          Typename@820..831
+                                            SimpleTypename@820..831
+                                              Character@820..831
+                                                CharacterWithLength@820..831
+                                                  character@820..827
+                                                    VARCHAR@820..827 "varchar"
+                                                  LParen@827..828 "("
+                                                  Iconst@828..830
+                                                    ICONST@828..830 "40"
+                                                  RParen@830..831 ")"
+                                            opt_array_bounds@831..831
+                                          opt_column_storage@831..831
+                                          opt_column_compression@831..831
+                                          create_generic_options@831..831
+                                          ColQualList@831..831
+                                  Whitespace@831..832 "\n"
+                                  RParen@832..833 ")"
+                                  OptInherit@833..833
+                                  OptPartitionSpec@833..833
+                                  table_access_method_clause@833..833
+                                  OptWith@833..833
+                                  OnCommitOption@833..833
+                                  OptTableSpace@833..833
+                          Semicolon@833..834 ";"
+                          Whitespace@834..835 "\n"
+                          toplevel_stmt@835..962
+                            stmt@835..962
+                              CreateStmt@835..962
+                                CREATE@835..841 "CREATE"
+                                OptTemp@841..841
+                                Whitespace@841..842 " "
+                                TABLE@842..847 "TABLE"
+                                Whitespace@847..848 " "
+                                qualified_name@848..860
+                                  ColId@848..860
+                                    IDENT@848..860 "distributors"
+                                Whitespace@860..861 " "
+                                LParen@861..862 "("
+                                Whitespace@862..867 "\n    "
+                                OptTableElementList@867..960
+                                  TableElementList@867..960
+                                    TableElementList@867..882
+                                      TableElement@867..882
+                                        columnDef@867..882
+                                          ColId@867..870
+                                            IDENT@867..870 "did"
+                                          Whitespace@870..875 "     "
+                                          Typename@875..882
+                                            SimpleTypename@875..882
+                                              Numeric@875..882
+                                                INTEGER@875..882 "integer"
+                                            opt_array_bounds@882..882
+                                          opt_column_storage@882..882
+                                          opt_column_compression@882..882
+                                          create_generic_options@882..882
+                                          ColQualList@882..882
+                                    Comma@882..883 ","
+                                    Whitespace@883..888 "\n    "
+                                    TableElement@888..960
+                                      columnDef@888..960
+                                        ColId@888..892
+                                          unreserved_keyword@888..892
+                                            NAME_P@888..892 "name"
+                                        Whitespace@892..896 "    "
+                                        Typename@896..907
+                                          SimpleTypename@896..907
+                                            Character@896..907
+                                              CharacterWithLength@896..907
+                                                character@896..903
+                                                  VARCHAR@896..903 "varchar"
+                                                LParen@903..904 "("
+                                                Iconst@904..906
+                                                  ICONST@904..906 "40"
+                                                RParen@906..907 ")"
+                                          opt_array_bounds@907..907
+                                        opt_column_storage@907..907
+                                        opt_column_compression@907..907
+                                        create_generic_options@907..907
+                                        ColQualList@907..960
+                                          ColQualList@907..907
+                                          Whitespace@907..912 "\n    "
+                                          ColConstraint@912..960
+                                            CONSTRAINT@912..922 "CONSTRAINT"
+                                            Whitespace@922..923 " "
+                                            name@923..927
+                                              ColId@923..927
+                                                IDENT@923..927 "con1"
+                                            Whitespace@927..928 " "
+                                            ColConstraintElem@928..960
+                                              CHECK@928..933 "CHECK"
+                                              Whitespace@933..934 " "
+                                              LParen@934..935 "("
+                                              a_expr@935..959
+                                                a_expr@935..944
+                                                  a_expr@935..938
+                                                    c_expr@935..938
+                                                      columnref@935..938
+                                                        ColId@935..938
+                                                          IDENT@935..938 "did"
+                                                  Whitespace@938..939 " "
+                                                  Greater@939..940 ">"
+                                                  Whitespace@940..941 " "
+                                                  a_expr@941..944
+                                                    c_expr@941..944
+                                                      AexprConst@941..944
+                                                        Iconst@941..944
+                                                          ICONST@941..944 "100"
+                                                Whitespace@944..945 " "
+                                                AND@945..948 "AND"
+                                                Whitespace@948..949 " "
+                                                a_expr@949..959
+                                                  a_expr@949..953
+                                                    c_expr@949..953
+                                                      columnref@949..953
+                                                        ColId@949..953
+                                                          unreserved_keyword@949..953
+                                                            NAME_P@949..953 "name"
+                                                  Whitespace@953..954 " "
+                                                  NOT_EQUALS@954..956 "<>"
+                                                  Whitespace@956..957 " "
+                                                  a_expr@957..959
+                                                    c_expr@957..959
+                                                      AexprConst@957..959
+                                                        Sconst@957..959
+                                                          SCONST@957..959 "''"
+                                              RParen@959..960 ")"
+                                              opt_no_inherit@960..960
+                                Whitespace@960..961 "\n"
+                                RParen@961..962 ")"
+                                OptInherit@962..962
+                                OptPartitionSpec@962..962
+                                table_access_method_clause@962..962
+                                OptWith@962..962
+                                OnCommitOption@962..962
+                                OptTableSpace@962..962
+                        Semicolon@962..963 ";"
+                        Whitespace@963..964 "\n"
+                        toplevel_stmt@964..1207
+                          stmt@964..1207
+                            CreateStmt@964..1207
+                              CREATE@964..970 "CREATE"
+                              OptTemp@970..970
                               Whitespace@970..971 " "
-                              LParen@971..972 "("
-                              Whitespace@972..977 "\n    "
-                              OptTableElementList@977..1193
-                                TableElementList@977..1193
-                                  TableElementList@977..1142
-                                    TableElementList@977..1101
-                                      TableElementList@977..1072
-                                        TableElementList@977..1050
-                                          TableElementList@977..1025
-                                            TableElementList@977..996
-                                              TableElement@977..996
-                                                columnDef@977..996
-                                                  ColId@977..981
-                                                    IDENT@977..981 "code"
-                                                  Whitespace@981..989 "        "
-                                                  Typename@989..996
-                                                    SimpleTypename@989..996
-                                                      Character@989..996
-                                                        CharacterWithLength@989..996
-                                                          character@989..993
-                                                            CHAR_P@989..993 "char"
-                                                            opt_varying@993..993
-                                                          LParen@993..994 "("
-                                                          Iconst@994..995
-                                                            ICONST@994..995 "5"
-                                                          RParen@995..996 ")"
-                                                    opt_array_bounds@996..996
-                                                  opt_column_storage@996..996
-                                                  opt_column_compression@996..996
-                                                  create_generic_options@996..996
-                                                  ColQualList@996..996
-                                            Comma@996..997 ","
-                                            Whitespace@997..1002 "\n    "
-                                            TableElement@1002..1025
-                                              columnDef@1002..1025
-                                                ColId@1002..1007
-                                                  IDENT@1002..1007 "title"
-                                                Whitespace@1007..1014 "       "
-                                                Typename@1014..1025
-                                                  SimpleTypename@1014..1025
-                                                    Character@1014..1025
-                                                      CharacterWithLength@1014..1025
-                                                        character@1014..1021
-                                                          VARCHAR@1014..1021 "varchar"
-                                                        LParen@1021..1022 "("
-                                                        Iconst@1022..1024
-                                                          ICONST@1022..1024 "40"
-                                                        RParen@1024..1025 ")"
-                                                  opt_array_bounds@1025..1025
-                                                opt_column_storage@1025..1025
-                                                opt_column_compression@1025..1025
-                                                create_generic_options@1025..1025
-                                                ColQualList@1025..1025
-                                          Comma@1025..1026 ","
-                                          Whitespace@1026..1031 "\n    "
-                                          TableElement@1031..1050
-                                            columnDef@1031..1050
-                                              ColId@1031..1034
-                                                IDENT@1031..1034 "did"
-                                              Whitespace@1034..1043 "         "
-                                              Typename@1043..1050
-                                                SimpleTypename@1043..1050
-                                                  Numeric@1043..1050
-                                                    INTEGER@1043..1050 "integer"
-                                                opt_array_bounds@1050..1050
-                                              opt_column_storage@1050..1050
-                                              opt_column_compression@1050..1050
-                                              create_generic_options@1050..1050
-                                              ColQualList@1050..1050
-                                        Comma@1050..1051 ","
-                                        Whitespace@1051..1056 "\n    "
-                                        TableElement@1056..1072
-                                          columnDef@1056..1072
-                                            ColId@1056..1065
-                                              IDENT@1056..1065 "date_prod"
-                                            Whitespace@1065..1068 "   "
-                                            Typename@1068..1072
-                                              SimpleTypename@1068..1072
-                                                GenericType@1068..1072
-                                                  type_function_name@1068..1072
-                                                    IDENT@1068..1072 "date"
-                                                  opt_type_modifiers@1072..1072
-                                              opt_array_bounds@1072..1072
-                                            opt_column_storage@1072..1072
-                                            opt_column_compression@1072..1072
-                                            create_generic_options@1072..1072
-                                            ColQualList@1072..1072
-                                      Comma@1072..1073 ","
-                                      Whitespace@1073..1078 "\n    "
-                                      TableElement@1078..1101
-                                        columnDef@1078..1101
-                                          ColId@1078..1082
-                                            IDENT@1078..1082 "kind"
-                                          Whitespace@1082..1090 "        "
-                                          Typename@1090..1101
-                                            SimpleTypename@1090..1101
-                                              Character@1090..1101
-                                                CharacterWithLength@1090..1101
-                                                  character@1090..1097
-                                                    VARCHAR@1090..1097 "varchar"
-                                                  LParen@1097..1098 "("
-                                                  Iconst@1098..1100
-                                                    ICONST@1098..1100 "10"
-                                                  RParen@1100..1101 ")"
-                                            opt_array_bounds@1101..1101
-                                          opt_column_storage@1101..1101
-                                          opt_column_compression@1101..1101
-                                          create_generic_options@1101..1101
-                                          ColQualList@1101..1101
-                                    Comma@1101..1102 ","
-                                    Whitespace@1102..1107 "\n    "
-                                    TableElement@1107..1142
-                                      columnDef@1107..1142
-                                        ColId@1107..1110
-                                          IDENT@1107..1110 "len"
-                                        Whitespace@1110..1119 "         "
-                                        Typename@1119..1142
-                                          SimpleTypename@1119..1142
-                                            ConstInterval@1119..1127
-                                              INTERVAL@1119..1127 "interval"
-                                            Whitespace@1127..1128 " "
-                                            opt_interval@1128..1142
-                                              HOUR_P@1128..1132 "hour"
-                                              Whitespace@1132..1133 " "
-                                              TO@1133..1135 "to"
-                                              Whitespace@1135..1136 " "
-                                              MINUTE_P@1136..1142 "minute"
-                                          opt_array_bounds@1142..1142
-                                        opt_column_storage@1142..1142
-                                        opt_column_compression@1142..1142
-                                        create_generic_options@1142..1142
-                                        ColQualList@1142..1142
-                                  Comma@1142..1143 ","
-                                  Whitespace@1143..1148 "\n    "
-                                  TableElement@1148..1193
-                                    TableConstraint@1148..1193
-                                      CONSTRAINT@1148..1158 "CONSTRAINT"
-                                      Whitespace@1158..1159 " "
-                                      name@1159..1169
-                                        ColId@1159..1169
-                                          IDENT@1159..1169 "code_title"
-                                      Whitespace@1169..1170 " "
-                                      ConstraintElem@1170..1193
-                                        PRIMARY@1170..1177 "PRIMARY"
-                                        Whitespace@1177..1178 " "
-                                        KEY@1178..1181 "KEY"
-                                        LParen@1181..1182 "("
-                                        columnList@1182..1192
-                                          columnList@1182..1186
-                                            columnElem@1182..1186
-                                              ColId@1182..1186
-                                                IDENT@1182..1186 "code"
-                                          Comma@1186..1187 ","
-                                          columnElem@1187..1192
-                                            ColId@1187..1192
-                                              IDENT@1187..1192 "title"
-                                        RParen@1192..1193 ")"
-                                        opt_c_include@1193..1193
-                                        opt_definition@1193..1193
-                                        OptConsTableSpace@1193..1193
-                                        ConstraintAttributeSpec@1193..1193
-                              Whitespace@1193..1194 "\n"
-                              RParen@1194..1195 ")"
-                              OptInherit@1195..1195
-                              OptPartitionSpec@1195..1195
-                              table_access_method_clause@1195..1195
-                              OptWith@1195..1195
-                              OnCommitOption@1195..1195
-                              OptTableSpace@1195..1195
-                      Semicolon@1195..1196 ";"
-                      Whitespace@1196..1197 "\n"
-                      toplevel_stmt@1197..1293
-                        stmt@1197..1293
-                          CreateStmt@1197..1293
-                            CREATE@1197..1203 "CREATE"
-                            OptTemp@1203..1203
-                            Whitespace@1203..1204 " "
-                            TABLE@1204..1209 "TABLE"
-                            Whitespace@1209..1210 " "
-                            qualified_name@1210..1222
-                              ColId@1210..1222
-                                IDENT@1210..1222 "distributors"
-                            Whitespace@1222..1223 " "
-                            LParen@1223..1224 "("
-                            Whitespace@1224..1229 "\n    "
-                            OptTableElementList@1229..1291
-                              TableElementList@1229..1291
-                                TableElementList@1229..1269
-                                  TableElementList@1229..1244
-                                    TableElement@1229..1244
-                                      columnDef@1229..1244
-                                        ColId@1229..1232
-                                          IDENT@1229..1232 "did"
-                                        Whitespace@1232..1237 "     "
-                                        Typename@1237..1244
-                                          SimpleTypename@1237..1244
-                                            Numeric@1237..1244
-                                              INTEGER@1237..1244 "integer"
-                                          opt_array_bounds@1244..1244
-                                        opt_column_storage@1244..1244
-                                        opt_column_compression@1244..1244
-                                        create_generic_options@1244..1244
-                                        ColQualList@1244..1244
-                                  Comma@1244..1245 ","
-                                  Whitespace@1245..1250 "\n    "
-                                  TableElement@1250..1269
-                                    columnDef@1250..1269
-                                      ColId@1250..1254
-                                        unreserved_keyword@1250..1254
-                                          NAME_P@1250..1254 "name"
-                                      Whitespace@1254..1258 "    "
-                                      Typename@1258..1269
-                                        SimpleTypename@1258..1269
-                                          Character@1258..1269
-                                            CharacterWithLength@1258..1269
-                                              character@1258..1265
-                                                VARCHAR@1258..1265 "varchar"
-                                              LParen@1265..1266 "("
-                                              Iconst@1266..1268
-                                                ICONST@1266..1268 "40"
-                                              RParen@1268..1269 ")"
-                                        opt_array_bounds@1269..1269
-                                      opt_column_storage@1269..1269
-                                      opt_column_compression@1269..1269
-                                      create_generic_options@1269..1269
-                                      ColQualList@1269..1269
-                                Comma@1269..1270 ","
-                                Whitespace@1270..1275 "\n    "
-                                TableElement@1275..1291
-                                  TableConstraint@1275..1291
-                                    ConstraintElem@1275..1291
-                                      PRIMARY@1275..1282 "PRIMARY"
-                                      Whitespace@1282..1283 " "
-                                      KEY@1283..1286 "KEY"
-                                      LParen@1286..1287 "("
-                                      columnList@1287..1290
-                                        columnElem@1287..1290
-                                          ColId@1287..1290
-                                            IDENT@1287..1290 "did"
-                                      RParen@1290..1291 ")"
-                                      opt_c_include@1291..1291
-                                      opt_definition@1291..1291
-                                      OptConsTableSpace@1291..1291
-                                      ConstraintAttributeSpec@1291..1291
-                            Whitespace@1291..1292 "\n"
-                            RParen@1292..1293 ")"
-                            OptInherit@1293..1293
-                            OptPartitionSpec@1293..1293
-                            table_access_method_clause@1293..1293
-                            OptWith@1293..1293
-                            OnCommitOption@1293..1293
-                            OptTableSpace@1293..1293
-                    Semicolon@1293..1294 ";"
-                    Whitespace@1294..1296 " \n"
-                    toplevel_stmt@1296..1382
-                      stmt@1296..1382
-                        CreateStmt@1296..1382
-                          CREATE@1296..1302 "CREATE"
-                          OptTemp@1302..1302
-                          Whitespace@1302..1303 " "
-                          TABLE@1303..1308 "TABLE"
-                          Whitespace@1308..1309 " "
-                          qualified_name@1309..1321
-                            ColId@1309..1321
-                              IDENT@1309..1321 "distributors"
-                          Whitespace@1321..1322 " "
-                          LParen@1322..1323 "("
-                          Whitespace@1323..1328 "\n    "
-                          OptTableElementList@1328..1380
-                            TableElementList@1328..1380
-                              TableElementList@1328..1355
-                                TableElement@1328..1355
-                                  columnDef@1328..1355
-                                    ColId@1328..1331
-                                      IDENT@1328..1331 "did"
-                                    Whitespace@1331..1336 "     "
-                                    Typename@1336..1343
-                                      SimpleTypename@1336..1343
-                                        Numeric@1336..1343
-                                          INTEGER@1336..1343 "integer"
-                                      opt_array_bounds@1343..1343
-                                    opt_column_storage@1343..1343
-                                    opt_column_compression@1343..1343
-                                    create_generic_options@1343..1343
-                                    ColQualList@1343..1355
-                                      ColQualList@1343..1343
-                                      Whitespace@1343..1344 " "
-                                      ColConstraint@1344..1355
-                                        ColConstraintElem@1344..1355
-                                          PRIMARY@1344..1351 "PRIMARY"
-                                          Whitespace@1351..1352 " "
-                                          KEY@1352..1355 "KEY"
-                                          opt_definition@1355..1355
-                                          OptConsTableSpace@1355..1355
-                              Comma@1355..1356 ","
-                              Whitespace@1356..1361 "\n    "
-                              TableElement@1361..1380
-                                columnDef@1361..1380
-                                  ColId@1361..1365
-                                    unreserved_keyword@1361..1365
-                                      NAME_P@1361..1365 "name"
-                                  Whitespace@1365..1369 "    "
-                                  Typename@1369..1380
-                                    SimpleTypename@1369..1380
-                                      Character@1369..1380
-                                        CharacterWithLength@1369..1380
-                                          character@1369..1376
-                                            VARCHAR@1369..1376 "varchar"
-                                          LParen@1376..1377 "("
-                                          Iconst@1377..1379
-                                            ICONST@1377..1379 "40"
-                                          RParen@1379..1380 ")"
-                                    opt_array_bounds@1380..1380
-                                  opt_column_storage@1380..1380
-                                  opt_column_compression@1380..1380
-                                  create_generic_options@1380..1380
-                                  ColQualList@1380..1380
-                          Whitespace@1380..1381 "\n"
-                          RParen@1381..1382 ")"
-                          OptInherit@1382..1382
-                          OptPartitionSpec@1382..1382
-                          table_access_method_clause@1382..1382
-                          OptWith@1382..1382
-                          OnCommitOption@1382..1382
-                          OptTableSpace@1382..1382
-                  Semicolon@1382..1383 ";"
-                  Whitespace@1383..1384 "\n"
-                  toplevel_stmt@1384..1540
-                    stmt@1384..1540
-                      CreateStmt@1384..1540
-                        CREATE@1384..1390 "CREATE"
-                        OptTemp@1390..1390
-                        Whitespace@1390..1391 " "
-                        TABLE@1391..1396 "TABLE"
-                        Whitespace@1396..1397 " "
-                        qualified_name@1397..1409
-                          ColId@1397..1409
-                            IDENT@1397..1409 "distributors"
-                        Whitespace@1409..1410 " "
-                        LParen@1410..1411 "("
-                        Whitespace@1411..1416 "\n    "
-                        OptTableElementList@1416..1538
-                          TableElementList@1416..1538
-                            TableElementList@1416..1487
-                              TableElementList@1416..1446
-                                TableElement@1416..1446
-                                  columnDef@1416..1446
-                                    ColId@1416..1420
-                                      unreserved_keyword@1416..1420
-                                        NAME_P@1416..1420 "name"
-                                    Whitespace@1420..1426 "      "
-                                    Typename@1426..1437
-                                      SimpleTypename@1426..1437
-                                        Character@1426..1437
-                                          CharacterWithLength@1426..1437
-                                            character@1426..1433
-                                              VARCHAR@1426..1433 "varchar"
-                                            LParen@1433..1434 "("
-                                            Iconst@1434..1436
-                                              ICONST@1434..1436 "40"
-                                            RParen@1436..1437 ")"
-                                      opt_array_bounds@1437..1437
-                                    opt_column_storage@1437..1437
-                                    opt_column_compression@1437..1437
-                                    create_generic_options@1437..1437
-                                    ColQualList@1437..1446
-                                      ColQualList@1437..1437
-                                      Whitespace@1437..1438 " "
-                                      ColConstraint@1438..1446
-                                        ColConstraintElem@1438..1446
-                                          DEFAULT@1438..1445 "DEFAULT"
-                                          Whitespace@1445..1446 " "
-                                          b_expr@1446..1446
-                                            c_expr@1446..1446
-                                              AexprConst@1446..1446
-                                                Sconst@1446..1446
-                                                  SCONST@1446..1446 ""
-                              Comma@1446..1447 ","
-                              Whitespace@1447..1452 "\n    "
-                              TableElement@1452..1487
-                                columnDef@1452..1487
-                                  ColId@1452..1455
-                                    IDENT@1452..1455 "did"
-                                  Whitespace@1455..1462 "       "
-                                  Typename@1462..1469
-                                    SimpleTypename@1462..1469
-                                      Numeric@1462..1469
-                                        INTEGER@1462..1469 "integer"
-                                    opt_array_bounds@1469..1469
-                                  opt_column_storage@1469..1469
-                                  opt_column_compression@1469..1469
-                                  create_generic_options@1469..1469
-                                  ColQualList@1469..1487
-                                    ColQualList@1469..1469
-                                    Whitespace@1469..1470 " "
-                                    ColConstraint@1470..1487
-                                      ColConstraintElem@1470..1487
-                                        DEFAULT@1470..1477 "DEFAULT"
-                                        Whitespace@1477..1478 " "
-                                        b_expr@1478..1487
-                                          c_expr@1478..1487
-                                            func_expr@1478..1487
-                                              func_application@1478..1487
-                                                func_name@1478..1485
-                                                  type_function_name@1478..1485
-                                                    IDENT@1478..1485 "nextval"
-                                                LParen@1485..1486 "("
-                                                func_arg_list@1486..1486
-                                                  func_arg_expr@1486..1486
-                                                    a_expr@1486..1486
-                                                      c_expr@1486..1486
-                                                        AexprConst@1486..1486
-                                                          Sconst@1486..1486
-                                                            SCONST@1486..1486 ""
-                                                opt_sort_clause@1486..1486
-                                                RParen@1486..1487 ")"
-                                              within_group_clause@1487..1487
-                                              filter_clause@1487..1487
-                                              over_clause@1487..1487
-                            Comma@1487..1488 ","
-                            Whitespace@1488..1493 "\n    "
-                            TableElement@1493..1538
-                              columnDef@1493..1538
-                                ColId@1493..1500
-                                  IDENT@1493..1500 "modtime"
-                                Whitespace@1500..1503 "   "
-                                Typename@1503..1512
-                                  SimpleTypename@1503..1512
-                                    ConstDatetime@1503..1512
-                                      TIMESTAMP@1503..1512 "timestamp"
-                                      opt_timezone@1512..1512
-                                  opt_array_bounds@1512..1512
-                                opt_column_storage@1512..1512
-                                opt_column_compression@1512..1512
-                                create_generic_options@1512..1512
-                                ColQualList@1512..1538
-                                  ColQualList@1512..1512
-                                  Whitespace@1512..1513 " "
-                                  ColConstraint@1513..1538
-                                    ColConstraintElem@1513..1538
-                                      DEFAULT@1513..1520 "DEFAULT"
-                                      Whitespace@1520..1521 " "
-                                      b_expr@1521..1538
-                                        c_expr@1521..1538
-                                          func_expr@1521..1538
-                                            func_expr_common_subexpr@1521..1538
-                                              CURRENT_TIMESTAMP@1521..1538 "current_timestamp"
-                        Whitespace@1538..1539 "\n"
-                        RParen@1539..1540 ")"
-                        OptInherit@1540..1540
-                        OptPartitionSpec@1540..1540
-                        table_access_method_clause@1540..1540
-                        OptWith@1540..1540
-                        OnCommitOption@1540..1540
-                        OptTableSpace@1540..1540
-                Semicolon@1540..1541 ";"
-                Whitespace@1541..1542 "\n"
-                toplevel_stmt@1542..1653
-                  stmt@1542..1653
-                    CreateStmt@1542..1653
-                      CREATE@1542..1548 "CREATE"
-                      OptTemp@1548..1548
-                      Whitespace@1548..1549 " "
-                      TABLE@1549..1554 "TABLE"
-                      Whitespace@1554..1555 " "
-                      qualified_name@1555..1567
-                        ColId@1555..1567
-                          IDENT@1555..1567 "distributors"
-                      Whitespace@1567..1568 " "
-                      LParen@1568..1569 "("
-                      Whitespace@1569..1574 "\n    "
-                      OptTableElementList@1574..1651
-                        TableElementList@1574..1651
-                          TableElementList@1574..1617
-                            TableElement@1574..1617
-                              columnDef@1574..1617
-                                ColId@1574..1577
-                                  IDENT@1574..1577 "did"
-                                Whitespace@1577..1582 "     "
-                                Typename@1582..1589
-                                  SimpleTypename@1582..1589
-                                    Numeric@1582..1589
-                                      INTEGER@1582..1589 "integer"
-                                  opt_array_bounds@1589..1589
-                                opt_column_storage@1589..1589
-                                opt_column_compression@1589..1589
-                                create_generic_options@1589..1589
-                                ColQualList@1589..1617
-                                  ColQualList@1589..1589
-                                  Whitespace@1589..1590 " "
-                                  ColConstraint@1590..1617
-                                    CONSTRAINT@1590..1600 "CONSTRAINT"
-                                    Whitespace@1600..1601 " "
-                                    name@1601..1608
-                                      ColId@1601..1608
-                                        IDENT@1601..1608 "no_null"
-                                    Whitespace@1608..1609 " "
-                                    ColConstraintElem@1609..1617
-                                      NOT@1609..1612 "NOT"
-                                      Whitespace@1612..1613 " "
-                                      NULL_P@1613..1617 "NULL"
-                          Comma@1617..1618 ","
-                          Whitespace@1618..1623 "\n    "
-                          TableElement@1623..1651
-                            columnDef@1623..1651
-                              ColId@1623..1627
-                                unreserved_keyword@1623..1627
-                                  NAME_P@1623..1627 "name"
-                              Whitespace@1627..1631 "    "
-                              Typename@1631..1642
-                                SimpleTypename@1631..1642
-                                  Character@1631..1642
-                                    CharacterWithLength@1631..1642
-                                      character@1631..1638
-                                        VARCHAR@1631..1638 "varchar"
-                                      LParen@1638..1639 "("
-                                      Iconst@1639..1641
-                                        ICONST@1639..1641 "40"
-                                      RParen@1641..1642 ")"
-                                opt_array_bounds@1642..1642
-                              opt_column_storage@1642..1642
-                              opt_column_compression@1642..1642
-                              create_generic_options@1642..1642
-                              ColQualList@1642..1651
-                                ColQualList@1642..1642
-                                Whitespace@1642..1643 " "
-                                ColConstraint@1643..1651
-                                  ColConstraintElem@1643..1651
-                                    NOT@1643..1646 "NOT"
-                                    Whitespace@1646..1647 " "
-                                    NULL_P@1647..1651 "NULL"
-                      Whitespace@1651..1652 "\n"
-                      RParen@1652..1653 ")"
-                      OptInherit@1653..1653
-                      OptPartitionSpec@1653..1653
-                      table_access_method_clause@1653..1653
-                      OptWith@1653..1653
-                      OnCommitOption@1653..1653
-                      OptTableSpace@1653..1653
-              Semicolon@1653..1654 ";"
-              Whitespace@1654..1655 "\n"
-              toplevel_stmt@1655..1736
-                stmt@1655..1736
-                  CreateStmt@1655..1736
-                    CREATE@1655..1661 "CREATE"
-                    OptTemp@1661..1661
-                    Whitespace@1661..1662 " "
-                    TABLE@1662..1667 "TABLE"
-                    Whitespace@1667..1668 " "
-                    qualified_name@1668..1680
-                      ColId@1668..1680
-                        IDENT@1668..1680 "distributors"
-                    Whitespace@1680..1681 " "
-                    LParen@1681..1682 "("
-                    Whitespace@1682..1687 "\n    "
-                    OptTableElementList@1687..1734
-                      TableElementList@1687..1734
-                        TableElementList@1687..1702
-                          TableElement@1687..1702
-                            columnDef@1687..1702
-                              ColId@1687..1690
-                                IDENT@1687..1690 "did"
-                              Whitespace@1690..1695 "     "
-                              Typename@1695..1702
-                                SimpleTypename@1695..1702
-                                  Numeric@1695..1702
-                                    INTEGER@1695..1702 "integer"
-                                opt_array_bounds@1702..1702
-                              opt_column_storage@1702..1702
-                              opt_column_compression@1702..1702
-                              create_generic_options@1702..1702
-                              ColQualList@1702..1702
-                        Comma@1702..1703 ","
-                        Whitespace@1703..1708 "\n    "
-                        TableElement@1708..1734
-                          columnDef@1708..1734
-                            ColId@1708..1712
-                              unreserved_keyword@1708..1712
-                                NAME_P@1708..1712 "name"
-                            Whitespace@1712..1716 "    "
-                            Typename@1716..1727
-                              SimpleTypename@1716..1727
-                                Character@1716..1727
-                                  CharacterWithLength@1716..1727
-                                    character@1716..1723
-                                      VARCHAR@1716..1723 "varchar"
-                                    LParen@1723..1724 "("
-                                    Iconst@1724..1726
-                                      ICONST@1724..1726 "40"
-                                    RParen@1726..1727 ")"
-                              opt_array_bounds@1727..1727
-                            opt_column_storage@1727..1727
-                            opt_column_compression@1727..1727
-                            create_generic_options@1727..1727
-                            ColQualList@1727..1734
-                              ColQualList@1727..1727
-                              Whitespace@1727..1728 " "
-                              ColConstraint@1728..1734
-                                ColConstraintElem@1728..1734
-                                  UNIQUE@1728..1734 "UNIQUE"
-                                  opt_unique_null_treatment@1734..1734
-                                  opt_definition@1734..1734
-                                  OptConsTableSpace@1734..1734
-                    Whitespace@1734..1735 "\n"
-                    RParen@1735..1736 ")"
-                    OptInherit@1736..1736
-                    OptPartitionSpec@1736..1736
-                    table_access_method_clause@1736..1736
-                    OptWith@1736..1736
-                    OnCommitOption@1736..1736
-                    OptTableSpace@1736..1736
-            Semicolon@1736..1737 ";"
-            Whitespace@1737..1738 "\n"
-            toplevel_stmt@1738..1830
-              stmt@1738..1830
-                CreateStmt@1738..1830
-                  CREATE@1738..1744 "CREATE"
-                  OptTemp@1744..1744
-                  Whitespace@1744..1745 " "
-                  TABLE@1745..1750 "TABLE"
-                  Whitespace@1750..1751 " "
-                  qualified_name@1751..1763
-                    ColId@1751..1763
-                      IDENT@1751..1763 "distributors"
-                  Whitespace@1763..1764 " "
-                  LParen@1764..1765 "("
-                  Whitespace@1765..1770 "\n    "
-                  OptTableElementList@1770..1828
-                    TableElementList@1770..1828
-                      TableElementList@1770..1810
-                        TableElementList@1770..1785
-                          TableElement@1770..1785
-                            columnDef@1770..1785
-                              ColId@1770..1773
-                                IDENT@1770..1773 "did"
-                              Whitespace@1773..1778 "     "
-                              Typename@1778..1785
-                                SimpleTypename@1778..1785
-                                  Numeric@1778..1785
-                                    INTEGER@1778..1785 "integer"
-                                opt_array_bounds@1785..1785
-                              opt_column_storage@1785..1785
-                              opt_column_compression@1785..1785
-                              create_generic_options@1785..1785
-                              ColQualList@1785..1785
-                        Comma@1785..1786 ","
-                        Whitespace@1786..1791 "\n    "
-                        TableElement@1791..1810
-                          columnDef@1791..1810
-                            ColId@1791..1795
-                              unreserved_keyword@1791..1795
-                                NAME_P@1791..1795 "name"
-                            Whitespace@1795..1799 "    "
-                            Typename@1799..1810
-                              SimpleTypename@1799..1810
-                                Character@1799..1810
-                                  CharacterWithLength@1799..1810
-                                    character@1799..1806
-                                      VARCHAR@1799..1806 "varchar"
-                                    LParen@1806..1807 "("
-                                    Iconst@1807..1809
-                                      ICONST@1807..1809 "40"
-                                    RParen@1809..1810 ")"
-                              opt_array_bounds@1810..1810
-                            opt_column_storage@1810..1810
-                            opt_column_compression@1810..1810
-                            create_generic_options@1810..1810
-                            ColQualList@1810..1810
-                      Comma@1810..1811 ","
-                      Whitespace@1811..1816 "\n    "
-                      TableElement@1816..1828
-                        TableConstraint@1816..1828
-                          ConstraintElem@1816..1828
-                            UNIQUE@1816..1822 "UNIQUE"
-                            opt_unique_null_treatment@1822..1822
-                            LParen@1822..1823 "("
-                            columnList@1823..1827
-                              columnElem@1823..1827
-                                ColId@1823..1827
-                                  unreserved_keyword@1823..1827
-                                    NAME_P@1823..1827 "name"
-                            RParen@1827..1828 ")"
-                            opt_c_include@1828..1828
-                            opt_definition@1828..1828
-                            OptConsTableSpace@1828..1828
-                            ConstraintAttributeSpec@1828..1828
-                  Whitespace@1828..1829 "\n"
-                  RParen@1829..1830 ")"
-                  OptInherit@1830..1830
-                  OptPartitionSpec@1830..1830
-                  table_access_method_clause@1830..1830
-                  OptWith@1830..1830
-                  OnCommitOption@1830..1830
-                  OptTableSpace@1830..1830
-          Semicolon@1830..1831 ";"
-          Whitespace@1831..1832 "\n"
-          toplevel_stmt@1832..1966
-            stmt@1832..1966
-              CreateStmt@1832..1966
-                CREATE@1832..1838 "CREATE"
-                OptTemp@1838..1838
-                Whitespace@1838..1839 " "
-                TABLE@1839..1844 "TABLE"
-                Whitespace@1844..1845 " "
-                qualified_name@1845..1857
-                  ColId@1845..1857
-                    IDENT@1845..1857 "distributors"
-                Whitespace@1857..1858 " "
-                LParen@1858..1859 "("
-                Whitespace@1859..1864 "\n    "
-                OptTableElementList@1864..1943
-                  TableElementList@1864..1943
-                    TableElementList@1864..1904
-                      TableElementList@1864..1879
-                        TableElement@1864..1879
-                          columnDef@1864..1879
-                            ColId@1864..1867
-                              IDENT@1864..1867 "did"
-                            Whitespace@1867..1872 "     "
-                            Typename@1872..1879
-                              SimpleTypename@1872..1879
-                                Numeric@1872..1879
-                                  INTEGER@1872..1879 "integer"
-                              opt_array_bounds@1879..1879
-                            opt_column_storage@1879..1879
-                            opt_column_compression@1879..1879
-                            create_generic_options@1879..1879
-                            ColQualList@1879..1879
-                      Comma@1879..1880 ","
-                      Whitespace@1880..1885 "\n    "
-                      TableElement@1885..1904
-                        columnDef@1885..1904
-                          ColId@1885..1889
-                            unreserved_keyword@1885..1889
-                              NAME_P@1885..1889 "name"
-                          Whitespace@1889..1893 "    "
-                          Typename@1893..1904
-                            SimpleTypename@1893..1904
-                              Character@1893..1904
-                                CharacterWithLength@1893..1904
-                                  character@1893..1900
-                                    VARCHAR@1893..1900 "varchar"
-                                  LParen@1900..1901 "("
-                                  Iconst@1901..1903
-                                    ICONST@1901..1903 "40"
-                                  RParen@1903..1904 ")"
-                            opt_array_bounds@1904..1904
-                          opt_column_storage@1904..1904
-                          opt_column_compression@1904..1904
-                          create_generic_options@1904..1904
-                          ColQualList@1904..1904
-                    Comma@1904..1905 ","
-                    Whitespace@1905..1910 "\n    "
-                    TableElement@1910..1943
-                      TableConstraint@1910..1943
-                        ConstraintElem@1910..1943
-                          UNIQUE@1910..1916 "UNIQUE"
-                          opt_unique_null_treatment@1916..1916
-                          LParen@1916..1917 "("
-                          columnList@1917..1921
-                            columnElem@1917..1921
-                              ColId@1917..1921
-                                unreserved_keyword@1917..1921
-                                  NAME_P@1917..1921 "name"
-                          RParen@1921..1922 ")"
-                          opt_c_include@1922..1922
-                          Whitespace@1922..1923 " "
-                          opt_definition@1923..1943
-                            WITH@1923..1927 "WITH"
-                            Whitespace@1927..1928 " "
-                            definition@1928..1943
-                              LParen@1928..1929 "("
-                              def_list@1929..1942
-                                def_elem@1929..1942
-                                  ColLabel@1929..1939
-                                    IDENT@1929..1939 "fillfactor"
-                                  Equals@1939..1940 "="
-                                  def_arg@1940..1942
-                                    NumericOnly@1940..1942
-                                      SignedIconst@1940..1942
-                                        Iconst@1940..1942
-                                          ICONST@1940..1942 "70"
-                              RParen@1942..1943 ")"
-                          OptConsTableSpace@1943..1943
-                          ConstraintAttributeSpec@1943..1943
-                Whitespace@1943..1944 "\n"
-                RParen@1944..1945 ")"
-                OptInherit@1945..1945
-                OptPartitionSpec@1945..1945
-                table_access_method_clause@1945..1945
-                Whitespace@1945..1946 "\n"
-                OptWith@1946..1966
-                  WITH@1946..1950 "WITH"
-                  Whitespace@1950..1951 " "
-                  reloptions@1951..1966
-                    LParen@1951..1952 "("
-                    reloption_list@1952..1965
-                      reloption_elem@1952..1965
-                        ColLabel@1952..1962
-                          IDENT@1952..1962 "fillfactor"
-                        Equals@1962..1963 "="
-                        def_arg@1963..1965
-                          NumericOnly@1963..1965
-                            SignedIconst@1963..1965
-                              Iconst@1963..1965
-                                ICONST@1963..1965 "70"
-                    RParen@1965..1966 ")"
-                OnCommitOption@1966..1966
-                OptTableSpace@1966..1966
-        Semicolon@1966..1967 ";"
-        Whitespace@1967..1968 "\n"
-        toplevel_stmt@1968..2072
-          stmt@1968..2072
-            CreateStmt@1968..2072
-              CREATE@1968..1974 "CREATE"
-              OptTemp@1974..1974
-              Whitespace@1974..1975 " "
-              TABLE@1975..1980 "TABLE"
-              Whitespace@1980..1981 " "
-              qualified_name@1981..1988
-                ColId@1981..1988
-                  IDENT@1981..1988 "cinemas"
-              Whitespace@1988..1989 " "
-              LParen@1989..1990 "("
-              Whitespace@1990..1999 "\n        "
-              OptTableElementList@1999..2050
-                TableElementList@1999..2050
-                  TableElementList@1999..2027
-                    TableElementList@1999..2008
-                      TableElement@1999..2008
-                        columnDef@1999..2008
-                          ColId@1999..2001
-                            IDENT@1999..2001 "id"
-                          Whitespace@2001..2002 " "
-                          Typename@2002..2008
-                            SimpleTypename@2002..2008
-                              GenericType@2002..2008
-                                type_function_name@2002..2008
-                                  IDENT@2002..2008 "serial"
-                                opt_type_modifiers@2008..2008
-                            opt_array_bounds@2008..2008
-                          opt_column_storage@2008..2008
-                          opt_column_compression@2008..2008
-                          create_generic_options@2008..2008
-                          ColQualList@2008..2008
-                    Comma@2008..2009 ","
-                    Whitespace@2009..2018 "\n        "
-                    TableElement@2018..2027
-                      columnDef@2018..2027
-                        ColId@2018..2022
-                          unreserved_keyword@2018..2022
-                            NAME_P@2018..2022 "name"
-                        Whitespace@2022..2023 " "
-                        Typename@2023..2027
-                          SimpleTypename@2023..2027
-                            GenericType@2023..2027
-                              type_function_name@2023..2027
-                                unreserved_keyword@2023..2027
-                                  TEXT_P@2023..2027 "text"
-                              opt_type_modifiers@2027..2027
-                          opt_array_bounds@2027..2027
-                        opt_column_storage@2027..2027
-                        opt_column_compression@2027..2027
-                        create_generic_options@2027..2027
-                        ColQualList@2027..2027
-                  Comma@2027..2028 ","
-                  Whitespace@2028..2037 "\n        "
-                  TableElement@2037..2050
-                    columnDef@2037..2050
-                      ColId@2037..2045
-                        unreserved_keyword@2037..2045
-                          LOCATION@2037..2045 "location"
-                      Whitespace@2045..2046 " "
-                      Typename@2046..2050
-                        SimpleTypename@2046..2050
-                          GenericType@2046..2050
-                            type_function_name@2046..2050
-                              unreserved_keyword@2046..2050
-                                TEXT_P@2046..2050 "text"
-                            opt_type_modifiers@2050..2050
-                        opt_array_bounds@2050..2050
-                      opt_column_storage@2050..2050
-                      opt_column_compression@2050..2050
-                      create_generic_options@2050..2050
-                      ColQualList@2050..2050
-              Whitespace@2050..2051 "\n"
-              RParen@2051..2052 ")"
-              OptInherit@2052..2052
-              OptPartitionSpec@2052..2052
-              table_access_method_clause@2052..2052
-              OptWith@2052..2052
-              OnCommitOption@2052..2052
-              Whitespace@2052..2053 " "
-              OptTableSpace@2053..2072
-                TABLESPACE@2053..2063 "TABLESPACE"
-                Whitespace@2063..2064 " "
-                name@2064..2072
-                  ColId@2064..2072
-                    IDENT@2064..2072 "diskvol1"
-      Semicolon@2072..2073 ";"
-      toplevel_stmt@2073..2073
-        stmt@2073..2073
-  Whitespace@2073..2074 "\n"
+                              TABLE@971..976 "TABLE"
+                              Whitespace@976..977 " "
+                              qualified_name@977..982
+                                ColId@977..982
+                                  IDENT@977..982 "films"
+                              Whitespace@982..983 " "
+                              LParen@983..984 "("
+                              Whitespace@984..989 "\n    "
+                              OptTableElementList@989..1205
+                                TableElementList@989..1205
+                                  TableElementList@989..1154
+                                    TableElementList@989..1113
+                                      TableElementList@989..1084
+                                        TableElementList@989..1062
+                                          TableElementList@989..1037
+                                            TableElementList@989..1008
+                                              TableElement@989..1008
+                                                columnDef@989..1008
+                                                  ColId@989..993
+                                                    IDENT@989..993 "code"
+                                                  Whitespace@993..1001 "        "
+                                                  Typename@1001..1008
+                                                    SimpleTypename@1001..1008
+                                                      Character@1001..1008
+                                                        CharacterWithLength@1001..1008
+                                                          character@1001..1005
+                                                            CHAR_P@1001..1005 "char"
+                                                            opt_varying@1005..1005
+                                                          LParen@1005..1006 "("
+                                                          Iconst@1006..1007
+                                                            ICONST@1006..1007 "5"
+                                                          RParen@1007..1008 ")"
+                                                    opt_array_bounds@1008..1008
+                                                  opt_column_storage@1008..1008
+                                                  opt_column_compression@1008..1008
+                                                  create_generic_options@1008..1008
+                                                  ColQualList@1008..1008
+                                            Comma@1008..1009 ","
+                                            Whitespace@1009..1014 "\n    "
+                                            TableElement@1014..1037
+                                              columnDef@1014..1037
+                                                ColId@1014..1019
+                                                  IDENT@1014..1019 "title"
+                                                Whitespace@1019..1026 "       "
+                                                Typename@1026..1037
+                                                  SimpleTypename@1026..1037
+                                                    Character@1026..1037
+                                                      CharacterWithLength@1026..1037
+                                                        character@1026..1033
+                                                          VARCHAR@1026..1033 "varchar"
+                                                        LParen@1033..1034 "("
+                                                        Iconst@1034..1036
+                                                          ICONST@1034..1036 "40"
+                                                        RParen@1036..1037 ")"
+                                                  opt_array_bounds@1037..1037
+                                                opt_column_storage@1037..1037
+                                                opt_column_compression@1037..1037
+                                                create_generic_options@1037..1037
+                                                ColQualList@1037..1037
+                                          Comma@1037..1038 ","
+                                          Whitespace@1038..1043 "\n    "
+                                          TableElement@1043..1062
+                                            columnDef@1043..1062
+                                              ColId@1043..1046
+                                                IDENT@1043..1046 "did"
+                                              Whitespace@1046..1055 "         "
+                                              Typename@1055..1062
+                                                SimpleTypename@1055..1062
+                                                  Numeric@1055..1062
+                                                    INTEGER@1055..1062 "integer"
+                                                opt_array_bounds@1062..1062
+                                              opt_column_storage@1062..1062
+                                              opt_column_compression@1062..1062
+                                              create_generic_options@1062..1062
+                                              ColQualList@1062..1062
+                                        Comma@1062..1063 ","
+                                        Whitespace@1063..1068 "\n    "
+                                        TableElement@1068..1084
+                                          columnDef@1068..1084
+                                            ColId@1068..1077
+                                              IDENT@1068..1077 "date_prod"
+                                            Whitespace@1077..1080 "   "
+                                            Typename@1080..1084
+                                              SimpleTypename@1080..1084
+                                                GenericType@1080..1084
+                                                  type_function_name@1080..1084
+                                                    IDENT@1080..1084 "date"
+                                                  opt_type_modifiers@1084..1084
+                                              opt_array_bounds@1084..1084
+                                            opt_column_storage@1084..1084
+                                            opt_column_compression@1084..1084
+                                            create_generic_options@1084..1084
+                                            ColQualList@1084..1084
+                                      Comma@1084..1085 ","
+                                      Whitespace@1085..1090 "\n    "
+                                      TableElement@1090..1113
+                                        columnDef@1090..1113
+                                          ColId@1090..1094
+                                            IDENT@1090..1094 "kind"
+                                          Whitespace@1094..1102 "        "
+                                          Typename@1102..1113
+                                            SimpleTypename@1102..1113
+                                              Character@1102..1113
+                                                CharacterWithLength@1102..1113
+                                                  character@1102..1109
+                                                    VARCHAR@1102..1109 "varchar"
+                                                  LParen@1109..1110 "("
+                                                  Iconst@1110..1112
+                                                    ICONST@1110..1112 "10"
+                                                  RParen@1112..1113 ")"
+                                            opt_array_bounds@1113..1113
+                                          opt_column_storage@1113..1113
+                                          opt_column_compression@1113..1113
+                                          create_generic_options@1113..1113
+                                          ColQualList@1113..1113
+                                    Comma@1113..1114 ","
+                                    Whitespace@1114..1119 "\n    "
+                                    TableElement@1119..1154
+                                      columnDef@1119..1154
+                                        ColId@1119..1122
+                                          IDENT@1119..1122 "len"
+                                        Whitespace@1122..1131 "         "
+                                        Typename@1131..1154
+                                          SimpleTypename@1131..1154
+                                            ConstInterval@1131..1139
+                                              INTERVAL@1131..1139 "interval"
+                                            Whitespace@1139..1140 " "
+                                            opt_interval@1140..1154
+                                              HOUR_P@1140..1144 "hour"
+                                              Whitespace@1144..1145 " "
+                                              TO@1145..1147 "to"
+                                              Whitespace@1147..1148 " "
+                                              MINUTE_P@1148..1154 "minute"
+                                          opt_array_bounds@1154..1154
+                                        opt_column_storage@1154..1154
+                                        opt_column_compression@1154..1154
+                                        create_generic_options@1154..1154
+                                        ColQualList@1154..1154
+                                  Comma@1154..1155 ","
+                                  Whitespace@1155..1160 "\n    "
+                                  TableElement@1160..1205
+                                    TableConstraint@1160..1205
+                                      CONSTRAINT@1160..1170 "CONSTRAINT"
+                                      Whitespace@1170..1171 " "
+                                      name@1171..1181
+                                        ColId@1171..1181
+                                          IDENT@1171..1181 "code_title"
+                                      Whitespace@1181..1182 " "
+                                      ConstraintElem@1182..1205
+                                        PRIMARY@1182..1189 "PRIMARY"
+                                        Whitespace@1189..1190 " "
+                                        KEY@1190..1193 "KEY"
+                                        LParen@1193..1194 "("
+                                        columnList@1194..1204
+                                          columnList@1194..1198
+                                            columnElem@1194..1198
+                                              ColId@1194..1198
+                                                IDENT@1194..1198 "code"
+                                          Comma@1198..1199 ","
+                                          columnElem@1199..1204
+                                            ColId@1199..1204
+                                              IDENT@1199..1204 "title"
+                                        RParen@1204..1205 ")"
+                                        opt_c_include@1205..1205
+                                        opt_definition@1205..1205
+                                        OptConsTableSpace@1205..1205
+                                        ConstraintAttributeSpec@1205..1205
+                              Whitespace@1205..1206 "\n"
+                              RParen@1206..1207 ")"
+                              OptInherit@1207..1207
+                              OptPartitionSpec@1207..1207
+                              table_access_method_clause@1207..1207
+                              OptWith@1207..1207
+                              OnCommitOption@1207..1207
+                              OptTableSpace@1207..1207
+                      Semicolon@1207..1208 ";"
+                      Whitespace@1208..1209 "\n"
+                      toplevel_stmt@1209..1305
+                        stmt@1209..1305
+                          CreateStmt@1209..1305
+                            CREATE@1209..1215 "CREATE"
+                            OptTemp@1215..1215
+                            Whitespace@1215..1216 " "
+                            TABLE@1216..1221 "TABLE"
+                            Whitespace@1221..1222 " "
+                            qualified_name@1222..1234
+                              ColId@1222..1234
+                                IDENT@1222..1234 "distributors"
+                            Whitespace@1234..1235 " "
+                            LParen@1235..1236 "("
+                            Whitespace@1236..1241 "\n    "
+                            OptTableElementList@1241..1303
+                              TableElementList@1241..1303
+                                TableElementList@1241..1281
+                                  TableElementList@1241..1256
+                                    TableElement@1241..1256
+                                      columnDef@1241..1256
+                                        ColId@1241..1244
+                                          IDENT@1241..1244 "did"
+                                        Whitespace@1244..1249 "     "
+                                        Typename@1249..1256
+                                          SimpleTypename@1249..1256
+                                            Numeric@1249..1256
+                                              INTEGER@1249..1256 "integer"
+                                          opt_array_bounds@1256..1256
+                                        opt_column_storage@1256..1256
+                                        opt_column_compression@1256..1256
+                                        create_generic_options@1256..1256
+                                        ColQualList@1256..1256
+                                  Comma@1256..1257 ","
+                                  Whitespace@1257..1262 "\n    "
+                                  TableElement@1262..1281
+                                    columnDef@1262..1281
+                                      ColId@1262..1266
+                                        unreserved_keyword@1262..1266
+                                          NAME_P@1262..1266 "name"
+                                      Whitespace@1266..1270 "    "
+                                      Typename@1270..1281
+                                        SimpleTypename@1270..1281
+                                          Character@1270..1281
+                                            CharacterWithLength@1270..1281
+                                              character@1270..1277
+                                                VARCHAR@1270..1277 "varchar"
+                                              LParen@1277..1278 "("
+                                              Iconst@1278..1280
+                                                ICONST@1278..1280 "40"
+                                              RParen@1280..1281 ")"
+                                        opt_array_bounds@1281..1281
+                                      opt_column_storage@1281..1281
+                                      opt_column_compression@1281..1281
+                                      create_generic_options@1281..1281
+                                      ColQualList@1281..1281
+                                Comma@1281..1282 ","
+                                Whitespace@1282..1287 "\n    "
+                                TableElement@1287..1303
+                                  TableConstraint@1287..1303
+                                    ConstraintElem@1287..1303
+                                      PRIMARY@1287..1294 "PRIMARY"
+                                      Whitespace@1294..1295 " "
+                                      KEY@1295..1298 "KEY"
+                                      LParen@1298..1299 "("
+                                      columnList@1299..1302
+                                        columnElem@1299..1302
+                                          ColId@1299..1302
+                                            IDENT@1299..1302 "did"
+                                      RParen@1302..1303 ")"
+                                      opt_c_include@1303..1303
+                                      opt_definition@1303..1303
+                                      OptConsTableSpace@1303..1303
+                                      ConstraintAttributeSpec@1303..1303
+                            Whitespace@1303..1304 "\n"
+                            RParen@1304..1305 ")"
+                            OptInherit@1305..1305
+                            OptPartitionSpec@1305..1305
+                            table_access_method_clause@1305..1305
+                            OptWith@1305..1305
+                            OnCommitOption@1305..1305
+                            OptTableSpace@1305..1305
+                    Semicolon@1305..1306 ";"
+                    Whitespace@1306..1308 " \n"
+                    toplevel_stmt@1308..1394
+                      stmt@1308..1394
+                        CreateStmt@1308..1394
+                          CREATE@1308..1314 "CREATE"
+                          OptTemp@1314..1314
+                          Whitespace@1314..1315 " "
+                          TABLE@1315..1320 "TABLE"
+                          Whitespace@1320..1321 " "
+                          qualified_name@1321..1333
+                            ColId@1321..1333
+                              IDENT@1321..1333 "distributors"
+                          Whitespace@1333..1334 " "
+                          LParen@1334..1335 "("
+                          Whitespace@1335..1340 "\n    "
+                          OptTableElementList@1340..1392
+                            TableElementList@1340..1392
+                              TableElementList@1340..1367
+                                TableElement@1340..1367
+                                  columnDef@1340..1367
+                                    ColId@1340..1343
+                                      IDENT@1340..1343 "did"
+                                    Whitespace@1343..1348 "     "
+                                    Typename@1348..1355
+                                      SimpleTypename@1348..1355
+                                        Numeric@1348..1355
+                                          INTEGER@1348..1355 "integer"
+                                      opt_array_bounds@1355..1355
+                                    opt_column_storage@1355..1355
+                                    opt_column_compression@1355..1355
+                                    create_generic_options@1355..1355
+                                    ColQualList@1355..1367
+                                      ColQualList@1355..1355
+                                      Whitespace@1355..1356 " "
+                                      ColConstraint@1356..1367
+                                        ColConstraintElem@1356..1367
+                                          PRIMARY@1356..1363 "PRIMARY"
+                                          Whitespace@1363..1364 " "
+                                          KEY@1364..1367 "KEY"
+                                          opt_definition@1367..1367
+                                          OptConsTableSpace@1367..1367
+                              Comma@1367..1368 ","
+                              Whitespace@1368..1373 "\n    "
+                              TableElement@1373..1392
+                                columnDef@1373..1392
+                                  ColId@1373..1377
+                                    unreserved_keyword@1373..1377
+                                      NAME_P@1373..1377 "name"
+                                  Whitespace@1377..1381 "    "
+                                  Typename@1381..1392
+                                    SimpleTypename@1381..1392
+                                      Character@1381..1392
+                                        CharacterWithLength@1381..1392
+                                          character@1381..1388
+                                            VARCHAR@1381..1388 "varchar"
+                                          LParen@1388..1389 "("
+                                          Iconst@1389..1391
+                                            ICONST@1389..1391 "40"
+                                          RParen@1391..1392 ")"
+                                    opt_array_bounds@1392..1392
+                                  opt_column_storage@1392..1392
+                                  opt_column_compression@1392..1392
+                                  create_generic_options@1392..1392
+                                  ColQualList@1392..1392
+                          Whitespace@1392..1393 "\n"
+                          RParen@1393..1394 ")"
+                          OptInherit@1394..1394
+                          OptPartitionSpec@1394..1394
+                          table_access_method_clause@1394..1394
+                          OptWith@1394..1394
+                          OnCommitOption@1394..1394
+                          OptTableSpace@1394..1394
+                  Semicolon@1394..1395 ";"
+                  Whitespace@1395..1396 "\n"
+                  toplevel_stmt@1396..1585
+                    stmt@1396..1585
+                      CreateStmt@1396..1585
+                        CREATE@1396..1402 "CREATE"
+                        OptTemp@1402..1402
+                        Whitespace@1402..1403 " "
+                        TABLE@1403..1408 "TABLE"
+                        Whitespace@1408..1409 " "
+                        qualified_name@1409..1421
+                          ColId@1409..1421
+                            IDENT@1409..1421 "distributors"
+                        Whitespace@1421..1422 " "
+                        LParen@1422..1423 "("
+                        Whitespace@1423..1428 "\n    "
+                        OptTableElementList@1428..1583
+                          TableElementList@1428..1583
+                            TableElementList@1428..1532
+                              TableElementList@1428..1470
+                                TableElement@1428..1470
+                                  columnDef@1428..1470
+                                    ColId@1428..1432
+                                      unreserved_keyword@1428..1432
+                                        NAME_P@1428..1432 "name"
+                                    Whitespace@1432..1438 "      "
+                                    Typename@1438..1449
+                                      SimpleTypename@1438..1449
+                                        Character@1438..1449
+                                          CharacterWithLength@1438..1449
+                                            character@1438..1445
+                                              VARCHAR@1438..1445 "varchar"
+                                            LParen@1445..1446 "("
+                                            Iconst@1446..1448
+                                              ICONST@1446..1448 "40"
+                                            RParen@1448..1449 ")"
+                                      opt_array_bounds@1449..1449
+                                    opt_column_storage@1449..1449
+                                    opt_column_compression@1449..1449
+                                    create_generic_options@1449..1449
+                                    ColQualList@1449..1470
+                                      ColQualList@1449..1449
+                                      Whitespace@1449..1450 " "
+                                      ColConstraint@1450..1470
+                                        ColConstraintElem@1450..1470
+                                          DEFAULT@1450..1457 "DEFAULT"
+                                          Whitespace@1457..1458 " "
+                                          b_expr@1458..1470
+                                            c_expr@1458..1470
+                                              AexprConst@1458..1470
+                                                Sconst@1458..1470
+                                                  SCONST@1458..1470 "'Luso Films'"
+                              Comma@1470..1471 ","
+                              Whitespace@1471..1476 "\n    "
+                              TableElement@1476..1532
+                                columnDef@1476..1532
+                                  ColId@1476..1479
+                                    IDENT@1476..1479 "did"
+                                  Whitespace@1479..1486 "       "
+                                  Typename@1486..1493
+                                    SimpleTypename@1486..1493
+                                      Numeric@1486..1493
+                                        INTEGER@1486..1493 "integer"
+                                    opt_array_bounds@1493..1493
+                                  opt_column_storage@1493..1493
+                                  opt_column_compression@1493..1493
+                                  create_generic_options@1493..1493
+                                  ColQualList@1493..1532
+                                    ColQualList@1493..1493
+                                    Whitespace@1493..1494 " "
+                                    ColConstraint@1494..1532
+                                      ColConstraintElem@1494..1532
+                                        DEFAULT@1494..1501 "DEFAULT"
+                                        Whitespace@1501..1502 " "
+                                        b_expr@1502..1532
+                                          c_expr@1502..1532
+                                            func_expr@1502..1532
+                                              func_application@1502..1532
+                                                func_name@1502..1509
+                                                  type_function_name@1502..1509
+                                                    IDENT@1502..1509 "nextval"
+                                                LParen@1509..1510 "("
+                                                func_arg_list@1510..1531
+                                                  func_arg_expr@1510..1531
+                                                    a_expr@1510..1531
+                                                      c_expr@1510..1531
+                                                        AexprConst@1510..1531
+                                                          Sconst@1510..1531
+                                                            SCONST@1510..1531 "'distributors_serial'"
+                                                opt_sort_clause@1531..1531
+                                                RParen@1531..1532 ")"
+                                              within_group_clause@1532..1532
+                                              filter_clause@1532..1532
+                                              over_clause@1532..1532
+                            Comma@1532..1533 ","
+                            Whitespace@1533..1538 "\n    "
+                            TableElement@1538..1583
+                              columnDef@1538..1583
+                                ColId@1538..1545
+                                  IDENT@1538..1545 "modtime"
+                                Whitespace@1545..1548 "   "
+                                Typename@1548..1557
+                                  SimpleTypename@1548..1557
+                                    ConstDatetime@1548..1557
+                                      TIMESTAMP@1548..1557 "timestamp"
+                                      opt_timezone@1557..1557
+                                  opt_array_bounds@1557..1557
+                                opt_column_storage@1557..1557
+                                opt_column_compression@1557..1557
+                                create_generic_options@1557..1557
+                                ColQualList@1557..1583
+                                  ColQualList@1557..1557
+                                  Whitespace@1557..1558 " "
+                                  ColConstraint@1558..1583
+                                    ColConstraintElem@1558..1583
+                                      DEFAULT@1558..1565 "DEFAULT"
+                                      Whitespace@1565..1566 " "
+                                      b_expr@1566..1583
+                                        c_expr@1566..1583
+                                          func_expr@1566..1583
+                                            func_expr_common_subexpr@1566..1583
+                                              CURRENT_TIMESTAMP@1566..1583 "current_timestamp"
+                        Whitespace@1583..1584 "\n"
+                        RParen@1584..1585 ")"
+                        OptInherit@1585..1585
+                        OptPartitionSpec@1585..1585
+                        table_access_method_clause@1585..1585
+                        OptWith@1585..1585
+                        OnCommitOption@1585..1585
+                        OptTableSpace@1585..1585
+                Semicolon@1585..1586 ";"
+                Whitespace@1586..1587 "\n"
+                toplevel_stmt@1587..1698
+                  stmt@1587..1698
+                    CreateStmt@1587..1698
+                      CREATE@1587..1593 "CREATE"
+                      OptTemp@1593..1593
+                      Whitespace@1593..1594 " "
+                      TABLE@1594..1599 "TABLE"
+                      Whitespace@1599..1600 " "
+                      qualified_name@1600..1612
+                        ColId@1600..1612
+                          IDENT@1600..1612 "distributors"
+                      Whitespace@1612..1613 " "
+                      LParen@1613..1614 "("
+                      Whitespace@1614..1619 "\n    "
+                      OptTableElementList@1619..1696
+                        TableElementList@1619..1696
+                          TableElementList@1619..1662
+                            TableElement@1619..1662
+                              columnDef@1619..1662
+                                ColId@1619..1622
+                                  IDENT@1619..1622 "did"
+                                Whitespace@1622..1627 "     "
+                                Typename@1627..1634
+                                  SimpleTypename@1627..1634
+                                    Numeric@1627..1634
+                                      INTEGER@1627..1634 "integer"
+                                  opt_array_bounds@1634..1634
+                                opt_column_storage@1634..1634
+                                opt_column_compression@1634..1634
+                                create_generic_options@1634..1634
+                                ColQualList@1634..1662
+                                  ColQualList@1634..1634
+                                  Whitespace@1634..1635 " "
+                                  ColConstraint@1635..1662
+                                    CONSTRAINT@1635..1645 "CONSTRAINT"
+                                    Whitespace@1645..1646 " "
+                                    name@1646..1653
+                                      ColId@1646..1653
+                                        IDENT@1646..1653 "no_null"
+                                    Whitespace@1653..1654 " "
+                                    ColConstraintElem@1654..1662
+                                      NOT@1654..1657 "NOT"
+                                      Whitespace@1657..1658 " "
+                                      NULL_P@1658..1662 "NULL"
+                          Comma@1662..1663 ","
+                          Whitespace@1663..1668 "\n    "
+                          TableElement@1668..1696
+                            columnDef@1668..1696
+                              ColId@1668..1672
+                                unreserved_keyword@1668..1672
+                                  NAME_P@1668..1672 "name"
+                              Whitespace@1672..1676 "    "
+                              Typename@1676..1687
+                                SimpleTypename@1676..1687
+                                  Character@1676..1687
+                                    CharacterWithLength@1676..1687
+                                      character@1676..1683
+                                        VARCHAR@1676..1683 "varchar"
+                                      LParen@1683..1684 "("
+                                      Iconst@1684..1686
+                                        ICONST@1684..1686 "40"
+                                      RParen@1686..1687 ")"
+                                opt_array_bounds@1687..1687
+                              opt_column_storage@1687..1687
+                              opt_column_compression@1687..1687
+                              create_generic_options@1687..1687
+                              ColQualList@1687..1696
+                                ColQualList@1687..1687
+                                Whitespace@1687..1688 " "
+                                ColConstraint@1688..1696
+                                  ColConstraintElem@1688..1696
+                                    NOT@1688..1691 "NOT"
+                                    Whitespace@1691..1692 " "
+                                    NULL_P@1692..1696 "NULL"
+                      Whitespace@1696..1697 "\n"
+                      RParen@1697..1698 ")"
+                      OptInherit@1698..1698
+                      OptPartitionSpec@1698..1698
+                      table_access_method_clause@1698..1698
+                      OptWith@1698..1698
+                      OnCommitOption@1698..1698
+                      OptTableSpace@1698..1698
+              Semicolon@1698..1699 ";"
+              Whitespace@1699..1700 "\n"
+              toplevel_stmt@1700..1781
+                stmt@1700..1781
+                  CreateStmt@1700..1781
+                    CREATE@1700..1706 "CREATE"
+                    OptTemp@1706..1706
+                    Whitespace@1706..1707 " "
+                    TABLE@1707..1712 "TABLE"
+                    Whitespace@1712..1713 " "
+                    qualified_name@1713..1725
+                      ColId@1713..1725
+                        IDENT@1713..1725 "distributors"
+                    Whitespace@1725..1726 " "
+                    LParen@1726..1727 "("
+                    Whitespace@1727..1732 "\n    "
+                    OptTableElementList@1732..1779
+                      TableElementList@1732..1779
+                        TableElementList@1732..1747
+                          TableElement@1732..1747
+                            columnDef@1732..1747
+                              ColId@1732..1735
+                                IDENT@1732..1735 "did"
+                              Whitespace@1735..1740 "     "
+                              Typename@1740..1747
+                                SimpleTypename@1740..1747
+                                  Numeric@1740..1747
+                                    INTEGER@1740..1747 "integer"
+                                opt_array_bounds@1747..1747
+                              opt_column_storage@1747..1747
+                              opt_column_compression@1747..1747
+                              create_generic_options@1747..1747
+                              ColQualList@1747..1747
+                        Comma@1747..1748 ","
+                        Whitespace@1748..1753 "\n    "
+                        TableElement@1753..1779
+                          columnDef@1753..1779
+                            ColId@1753..1757
+                              unreserved_keyword@1753..1757
+                                NAME_P@1753..1757 "name"
+                            Whitespace@1757..1761 "    "
+                            Typename@1761..1772
+                              SimpleTypename@1761..1772
+                                Character@1761..1772
+                                  CharacterWithLength@1761..1772
+                                    character@1761..1768
+                                      VARCHAR@1761..1768 "varchar"
+                                    LParen@1768..1769 "("
+                                    Iconst@1769..1771
+                                      ICONST@1769..1771 "40"
+                                    RParen@1771..1772 ")"
+                              opt_array_bounds@1772..1772
+                            opt_column_storage@1772..1772
+                            opt_column_compression@1772..1772
+                            create_generic_options@1772..1772
+                            ColQualList@1772..1779
+                              ColQualList@1772..1772
+                              Whitespace@1772..1773 " "
+                              ColConstraint@1773..1779
+                                ColConstraintElem@1773..1779
+                                  UNIQUE@1773..1779 "UNIQUE"
+                                  opt_unique_null_treatment@1779..1779
+                                  opt_definition@1779..1779
+                                  OptConsTableSpace@1779..1779
+                    Whitespace@1779..1780 "\n"
+                    RParen@1780..1781 ")"
+                    OptInherit@1781..1781
+                    OptPartitionSpec@1781..1781
+                    table_access_method_clause@1781..1781
+                    OptWith@1781..1781
+                    OnCommitOption@1781..1781
+                    OptTableSpace@1781..1781
+            Semicolon@1781..1782 ";"
+            Whitespace@1782..1783 "\n"
+            toplevel_stmt@1783..1875
+              stmt@1783..1875
+                CreateStmt@1783..1875
+                  CREATE@1783..1789 "CREATE"
+                  OptTemp@1789..1789
+                  Whitespace@1789..1790 " "
+                  TABLE@1790..1795 "TABLE"
+                  Whitespace@1795..1796 " "
+                  qualified_name@1796..1808
+                    ColId@1796..1808
+                      IDENT@1796..1808 "distributors"
+                  Whitespace@1808..1809 " "
+                  LParen@1809..1810 "("
+                  Whitespace@1810..1815 "\n    "
+                  OptTableElementList@1815..1873
+                    TableElementList@1815..1873
+                      TableElementList@1815..1855
+                        TableElementList@1815..1830
+                          TableElement@1815..1830
+                            columnDef@1815..1830
+                              ColId@1815..1818
+                                IDENT@1815..1818 "did"
+                              Whitespace@1818..1823 "     "
+                              Typename@1823..1830
+                                SimpleTypename@1823..1830
+                                  Numeric@1823..1830
+                                    INTEGER@1823..1830 "integer"
+                                opt_array_bounds@1830..1830
+                              opt_column_storage@1830..1830
+                              opt_column_compression@1830..1830
+                              create_generic_options@1830..1830
+                              ColQualList@1830..1830
+                        Comma@1830..1831 ","
+                        Whitespace@1831..1836 "\n    "
+                        TableElement@1836..1855
+                          columnDef@1836..1855
+                            ColId@1836..1840
+                              unreserved_keyword@1836..1840
+                                NAME_P@1836..1840 "name"
+                            Whitespace@1840..1844 "    "
+                            Typename@1844..1855
+                              SimpleTypename@1844..1855
+                                Character@1844..1855
+                                  CharacterWithLength@1844..1855
+                                    character@1844..1851
+                                      VARCHAR@1844..1851 "varchar"
+                                    LParen@1851..1852 "("
+                                    Iconst@1852..1854
+                                      ICONST@1852..1854 "40"
+                                    RParen@1854..1855 ")"
+                              opt_array_bounds@1855..1855
+                            opt_column_storage@1855..1855
+                            opt_column_compression@1855..1855
+                            create_generic_options@1855..1855
+                            ColQualList@1855..1855
+                      Comma@1855..1856 ","
+                      Whitespace@1856..1861 "\n    "
+                      TableElement@1861..1873
+                        TableConstraint@1861..1873
+                          ConstraintElem@1861..1873
+                            UNIQUE@1861..1867 "UNIQUE"
+                            opt_unique_null_treatment@1867..1867
+                            LParen@1867..1868 "("
+                            columnList@1868..1872
+                              columnElem@1868..1872
+                                ColId@1868..1872
+                                  unreserved_keyword@1868..1872
+                                    NAME_P@1868..1872 "name"
+                            RParen@1872..1873 ")"
+                            opt_c_include@1873..1873
+                            opt_definition@1873..1873
+                            OptConsTableSpace@1873..1873
+                            ConstraintAttributeSpec@1873..1873
+                  Whitespace@1873..1874 "\n"
+                  RParen@1874..1875 ")"
+                  OptInherit@1875..1875
+                  OptPartitionSpec@1875..1875
+                  table_access_method_clause@1875..1875
+                  OptWith@1875..1875
+                  OnCommitOption@1875..1875
+                  OptTableSpace@1875..1875
+          Semicolon@1875..1876 ";"
+          Whitespace@1876..1877 "\n"
+          toplevel_stmt@1877..2011
+            stmt@1877..2011
+              CreateStmt@1877..2011
+                CREATE@1877..1883 "CREATE"
+                OptTemp@1883..1883
+                Whitespace@1883..1884 " "
+                TABLE@1884..1889 "TABLE"
+                Whitespace@1889..1890 " "
+                qualified_name@1890..1902
+                  ColId@1890..1902
+                    IDENT@1890..1902 "distributors"
+                Whitespace@1902..1903 " "
+                LParen@1903..1904 "("
+                Whitespace@1904..1909 "\n    "
+                OptTableElementList@1909..1988
+                  TableElementList@1909..1988
+                    TableElementList@1909..1949
+                      TableElementList@1909..1924
+                        TableElement@1909..1924
+                          columnDef@1909..1924
+                            ColId@1909..1912
+                              IDENT@1909..1912 "did"
+                            Whitespace@1912..1917 "     "
+                            Typename@1917..1924
+                              SimpleTypename@1917..1924
+                                Numeric@1917..1924
+                                  INTEGER@1917..1924 "integer"
+                              opt_array_bounds@1924..1924
+                            opt_column_storage@1924..1924
+                            opt_column_compression@1924..1924
+                            create_generic_options@1924..1924
+                            ColQualList@1924..1924
+                      Comma@1924..1925 ","
+                      Whitespace@1925..1930 "\n    "
+                      TableElement@1930..1949
+                        columnDef@1930..1949
+                          ColId@1930..1934
+                            unreserved_keyword@1930..1934
+                              NAME_P@1930..1934 "name"
+                          Whitespace@1934..1938 "    "
+                          Typename@1938..1949
+                            SimpleTypename@1938..1949
+                              Character@1938..1949
+                                CharacterWithLength@1938..1949
+                                  character@1938..1945
+                                    VARCHAR@1938..1945 "varchar"
+                                  LParen@1945..1946 "("
+                                  Iconst@1946..1948
+                                    ICONST@1946..1948 "40"
+                                  RParen@1948..1949 ")"
+                            opt_array_bounds@1949..1949
+                          opt_column_storage@1949..1949
+                          opt_column_compression@1949..1949
+                          create_generic_options@1949..1949
+                          ColQualList@1949..1949
+                    Comma@1949..1950 ","
+                    Whitespace@1950..1955 "\n    "
+                    TableElement@1955..1988
+                      TableConstraint@1955..1988
+                        ConstraintElem@1955..1988
+                          UNIQUE@1955..1961 "UNIQUE"
+                          opt_unique_null_treatment@1961..1961
+                          LParen@1961..1962 "("
+                          columnList@1962..1966
+                            columnElem@1962..1966
+                              ColId@1962..1966
+                                unreserved_keyword@1962..1966
+                                  NAME_P@1962..1966 "name"
+                          RParen@1966..1967 ")"
+                          opt_c_include@1967..1967
+                          Whitespace@1967..1968 " "
+                          opt_definition@1968..1988
+                            WITH@1968..1972 "WITH"
+                            Whitespace@1972..1973 " "
+                            definition@1973..1988
+                              LParen@1973..1974 "("
+                              def_list@1974..1987
+                                def_elem@1974..1987
+                                  ColLabel@1974..1984
+                                    IDENT@1974..1984 "fillfactor"
+                                  Equals@1984..1985 "="
+                                  def_arg@1985..1987
+                                    NumericOnly@1985..1987
+                                      SignedIconst@1985..1987
+                                        Iconst@1985..1987
+                                          ICONST@1985..1987 "70"
+                              RParen@1987..1988 ")"
+                          OptConsTableSpace@1988..1988
+                          ConstraintAttributeSpec@1988..1988
+                Whitespace@1988..1989 "\n"
+                RParen@1989..1990 ")"
+                OptInherit@1990..1990
+                OptPartitionSpec@1990..1990
+                table_access_method_clause@1990..1990
+                Whitespace@1990..1991 "\n"
+                OptWith@1991..2011
+                  WITH@1991..1995 "WITH"
+                  Whitespace@1995..1996 " "
+                  reloptions@1996..2011
+                    LParen@1996..1997 "("
+                    reloption_list@1997..2010
+                      reloption_elem@1997..2010
+                        ColLabel@1997..2007
+                          IDENT@1997..2007 "fillfactor"
+                        Equals@2007..2008 "="
+                        def_arg@2008..2010
+                          NumericOnly@2008..2010
+                            SignedIconst@2008..2010
+                              Iconst@2008..2010
+                                ICONST@2008..2010 "70"
+                    RParen@2010..2011 ")"
+                OnCommitOption@2011..2011
+                OptTableSpace@2011..2011
+        Semicolon@2011..2012 ";"
+        Whitespace@2012..2013 "\n"
+        toplevel_stmt@2013..2117
+          stmt@2013..2117
+            CreateStmt@2013..2117
+              CREATE@2013..2019 "CREATE"
+              OptTemp@2019..2019
+              Whitespace@2019..2020 " "
+              TABLE@2020..2025 "TABLE"
+              Whitespace@2025..2026 " "
+              qualified_name@2026..2033
+                ColId@2026..2033
+                  IDENT@2026..2033 "cinemas"
+              Whitespace@2033..2034 " "
+              LParen@2034..2035 "("
+              Whitespace@2035..2044 "\n        "
+              OptTableElementList@2044..2095
+                TableElementList@2044..2095
+                  TableElementList@2044..2072
+                    TableElementList@2044..2053
+                      TableElement@2044..2053
+                        columnDef@2044..2053
+                          ColId@2044..2046
+                            IDENT@2044..2046 "id"
+                          Whitespace@2046..2047 " "
+                          Typename@2047..2053
+                            SimpleTypename@2047..2053
+                              GenericType@2047..2053
+                                type_function_name@2047..2053
+                                  IDENT@2047..2053 "serial"
+                                opt_type_modifiers@2053..2053
+                            opt_array_bounds@2053..2053
+                          opt_column_storage@2053..2053
+                          opt_column_compression@2053..2053
+                          create_generic_options@2053..2053
+                          ColQualList@2053..2053
+                    Comma@2053..2054 ","
+                    Whitespace@2054..2063 "\n        "
+                    TableElement@2063..2072
+                      columnDef@2063..2072
+                        ColId@2063..2067
+                          unreserved_keyword@2063..2067
+                            NAME_P@2063..2067 "name"
+                        Whitespace@2067..2068 " "
+                        Typename@2068..2072
+                          SimpleTypename@2068..2072
+                            GenericType@2068..2072
+                              type_function_name@2068..2072
+                                unreserved_keyword@2068..2072
+                                  TEXT_P@2068..2072 "text"
+                              opt_type_modifiers@2072..2072
+                          opt_array_bounds@2072..2072
+                        opt_column_storage@2072..2072
+                        opt_column_compression@2072..2072
+                        create_generic_options@2072..2072
+                        ColQualList@2072..2072
+                  Comma@2072..2073 ","
+                  Whitespace@2073..2082 "\n        "
+                  TableElement@2082..2095
+                    columnDef@2082..2095
+                      ColId@2082..2090
+                        unreserved_keyword@2082..2090
+                          LOCATION@2082..2090 "location"
+                      Whitespace@2090..2091 " "
+                      Typename@2091..2095
+                        SimpleTypename@2091..2095
+                          GenericType@2091..2095
+                            type_function_name@2091..2095
+                              unreserved_keyword@2091..2095
+                                TEXT_P@2091..2095 "text"
+                            opt_type_modifiers@2095..2095
+                        opt_array_bounds@2095..2095
+                      opt_column_storage@2095..2095
+                      opt_column_compression@2095..2095
+                      create_generic_options@2095..2095
+                      ColQualList@2095..2095
+              Whitespace@2095..2096 "\n"
+              RParen@2096..2097 ")"
+              OptInherit@2097..2097
+              OptPartitionSpec@2097..2097
+              table_access_method_clause@2097..2097
+              OptWith@2097..2097
+              OnCommitOption@2097..2097
+              Whitespace@2097..2098 " "
+              OptTableSpace@2098..2117
+                TABLESPACE@2098..2108 "TABLESPACE"
+                Whitespace@2108..2109 " "
+                name@2109..2117
+                  ColId@2109..2117
+                    IDENT@2109..2117 "diskvol1"
+      Semicolon@2117..2118 ";"
+      toplevel_stmt@2118..2118
+        stmt@2118..2118
+  Whitespace@2118..2119 "\n"

@@ -1,16 +1,16 @@
-Root@0..706
+Root@0..725
   SQL_COMMENT@0..66 "-- https://www.postgr ..."
   Whitespace@66..67 "\n"
-  parse_toplevel@67..705
-    stmtmulti@67..705
-      stmtmulti@67..704
-        stmtmulti@67..630
-          stmtmulti@67..566
-            stmtmulti@67..493
-              stmtmulti@67..432
-                stmtmulti@67..345
-                  stmtmulti@67..274
-                    stmtmulti@67..211
+  parse_toplevel@67..724
+    stmtmulti@67..724
+      stmtmulti@67..723
+        stmtmulti@67..649
+          stmtmulti@67..572
+            stmtmulti@67..499
+              stmtmulti@67..438
+                stmtmulti@67..351
+                  stmtmulti@67..280
+                    stmtmulti@67..217
                       stmtmulti@67..153
                         stmtmulti@67..113
                           toplevel_stmt@67..113
@@ -110,9 +110,9 @@ Root@0..706
                               where_clause@153..153
                       Semicolon@153..154 ";"
                       Whitespace@154..155 "\n"
-                      toplevel_stmt@155..211
-                        stmt@155..211
-                          IndexStmt@155..211
+                      toplevel_stmt@155..217
+                        stmt@155..217
+                          IndexStmt@155..217
                             CREATE@155..161 "CREATE"
                             opt_unique@161..161
                             Whitespace@161..162 " "
@@ -132,434 +132,434 @@ Root@0..706
                             access_method_clause@193..193
                             Whitespace@193..194 " "
                             LParen@194..195 "("
-                            index_params@195..210
-                              index_elem@195..210
+                            index_params@195..216
+                              index_elem@195..216
                                 ColId@195..200
                                   IDENT@195..200 "title"
                                 Whitespace@200..201 " "
-                                index_elem_options@201..210
-                                  opt_collate@201..210
+                                index_elem_options@201..216
+                                  opt_collate@201..216
                                     COLLATE@201..208 "COLLATE"
                                     Whitespace@208..209 " "
-                                    any_name@209..210
-                                      ColId@209..210
-                                        IDENT@209..210 "\""
-                                  opt_qualified_name@210..210
-                                  opt_asc_desc@210..210
-                                  opt_nulls_order@210..210
-                            RParen@210..211 ")"
-                            opt_include@211..211
-                            opt_unique_null_treatment@211..211
-                            opt_reloptions@211..211
-                            OptTableSpace@211..211
-                            where_clause@211..211
-                    Semicolon@211..212 ";"
-                    Whitespace@212..213 "\n"
-                    toplevel_stmt@213..274
-                      stmt@213..274
-                        IndexStmt@213..274
-                          CREATE@213..219 "CREATE"
-                          opt_unique@219..219
-                          Whitespace@219..220 " "
-                          INDEX@220..225 "INDEX"
-                          opt_concurrently@225..225
+                                    any_name@209..216
+                                      ColId@209..216
+                                        IDENT@209..216 "\"de_DE\""
+                                  opt_qualified_name@216..216
+                                  opt_asc_desc@216..216
+                                  opt_nulls_order@216..216
+                            RParen@216..217 ")"
+                            opt_include@217..217
+                            opt_unique_null_treatment@217..217
+                            opt_reloptions@217..217
+                            OptTableSpace@217..217
+                            where_clause@217..217
+                    Semicolon@217..218 ";"
+                    Whitespace@218..219 "\n"
+                    toplevel_stmt@219..280
+                      stmt@219..280
+                        IndexStmt@219..280
+                          CREATE@219..225 "CREATE"
+                          opt_unique@225..225
                           Whitespace@225..226 " "
-                          opt_single_name@226..245
-                            ColId@226..245
-                              IDENT@226..245 "title_idx_nulls_low"
-                          Whitespace@245..246 " "
-                          ON@246..248 "ON"
-                          Whitespace@248..249 " "
-                          relation_expr@249..254
-                            qualified_name@249..254
-                              ColId@249..254
-                                IDENT@249..254 "films"
-                          access_method_clause@254..254
+                          INDEX@226..231 "INDEX"
+                          opt_concurrently@231..231
+                          Whitespace@231..232 " "
+                          opt_single_name@232..251
+                            ColId@232..251
+                              IDENT@232..251 "title_idx_nulls_low"
+                          Whitespace@251..252 " "
+                          ON@252..254 "ON"
                           Whitespace@254..255 " "
-                          LParen@255..256 "("
-                          index_params@256..273
-                            index_elem@256..273
-                              ColId@256..261
-                                IDENT@256..261 "title"
-                              index_elem_options@261..273
-                                opt_collate@261..261
-                                opt_qualified_name@261..261
-                                opt_asc_desc@261..261
-                                Whitespace@261..262 " "
-                                opt_nulls_order@262..273
-                                  NULLS_LA@262..267 "NULLS"
-                                  Whitespace@267..268 " "
-                                  FIRST_P@268..273 "FIRST"
-                          RParen@273..274 ")"
-                          opt_include@274..274
-                          opt_unique_null_treatment@274..274
-                          opt_reloptions@274..274
-                          OptTableSpace@274..274
-                          where_clause@274..274
-                  Semicolon@274..275 ";"
-                  Whitespace@275..276 "\n"
-                  toplevel_stmt@276..345
-                    stmt@276..345
-                      IndexStmt@276..345
-                        CREATE@276..282 "CREATE"
-                        Whitespace@282..283 " "
-                        opt_unique@283..289
-                          UNIQUE@283..289 "UNIQUE"
-                        Whitespace@289..290 " "
-                        INDEX@290..295 "INDEX"
-                        opt_concurrently@295..295
+                          relation_expr@255..260
+                            qualified_name@255..260
+                              ColId@255..260
+                                IDENT@255..260 "films"
+                          access_method_clause@260..260
+                          Whitespace@260..261 " "
+                          LParen@261..262 "("
+                          index_params@262..279
+                            index_elem@262..279
+                              ColId@262..267
+                                IDENT@262..267 "title"
+                              index_elem_options@267..279
+                                opt_collate@267..267
+                                opt_qualified_name@267..267
+                                opt_asc_desc@267..267
+                                Whitespace@267..268 " "
+                                opt_nulls_order@268..279
+                                  NULLS_LA@268..273 "NULLS"
+                                  Whitespace@273..274 " "
+                                  FIRST_P@274..279 "FIRST"
+                          RParen@279..280 ")"
+                          opt_include@280..280
+                          opt_unique_null_treatment@280..280
+                          opt_reloptions@280..280
+                          OptTableSpace@280..280
+                          where_clause@280..280
+                  Semicolon@280..281 ";"
+                  Whitespace@281..282 "\n"
+                  toplevel_stmt@282..351
+                    stmt@282..351
+                      IndexStmt@282..351
+                        CREATE@282..288 "CREATE"
+                        Whitespace@288..289 " "
+                        opt_unique@289..295
+                          UNIQUE@289..295 "UNIQUE"
                         Whitespace@295..296 " "
-                        opt_single_name@296..305
-                          ColId@296..305
-                            IDENT@296..305 "title_idx"
-                        Whitespace@305..306 " "
-                        ON@306..308 "ON"
-                        Whitespace@308..309 " "
-                        relation_expr@309..314
-                          qualified_name@309..314
-                            ColId@309..314
-                              IDENT@309..314 "films"
-                        access_method_clause@314..314
+                        INDEX@296..301 "INDEX"
+                        opt_concurrently@301..301
+                        Whitespace@301..302 " "
+                        opt_single_name@302..311
+                          ColId@302..311
+                            IDENT@302..311 "title_idx"
+                        Whitespace@311..312 " "
+                        ON@312..314 "ON"
                         Whitespace@314..315 " "
-                        LParen@315..316 "("
-                        index_params@316..321
-                          index_elem@316..321
-                            ColId@316..321
-                              IDENT@316..321 "title"
-                            index_elem_options@321..321
-                              opt_collate@321..321
-                              opt_qualified_name@321..321
-                              opt_asc_desc@321..321
-                              opt_nulls_order@321..321
-                        RParen@321..322 ")"
-                        opt_include@322..322
-                        opt_unique_null_treatment@322..322
-                        Whitespace@322..323 " "
-                        opt_reloptions@323..345
-                          WITH@323..327 "WITH"
-                          Whitespace@327..328 " "
-                          reloptions@328..345
-                            LParen@328..329 "("
-                            reloption_list@329..344
-                              reloption_elem@329..344
-                                ColLabel@329..339
-                                  IDENT@329..339 "fillfactor"
-                                Whitespace@339..340 " "
-                                Equals@340..341 "="
-                                Whitespace@341..342 " "
-                                def_arg@342..344
-                                  NumericOnly@342..344
-                                    SignedIconst@342..344
-                                      Iconst@342..344
-                                        ICONST@342..344 "70"
-                            RParen@344..345 ")"
-                        OptTableSpace@345..345
-                        where_clause@345..345
-                Semicolon@345..346 ";"
-                Whitespace@346..347 "\n"
-                toplevel_stmt@347..432
-                  stmt@347..432
-                    IndexStmt@347..432
-                      CREATE@347..353 "CREATE"
-                      opt_unique@353..353
-                      Whitespace@353..354 " "
-                      INDEX@354..359 "INDEX"
-                      opt_concurrently@359..359
+                        relation_expr@315..320
+                          qualified_name@315..320
+                            ColId@315..320
+                              IDENT@315..320 "films"
+                        access_method_clause@320..320
+                        Whitespace@320..321 " "
+                        LParen@321..322 "("
+                        index_params@322..327
+                          index_elem@322..327
+                            ColId@322..327
+                              IDENT@322..327 "title"
+                            index_elem_options@327..327
+                              opt_collate@327..327
+                              opt_qualified_name@327..327
+                              opt_asc_desc@327..327
+                              opt_nulls_order@327..327
+                        RParen@327..328 ")"
+                        opt_include@328..328
+                        opt_unique_null_treatment@328..328
+                        Whitespace@328..329 " "
+                        opt_reloptions@329..351
+                          WITH@329..333 "WITH"
+                          Whitespace@333..334 " "
+                          reloptions@334..351
+                            LParen@334..335 "("
+                            reloption_list@335..350
+                              reloption_elem@335..350
+                                ColLabel@335..345
+                                  IDENT@335..345 "fillfactor"
+                                Whitespace@345..346 " "
+                                Equals@346..347 "="
+                                Whitespace@347..348 " "
+                                def_arg@348..350
+                                  NumericOnly@348..350
+                                    SignedIconst@348..350
+                                      Iconst@348..350
+                                        ICONST@348..350 "70"
+                            RParen@350..351 ")"
+                        OptTableSpace@351..351
+                        where_clause@351..351
+                Semicolon@351..352 ";"
+                Whitespace@352..353 "\n"
+                toplevel_stmt@353..438
+                  stmt@353..438
+                    IndexStmt@353..438
+                      CREATE@353..359 "CREATE"
+                      opt_unique@359..359
                       Whitespace@359..360 " "
-                      opt_single_name@360..367
-                        ColId@360..367
-                          IDENT@360..367 "gin_idx"
-                      Whitespace@367..368 " "
-                      ON@368..370 "ON"
-                      Whitespace@370..371 " "
-                      relation_expr@371..386
-                        qualified_name@371..386
-                          ColId@371..386
-                            IDENT@371..386 "documents_table"
-                      Whitespace@386..387 " "
-                      access_method_clause@387..396
-                        USING@387..392 "USING"
-                        Whitespace@392..393 " "
-                        name@393..396
-                          ColId@393..396
-                            IDENT@393..396 "GIN"
-                      Whitespace@396..397 " "
-                      LParen@397..398 "("
-                      index_params@398..407
-                        index_elem@398..407
-                          ColId@398..407
-                            IDENT@398..407 "locations"
-                          index_elem_options@407..407
-                            opt_collate@407..407
-                            opt_qualified_name@407..407
-                            opt_asc_desc@407..407
-                            opt_nulls_order@407..407
-                      RParen@407..408 ")"
-                      opt_include@408..408
-                      opt_unique_null_treatment@408..408
-                      Whitespace@408..409 " "
-                      opt_reloptions@409..432
-                        WITH@409..413 "WITH"
-                        Whitespace@413..414 " "
-                        reloptions@414..432
-                          LParen@414..415 "("
-                          reloption_list@415..431
-                            reloption_elem@415..431
-                              ColLabel@415..425
-                                IDENT@415..425 "fastupdate"
-                              Whitespace@425..426 " "
-                              Equals@426..427 "="
-                              Whitespace@427..428 " "
-                              def_arg@428..431
-                                func_type@428..431
-                                  Typename@428..431
-                                    SimpleTypename@428..431
-                                      GenericType@428..431
-                                        type_function_name@428..431
-                                          unreserved_keyword@428..431
-                                            OFF@428..431 "off"
-                                        opt_type_modifiers@431..431
-                                    opt_array_bounds@431..431
-                          RParen@431..432 ")"
-                      OptTableSpace@432..432
-                      where_clause@432..432
-              Semicolon@432..433 ";"
-              Whitespace@433..434 "\n"
-              toplevel_stmt@434..493
-                stmt@434..493
-                  IndexStmt@434..493
-                    CREATE@434..440 "CREATE"
-                    opt_unique@440..440
-                    Whitespace@440..441 " "
-                    INDEX@441..446 "INDEX"
-                    opt_concurrently@446..446
+                      INDEX@360..365 "INDEX"
+                      opt_concurrently@365..365
+                      Whitespace@365..366 " "
+                      opt_single_name@366..373
+                        ColId@366..373
+                          IDENT@366..373 "gin_idx"
+                      Whitespace@373..374 " "
+                      ON@374..376 "ON"
+                      Whitespace@376..377 " "
+                      relation_expr@377..392
+                        qualified_name@377..392
+                          ColId@377..392
+                            IDENT@377..392 "documents_table"
+                      Whitespace@392..393 " "
+                      access_method_clause@393..402
+                        USING@393..398 "USING"
+                        Whitespace@398..399 " "
+                        name@399..402
+                          ColId@399..402
+                            IDENT@399..402 "GIN"
+                      Whitespace@402..403 " "
+                      LParen@403..404 "("
+                      index_params@404..413
+                        index_elem@404..413
+                          ColId@404..413
+                            IDENT@404..413 "locations"
+                          index_elem_options@413..413
+                            opt_collate@413..413
+                            opt_qualified_name@413..413
+                            opt_asc_desc@413..413
+                            opt_nulls_order@413..413
+                      RParen@413..414 ")"
+                      opt_include@414..414
+                      opt_unique_null_treatment@414..414
+                      Whitespace@414..415 " "
+                      opt_reloptions@415..438
+                        WITH@415..419 "WITH"
+                        Whitespace@419..420 " "
+                        reloptions@420..438
+                          LParen@420..421 "("
+                          reloption_list@421..437
+                            reloption_elem@421..437
+                              ColLabel@421..431
+                                IDENT@421..431 "fastupdate"
+                              Whitespace@431..432 " "
+                              Equals@432..433 "="
+                              Whitespace@433..434 " "
+                              def_arg@434..437
+                                func_type@434..437
+                                  Typename@434..437
+                                    SimpleTypename@434..437
+                                      GenericType@434..437
+                                        type_function_name@434..437
+                                          unreserved_keyword@434..437
+                                            OFF@434..437 "off"
+                                        opt_type_modifiers@437..437
+                                    opt_array_bounds@437..437
+                          RParen@437..438 ")"
+                      OptTableSpace@438..438
+                      where_clause@438..438
+              Semicolon@438..439 ";"
+              Whitespace@439..440 "\n"
+              toplevel_stmt@440..499
+                stmt@440..499
+                  IndexStmt@440..499
+                    CREATE@440..446 "CREATE"
+                    opt_unique@446..446
                     Whitespace@446..447 " "
-                    opt_single_name@447..455
-                      ColId@447..455
-                        IDENT@447..455 "code_idx"
-                    Whitespace@455..456 " "
-                    ON@456..458 "ON"
-                    Whitespace@458..459 " "
-                    relation_expr@459..464
-                      qualified_name@459..464
-                        ColId@459..464
-                          IDENT@459..464 "films"
-                    access_method_clause@464..464
+                    INDEX@447..452 "INDEX"
+                    opt_concurrently@452..452
+                    Whitespace@452..453 " "
+                    opt_single_name@453..461
+                      ColId@453..461
+                        IDENT@453..461 "code_idx"
+                    Whitespace@461..462 " "
+                    ON@462..464 "ON"
                     Whitespace@464..465 " "
-                    LParen@465..466 "("
-                    index_params@466..470
-                      index_elem@466..470
-                        ColId@466..470
-                          IDENT@466..470 "code"
-                        index_elem_options@470..470
-                          opt_collate@470..470
-                          opt_qualified_name@470..470
-                          opt_asc_desc@470..470
-                          opt_nulls_order@470..470
-                    RParen@470..471 ")"
-                    opt_include@471..471
-                    opt_unique_null_treatment@471..471
-                    opt_reloptions@471..471
-                    Whitespace@471..472 " "
-                    OptTableSpace@472..493
-                      TABLESPACE@472..482 "TABLESPACE"
-                      Whitespace@482..483 " "
-                      name@483..493
-                        ColId@483..493
-                          IDENT@483..493 "indexspace"
-                    where_clause@493..493
-            Semicolon@493..494 ";"
-            Whitespace@494..495 "\n"
-            toplevel_stmt@495..566
-              stmt@495..566
-                IndexStmt@495..566
-                  CREATE@495..501 "CREATE"
-                  opt_unique@501..501
-                  Whitespace@501..502 " "
-                  INDEX@502..507 "INDEX"
-                  opt_concurrently@507..507
+                    relation_expr@465..470
+                      qualified_name@465..470
+                        ColId@465..470
+                          IDENT@465..470 "films"
+                    access_method_clause@470..470
+                    Whitespace@470..471 " "
+                    LParen@471..472 "("
+                    index_params@472..476
+                      index_elem@472..476
+                        ColId@472..476
+                          IDENT@472..476 "code"
+                        index_elem_options@476..476
+                          opt_collate@476..476
+                          opt_qualified_name@476..476
+                          opt_asc_desc@476..476
+                          opt_nulls_order@476..476
+                    RParen@476..477 ")"
+                    opt_include@477..477
+                    opt_unique_null_treatment@477..477
+                    opt_reloptions@477..477
+                    Whitespace@477..478 " "
+                    OptTableSpace@478..499
+                      TABLESPACE@478..488 "TABLESPACE"
+                      Whitespace@488..489 " "
+                      name@489..499
+                        ColId@489..499
+                          IDENT@489..499 "indexspace"
+                    where_clause@499..499
+            Semicolon@499..500 ";"
+            Whitespace@500..501 "\n"
+            toplevel_stmt@501..572
+              stmt@501..572
+                IndexStmt@501..572
+                  CREATE@501..507 "CREATE"
+                  opt_unique@507..507
                   Whitespace@507..508 " "
-                  opt_single_name@508..516
-                    ColId@508..516
-                      IDENT@508..516 "pointloc"
-                  Whitespace@516..521 "\n    "
-                  ON@521..523 "ON"
-                  Whitespace@523..524 " "
-                  relation_expr@524..530
-                    qualified_name@524..530
-                      ColId@524..530
-                        IDENT@524..530 "points"
-                  Whitespace@530..531 " "
-                  access_method_clause@531..541
-                    USING@531..536 "USING"
-                    Whitespace@536..537 " "
-                    name@537..541
-                      ColId@537..541
-                        IDENT@537..541 "gist"
-                  Whitespace@541..542 " "
-                  LParen@542..543 "("
-                  index_params@543..565
-                    index_elem@543..565
-                      func_expr_windowless@543..565
-                        func_application@543..565
-                          func_name@543..546
-                            type_function_name@543..546
-                              IDENT@543..546 "box"
-                          LParen@546..547 "("
-                          func_arg_list@547..564
-                            func_arg_list@547..555
-                              func_arg_expr@547..555
-                                a_expr@547..555
-                                  c_expr@547..555
-                                    columnref@547..555
-                                      ColId@547..555
-                                        unreserved_keyword@547..555
-                                          LOCATION@547..555 "location"
-                            Comma@555..556 ","
-                            func_arg_expr@556..564
-                              a_expr@556..564
-                                c_expr@556..564
-                                  columnref@556..564
-                                    ColId@556..564
-                                      unreserved_keyword@556..564
-                                        LOCATION@556..564 "location"
-                          opt_sort_clause@564..564
-                          RParen@564..565 ")"
-                      index_elem_options@565..565
-                        opt_collate@565..565
-                        opt_qualified_name@565..565
-                        opt_asc_desc@565..565
-                        opt_nulls_order@565..565
-                  RParen@565..566 ")"
-                  opt_include@566..566
-                  opt_unique_null_treatment@566..566
-                  opt_reloptions@566..566
-                  OptTableSpace@566..566
-                  where_clause@566..566
-          Semicolon@566..567 ";"
-          Whitespace@567..568 "\n"
-          toplevel_stmt@568..630
-            stmt@568..630
-              SelectStmt@568..630
-                select_no_parens@568..630
-                  simple_select@568..630
-                    SELECT@568..574 "SELECT"
-                    opt_all_clause@574..574
-                    Whitespace@574..575 " "
-                    opt_target_list@575..576
-                      target_list@575..576
-                        target_el@575..576
-                          Star@575..576 "*"
-                    into_clause@576..576
-                    Whitespace@576..577 " "
-                    from_clause@577..588
-                      FROM@577..581 "FROM"
-                      Whitespace@581..582 " "
-                      from_list@582..588
-                        table_ref@582..588
-                          relation_expr@582..588
-                            qualified_name@582..588
-                              ColId@582..588
-                                IDENT@582..588 "points"
-                          opt_alias_clause@588..588
-                    Whitespace@588..593 "\n    "
-                    where_clause@593..630
-                      WHERE@593..598 "WHERE"
-                      Whitespace@598..599 " "
-                      a_expr@599..630
-                        a_expr@599..621
-                          c_expr@599..621
-                            func_expr@599..621
-                              func_application@599..621
-                                func_name@599..602
-                                  type_function_name@599..602
-                                    IDENT@599..602 "box"
-                                LParen@602..603 "("
-                                func_arg_list@603..620
-                                  func_arg_list@603..611
-                                    func_arg_expr@603..611
-                                      a_expr@603..611
-                                        c_expr@603..611
-                                          columnref@603..611
-                                            ColId@603..611
-                                              unreserved_keyword@603..611
-                                                LOCATION@603..611 "location"
-                                  Comma@611..612 ","
-                                  func_arg_expr@612..620
-                                    a_expr@612..620
-                                      c_expr@612..620
-                                        columnref@612..620
-                                          ColId@612..620
-                                            unreserved_keyword@612..620
-                                              LOCATION@612..620 "location"
-                                opt_sort_clause@620..620
-                                RParen@620..621 ")"
-                              within_group_clause@621..621
-                              filter_clause@621..621
-                              over_clause@621..621
-                        Whitespace@621..622 " "
-                        qual_Op@622..624
-                          Op@622..624 "&&"
-                        Whitespace@624..625 " "
-                        a_expr@625..630
-                          a_expr@625..625
-                            c_expr@625..625
-                              AexprConst@625..625
-                                Sconst@625..625
-                                  SCONST@625..625 ""
-                          TYPECAST@625..627 "::"
-                          Typename@627..630
-                            SimpleTypename@627..630
-                              GenericType@627..630
-                                type_function_name@627..630
-                                  IDENT@627..630 "box"
-                                opt_type_modifiers@630..630
-                            opt_array_bounds@630..630
-                    group_clause@630..630
-                    having_clause@630..630
-                    window_clause@630..630
-        Semicolon@630..631 ";"
-        Whitespace@631..632 "\n"
-        toplevel_stmt@632..704
-          stmt@632..704
-            IndexStmt@632..704
-              CREATE@632..638 "CREATE"
-              opt_unique@638..638
-              Whitespace@638..639 " "
-              INDEX@639..644 "INDEX"
-              Whitespace@644..645 " "
-              opt_concurrently@645..657
-                CONCURRENTLY@645..657 "CONCURRENTLY"
+                  INDEX@508..513 "INDEX"
+                  opt_concurrently@513..513
+                  Whitespace@513..514 " "
+                  opt_single_name@514..522
+                    ColId@514..522
+                      IDENT@514..522 "pointloc"
+                  Whitespace@522..527 "\n    "
+                  ON@527..529 "ON"
+                  Whitespace@529..530 " "
+                  relation_expr@530..536
+                    qualified_name@530..536
+                      ColId@530..536
+                        IDENT@530..536 "points"
+                  Whitespace@536..537 " "
+                  access_method_clause@537..547
+                    USING@537..542 "USING"
+                    Whitespace@542..543 " "
+                    name@543..547
+                      ColId@543..547
+                        IDENT@543..547 "gist"
+                  Whitespace@547..548 " "
+                  LParen@548..549 "("
+                  index_params@549..571
+                    index_elem@549..571
+                      func_expr_windowless@549..571
+                        func_application@549..571
+                          func_name@549..552
+                            type_function_name@549..552
+                              IDENT@549..552 "box"
+                          LParen@552..553 "("
+                          func_arg_list@553..570
+                            func_arg_list@553..561
+                              func_arg_expr@553..561
+                                a_expr@553..561
+                                  c_expr@553..561
+                                    columnref@553..561
+                                      ColId@553..561
+                                        unreserved_keyword@553..561
+                                          LOCATION@553..561 "location"
+                            Comma@561..562 ","
+                            func_arg_expr@562..570
+                              a_expr@562..570
+                                c_expr@562..570
+                                  columnref@562..570
+                                    ColId@562..570
+                                      unreserved_keyword@562..570
+                                        LOCATION@562..570 "location"
+                          opt_sort_clause@570..570
+                          RParen@570..571 ")"
+                      index_elem_options@571..571
+                        opt_collate@571..571
+                        opt_qualified_name@571..571
+                        opt_asc_desc@571..571
+                        opt_nulls_order@571..571
+                  RParen@571..572 ")"
+                  opt_include@572..572
+                  opt_unique_null_treatment@572..572
+                  opt_reloptions@572..572
+                  OptTableSpace@572..572
+                  where_clause@572..572
+          Semicolon@572..573 ";"
+          Whitespace@573..574 "\n"
+          toplevel_stmt@574..649
+            stmt@574..649
+              SelectStmt@574..649
+                select_no_parens@574..649
+                  simple_select@574..649
+                    SELECT@574..580 "SELECT"
+                    opt_all_clause@580..580
+                    Whitespace@580..581 " "
+                    opt_target_list@581..582
+                      target_list@581..582
+                        target_el@581..582
+                          Star@581..582 "*"
+                    into_clause@582..582
+                    Whitespace@582..583 " "
+                    from_clause@583..594
+                      FROM@583..587 "FROM"
+                      Whitespace@587..588 " "
+                      from_list@588..594
+                        table_ref@588..594
+                          relation_expr@588..594
+                            qualified_name@588..594
+                              ColId@588..594
+                                IDENT@588..594 "points"
+                          opt_alias_clause@594..594
+                    Whitespace@594..599 "\n    "
+                    where_clause@599..649
+                      WHERE@599..604 "WHERE"
+                      Whitespace@604..605 " "
+                      a_expr@605..649
+                        a_expr@605..627
+                          c_expr@605..627
+                            func_expr@605..627
+                              func_application@605..627
+                                func_name@605..608
+                                  type_function_name@605..608
+                                    IDENT@605..608 "box"
+                                LParen@608..609 "("
+                                func_arg_list@609..626
+                                  func_arg_list@609..617
+                                    func_arg_expr@609..617
+                                      a_expr@609..617
+                                        c_expr@609..617
+                                          columnref@609..617
+                                            ColId@609..617
+                                              unreserved_keyword@609..617
+                                                LOCATION@609..617 "location"
+                                  Comma@617..618 ","
+                                  func_arg_expr@618..626
+                                    a_expr@618..626
+                                      c_expr@618..626
+                                        columnref@618..626
+                                          ColId@618..626
+                                            unreserved_keyword@618..626
+                                              LOCATION@618..626 "location"
+                                opt_sort_clause@626..626
+                                RParen@626..627 ")"
+                              within_group_clause@627..627
+                              filter_clause@627..627
+                              over_clause@627..627
+                        Whitespace@627..628 " "
+                        qual_Op@628..630
+                          Op@628..630 "&&"
+                        Whitespace@630..631 " "
+                        a_expr@631..649
+                          a_expr@631..644
+                            c_expr@631..644
+                              AexprConst@631..644
+                                Sconst@631..644
+                                  SCONST@631..644 "'(0,0),(1,1)'"
+                          TYPECAST@644..646 "::"
+                          Typename@646..649
+                            SimpleTypename@646..649
+                              GenericType@646..649
+                                type_function_name@646..649
+                                  IDENT@646..649 "box"
+                                opt_type_modifiers@649..649
+                            opt_array_bounds@649..649
+                    group_clause@649..649
+                    having_clause@649..649
+                    window_clause@649..649
+        Semicolon@649..650 ";"
+        Whitespace@650..651 "\n"
+        toplevel_stmt@651..723
+          stmt@651..723
+            IndexStmt@651..723
+              CREATE@651..657 "CREATE"
+              opt_unique@657..657
               Whitespace@657..658 " "
-              opt_single_name@658..678
-                ColId@658..678
-                  IDENT@658..678 "sales_quantity_index"
-              Whitespace@678..679 " "
-              ON@679..681 "ON"
-              Whitespace@681..682 " "
-              relation_expr@682..693
-                qualified_name@682..693
-                  ColId@682..693
-                    IDENT@682..693 "sales_table"
-              access_method_clause@693..693
-              Whitespace@693..694 " "
-              LParen@694..695 "("
-              index_params@695..703
-                index_elem@695..703
-                  ColId@695..703
-                    IDENT@695..703 "quantity"
-                  index_elem_options@703..703
-                    opt_collate@703..703
-                    opt_qualified_name@703..703
-                    opt_asc_desc@703..703
-                    opt_nulls_order@703..703
-              RParen@703..704 ")"
-              opt_include@704..704
-              opt_unique_null_treatment@704..704
-              opt_reloptions@704..704
-              OptTableSpace@704..704
-              where_clause@704..704
-      Semicolon@704..705 ";"
-      toplevel_stmt@705..705
-        stmt@705..705
-  Whitespace@705..706 "\n"
+              INDEX@658..663 "INDEX"
+              Whitespace@663..664 " "
+              opt_concurrently@664..676
+                CONCURRENTLY@664..676 "CONCURRENTLY"
+              Whitespace@676..677 " "
+              opt_single_name@677..697
+                ColId@677..697
+                  IDENT@677..697 "sales_quantity_index"
+              Whitespace@697..698 " "
+              ON@698..700 "ON"
+              Whitespace@700..701 " "
+              relation_expr@701..712
+                qualified_name@701..712
+                  ColId@701..712
+                    IDENT@701..712 "sales_table"
+              access_method_clause@712..712
+              Whitespace@712..713 " "
+              LParen@713..714 "("
+              index_params@714..722
+                index_elem@714..722
+                  ColId@714..722
+                    IDENT@714..722 "quantity"
+                  index_elem_options@722..722
+                    opt_collate@722..722
+                    opt_qualified_name@722..722
+                    opt_asc_desc@722..722
+                    opt_nulls_order@722..722
+              RParen@722..723 ")"
+              opt_include@723..723
+              opt_unique_null_treatment@723..723
+              opt_reloptions@723..723
+              OptTableSpace@723..723
+              where_clause@723..723
+      Semicolon@723..724 ";"
+      toplevel_stmt@724..724
+        stmt@724..724
+  Whitespace@724..725 "\n"

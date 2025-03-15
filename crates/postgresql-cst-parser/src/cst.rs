@@ -180,7 +180,9 @@ fn init_tokens(tokens: &mut [Token]) {
 pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
     let mut tokens = lex(input);
 
-    init_tokens(&mut tokens);
+    if !tokens.is_empty() {
+        init_tokens(&mut tokens);
+    }
 
     tokens.push(Token {
         kind: end_rule_kind(),
