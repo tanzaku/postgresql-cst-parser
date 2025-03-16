@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ParserError {
     ParseError {
         message: String,
@@ -23,7 +23,7 @@ impl ParserError {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ScanReport {
     pub message: String,
     pub detail: String,

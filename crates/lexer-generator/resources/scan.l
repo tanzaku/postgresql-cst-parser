@@ -847,8 +847,25 @@ other			.
 					// /* Restore yylloc to be start of string token */
 					// POP_YYLLOC();
 
-					// TODO
-					panic!();
+					let c = u32::from_str_radix(
+						&self.input[self.index_bytes + 2..self.index_bytes + self.yyleng],
+						16,
+					)
+					.unwrap();
+
+					self.push_yylloc();
+					self.set_yylloc();
+
+					if is_utf16_surrogate_first(c) {
+						self.utf16_first_part = c;
+						self.begin(State::xeu);
+					} else if is_utf16_surrogate_second(c) {
+						yyerror!("invalid Unicode surrogate pair");
+					} else {
+						self.addunicode(char::from_u32(c as u32).unwrap())?;
+					}
+
+					self.pop_yylloc();
 				}
 <xeu>{xeunicode} {
 					// pg_wchar	c = strtoul(yytext + 2, NULL, 16);
@@ -870,8 +887,24 @@ other			.
 					// 
 					// BEGIN(xe);
 
-					// TODO
-					panic!();
+					let c = u32::from_str_radix(
+						&self.input[self.index_bytes + 2..self.index_bytes + self.yyleng],
+						16,
+					)
+					.unwrap();
+
+					self.push_yylloc();
+					self.set_yylloc();
+
+					if !is_utf16_surrogate_second(c) {
+						yyerror!("invalid Unicode surrogate pair");
+					}
+
+					let c = surrogate_pair_to_codepoint(self.utf16_first_part, c);
+					self.addunicode(c)?;
+
+					self.pop_yylloc();
+					self.begin(State::xe);
 				}
 <xeu>. |
 <xeu>\n |
@@ -893,8 +926,12 @@ other			.
 					// 		 errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
 					// 		 lexer_errposition()));
 
-					// TODO
-					panic!();
+					self.set_yylloc();
+					ereport!(self, ERROR,
+							(errcode(ERRCODE_INVALID_ESCAPE_SEQUENCE),
+							 errmsg("invalid Unicode escape"),
+							 errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
+							 self.lexer_errposition()));
 				}
 <xe>{xeescape}  {
 					// if (yytext[1] == '\'')
@@ -912,8 +949,22 @@ other			.
 					// addlitchar(unescape_single_char(yytext[1], yyscanner),
 					// 		   yyscanner);
 
-					// TODO
-					panic!();
+					let c = self.yytext().chars().nth(1).unwrap();
+					// if c == '\'' {
+					// 	if self.backslash_quote == BACKSLASH_QUOTE_OFF ||
+					// 		(self.backslash_quote == BACKSLASH_QUOTE_SAFE_ENCODING &&
+					// 		 PG_ENCODING_IS_CLIENT_ONLY(pg_get_client_encoding())) {
+					// 		ereport!(self, ERROR,
+					// 				(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
+					// 				 errmsg("unsafe use of \\' in a string literal"),
+					// 				 errhint("Use '' to write quotes in strings. \\' is insecure in client-only encodings."),
+					// 				 self.lexer_errposition()));
+					// 	}
+					// }
+
+					// self.check_string_escape_warning(c);
+                    let c = self.unescape_single_char(c);
+                    self.addlitchar(c);
 				}
 <xe>{xeoctesc}  {
 					// unsigned char c = strtoul(yytext + 1, NULL, 8);
@@ -924,16 +975,13 @@ other			.
 					// 	yyextra->saw_non_ascii = true;
 
 					let c = u32::from_str_radix(&self.input[self.index_bytes+1..self.index_bytes + self.yyleng], 8).unwrap();
-
-					// TODO correct?
 					let c = char::from_u32(c).unwrap();
 
-					// TODO
-					// check_escape_warning(yyscanner);
+					// self.check_escape_warning();
 					self.addlitchar(c);
-					// TODO
-					// if (c == '\0' || IS_HIGHBIT_SET(c))
-					// 	yyextra->saw_non_ascii = true;
+					if c == '\0' || is_highbit_set(c) != 0 {
+					 	self.saw_non_ascii = true;
+					}
 				}
 <xe>{xehexesc}  {
 					// unsigned char c = strtoul(yytext + 2, NULL, 16);
@@ -946,12 +994,11 @@ other			.
 					let c = u32::from_str_radix(&self.input[self.index_bytes+1..self.index_bytes + self.yyleng], 16).unwrap();
 					let c = char::from_u32(c).unwrap();
 
-					// TODO
-					// check_escape_warning(yyscanner);
+					// self.check_escape_warning();
 					self.addlitchar(c);
-					// TODO
-					// if (c == '\0' || IS_HIGHBIT_SET(c))
-					// 	yyextra->saw_non_ascii = true;
+					if c == '\0' || is_highbit_set(c) != 0 {
+					 	self.saw_non_ascii = true;
+					}
 				}
 <xe>.			{
 					// /* This is only needed for \ just before EOF */
@@ -1084,7 +1131,7 @@ other			.
 					let ident = self.literal.clone();
 					if self.literal.len() >= NAMEDATALEN {
 						// TODO
-						panic!();
+						// panic!();
 					}
 					self.yylval = Yylval::Str(ident);
 					self.set_yyllocend();
@@ -1132,8 +1179,14 @@ other			.
 					// yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
 					// return IDENT;
 
-					// TODO
-					panic!();
+					self.set_yylloc();
+					self.yyless(1);
+					// FIXME
+					// let ident = downcase_truncate_identifier(yytext, yyleng, true);
+					let ident = self.yytext();
+					self.yylval = Yylval::Str(ident);
+					self.set_yyllocend();
+					return Ok(Some(TokenKind::IDENT));
 				}
 
 {typecast}		{

@@ -6,12 +6,19 @@ use std::collections::HashMap;
 use regex::bytes::Regex;
 
 use super::{
-    util::get_char_by_byte_pos,
-    {Lexer, Rule, ParserError, TokenKind, Yylval, NAMEDATALEN},
+    util::{
+        get_char_by_byte_pos, is_highbit_set, is_utf16_surrogate_first, is_utf16_surrogate_second,
+        surrogate_pair_to_codepoint,
+    },
+    Lexer, ParserError, Rule, TokenKind, Yylval, NAMEDATALEN,
 };
 
+#[macro_export]
 macro_rules! ereport {
     ($lexer:expr, ERROR, (errcode($err_code:expr), errmsg($err_msg:expr), errdetail($err_detail:expr), $err_position:expr)) => {
+        return Err(ParserError::new_report($err_msg, $err_detail, $err_position));
+    };
+    ($lexer:expr, ERROR, (errcode($err_code:expr), errmsg($err_msg:expr), errhint($err_detail:expr), $err_position:expr)) => {
         return Err(ParserError::new_report($err_msg, $err_detail, $err_position));
     };
     ($lexer:expr, WARNING, (errcode($err_code:expr), errmsg($err_msg:expr), errdetail($err_detail:expr), $err_position:expr)) => {
@@ -19,12 +26,14 @@ macro_rules! ereport {
     };
 }
 
+#[macro_export]
 macro_rules! yyerror {
     ($msg:expr) => {
         return Err(ParserError::new_error($msg))
     };
 }
 
+#[macro_export]
 macro_rules! yyterminate {
     () => {
         return Ok(None);
@@ -42,9 +51,9 @@ const STANDARD_CONFORMING_STRINGS: bool = true;
 impl Lexer {
     pub fn parse_token(&mut self) -> Result<Option<TokenKind>, ParserError> {
         loop {
-            let (m, kind) = self.find_match();
+            let (match_len, kind) = self.find_match_len();
 
-            self.yyleng = m.len();
+            self.yyleng = match_len;
             let yytext = self.yytext();
 
             match kind {{actions}}

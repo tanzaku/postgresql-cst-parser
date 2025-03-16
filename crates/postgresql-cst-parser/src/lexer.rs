@@ -1,14 +1,15 @@
+#[macro_use]
 mod generated;
+pub mod parser_error;
 mod util;
 
 use std::collections::HashMap;
 
+use parser_error::{ParserError, ScanReport};
 use regex::bytes::Regex;
 // use serde::{Deserialize, Serialize};
 
 use self::generated::{RuleKind, State};
-
-use super::parser_error::{ParserError, ScanReport};
 
 pub const NAMEDATALEN: usize = 64;
 
@@ -37,6 +38,7 @@ pub struct Lexer {
     pub dolqstart: String,
     pub warn_on_first_escape: bool,
     pub saw_non_ascii: bool,
+    pub utf16_first_part: u32,
 
     // states
     pub yylval: Yylval,
@@ -50,6 +52,7 @@ pub struct Lexer {
 pub struct Rule {
     pub state: State,
     pub pattern: Regex,
+    pub eof: bool,
     pub kind: RuleKind,
 }
 

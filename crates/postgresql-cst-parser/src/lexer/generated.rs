@@ -6,12 +6,23 @@ use std::collections::HashMap;
 use regex::bytes::Regex;
 
 use super::{
-    util::get_char_by_byte_pos,
-    {Lexer, ParserError, Rule, TokenKind, Yylval, NAMEDATALEN},
+    util::{
+        get_char_by_byte_pos, is_highbit_set, is_utf16_surrogate_first, is_utf16_surrogate_second,
+        surrogate_pair_to_codepoint,
+    },
+    Lexer, ParserError, Rule, TokenKind, Yylval, NAMEDATALEN,
 };
 
+#[macro_export]
 macro_rules! ereport {
     ($lexer:expr, ERROR, (errcode($err_code:expr), errmsg($err_msg:expr), errdetail($err_detail:expr), $err_position:expr)) => {
+        return Err(ParserError::new_report(
+            $err_msg,
+            $err_detail,
+            $err_position,
+        ));
+    };
+    ($lexer:expr, ERROR, (errcode($err_code:expr), errmsg($err_msg:expr), errhint($err_detail:expr), $err_position:expr)) => {
         return Err(ParserError::new_report(
             $err_msg,
             $err_detail,
@@ -23,12 +34,14 @@ macro_rules! ereport {
     };
 }
 
+#[macro_export]
 macro_rules! yyerror {
     ($msg:expr) => {
         return Err(ParserError::new_error($msg))
     };
 }
 
+#[macro_export]
 macro_rules! yyterminate {
     () => {
         return Ok(None);
@@ -154,9 +167,9 @@ const STANDARD_CONFORMING_STRINGS: bool = true;
 impl Lexer {
     pub fn parse_token(&mut self) -> Result<Option<TokenKind>, ParserError> {
         loop {
-            let (m, kind) = self.find_match();
+            let (match_len, kind) = self.find_match_len();
 
-            self.yyleng = m.len();
+            self.yyleng = match_len;
             let yytext = self.yytext();
 
             match kind {
@@ -693,8 +706,25 @@ impl Lexer {
                         // /* Restore yylloc to be start of string token */
                         // POP_YYLLOC();
 
-                        // TODO
-                        panic!();
+                        let c = u32::from_str_radix(
+                            &self.input[self.index_bytes + 2..self.index_bytes + self.yyleng],
+                            16,
+                        )
+                        .unwrap();
+
+                        self.push_yylloc();
+                        self.set_yylloc();
+
+                        if is_utf16_surrogate_first(c) {
+                            self.utf16_first_part = c;
+                            self.begin(State::xeu);
+                        } else if is_utf16_surrogate_second(c) {
+                            yyerror!("invalid Unicode surrogate pair");
+                        } else {
+                            self.addunicode(char::from_u32(c as u32).unwrap())?;
+                        }
+
+                        self.pop_yylloc();
                     }
                 }
                 RuleKind::xeu1 => {
@@ -718,8 +748,24 @@ impl Lexer {
                         //
                         // BEGIN(xe);
 
-                        // TODO
-                        panic!();
+                        let c = u32::from_str_radix(
+                            &self.input[self.index_bytes + 2..self.index_bytes + self.yyleng],
+                            16,
+                        )
+                        .unwrap();
+
+                        self.push_yylloc();
+                        self.set_yylloc();
+
+                        if !is_utf16_surrogate_second(c) {
+                            yyerror!("invalid Unicode surrogate pair");
+                        }
+
+                        let c = surrogate_pair_to_codepoint(self.utf16_first_part, c);
+                        self.addunicode(c)?;
+
+                        self.pop_yylloc();
+                        self.begin(State::xe);
                     }
                 }
                 RuleKind::xeu2 | RuleKind::xeu3 | RuleKind::xeu4 => {
@@ -743,8 +789,17 @@ impl Lexer {
                         // 		 errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
                         // 		 lexer_errposition()));
 
-                        // TODO
-                        panic!();
+                        self.set_yylloc();
+                        ereport!(
+                            self,
+                            ERROR,
+                            (
+                                errcode(ERRCODE_INVALID_ESCAPE_SEQUENCE),
+                                errmsg("invalid Unicode escape"),
+                                errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
+                                self.lexer_errposition()
+                            )
+                        );
                     }
                 }
                 RuleKind::xeu5 => {
@@ -757,8 +812,17 @@ impl Lexer {
                         // 		 errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
                         // 		 lexer_errposition()));
 
-                        // TODO
-                        panic!();
+                        self.set_yylloc();
+                        ereport!(
+                            self,
+                            ERROR,
+                            (
+                                errcode(ERRCODE_INVALID_ESCAPE_SEQUENCE),
+                                errmsg("invalid Unicode escape"),
+                                errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
+                                self.lexer_errposition()
+                            )
+                        );
                     }
                 }
                 RuleKind::xe6 => {
@@ -778,8 +842,22 @@ impl Lexer {
                         // addlitchar(unescape_single_char(yytext[1], yyscanner),
                         // 		   yyscanner);
 
-                        // TODO
-                        panic!();
+                        let c = self.yytext().chars().nth(1).unwrap();
+                        // if c == '\'' {
+                        // 	if self.backslash_quote == BACKSLASH_QUOTE_OFF ||
+                        // 		(self.backslash_quote == BACKSLASH_QUOTE_SAFE_ENCODING &&
+                        // 		 PG_ENCODING_IS_CLIENT_ONLY(pg_get_client_encoding())) {
+                        // 		ereport!(self, ERROR,
+                        // 				(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
+                        // 				 errmsg("unsafe use of \\' in a string literal"),
+                        // 				 errhint("Use '' to write quotes in strings. \\' is insecure in client-only encodings."),
+                        // 				 self.lexer_errposition()));
+                        // 	}
+                        // }
+
+                        // self.check_string_escape_warning(c);
+                        let c = self.unescape_single_char(c);
+                        self.addlitchar(c);
                     }
                 }
                 RuleKind::xe7 => {
@@ -796,16 +874,13 @@ impl Lexer {
                             8,
                         )
                         .unwrap();
-
-                        // TODO correct?
                         let c = char::from_u32(c).unwrap();
 
-                        // TODO
-                        // check_escape_warning(yyscanner);
+                        // self.check_escape_warning();
                         self.addlitchar(c);
-                        // TODO
-                        // if (c == '\0' || IS_HIGHBIT_SET(c))
-                        // 	yyextra->saw_non_ascii = true;
+                        if c == '\0' || is_highbit_set(c) != 0 {
+                            self.saw_non_ascii = true;
+                        }
                     }
                 }
                 RuleKind::xe8 => {
@@ -824,12 +899,11 @@ impl Lexer {
                         .unwrap();
                         let c = char::from_u32(c).unwrap();
 
-                        // TODO
-                        // check_escape_warning(yyscanner);
+                        // self.check_escape_warning();
                         self.addlitchar(c);
-                        // TODO
-                        // if (c == '\0' || IS_HIGHBIT_SET(c))
-                        // 	yyextra->saw_non_ascii = true;
+                        if c == '\0' || is_highbit_set(c) != 0 {
+                            self.saw_non_ascii = true;
+                        }
                     }
                 }
                 RuleKind::xe9 => {
@@ -987,7 +1061,7 @@ impl Lexer {
                         let ident = self.literal.clone();
                         if self.literal.len() >= NAMEDATALEN {
                             // TODO
-                            panic!();
+                            // panic!();
                         }
                         self.yylval = Yylval::Str(ident);
                         self.set_yyllocend();
@@ -1061,8 +1135,14 @@ impl Lexer {
                         // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
                         // return IDENT;
 
-                        // TODO
-                        panic!();
+                        self.set_yylloc();
+                        self.yyless(1);
+                        // FIXME
+                        // let ident = downcase_truncate_identifier(yytext, yyleng, true);
+                        let ident = self.yytext();
+                        self.yylval = Yylval::Str(ident);
+                        self.set_yyllocend();
+                        return Ok(Some(TokenKind::IDENT));
                     }
                 }
                 RuleKind::INITIAL15 => {
@@ -1598,6 +1678,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(((([ \t\n\r\f\v])+)))"#).unwrap(),
                     kind: RuleKind::INITIAL1,
+                    eof: false,
                 },
 
                 // {comment}
@@ -1605,6 +1686,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(((--([^\n\r])*)))"#).unwrap(),
                     kind: RuleKind::INITIAL2,
+                    eof: false,
                 },
 
                 // {xcstart}
@@ -1612,6 +1694,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((\/\*([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])*))"#).unwrap(),
                     kind: RuleKind::INITIAL3,
+                    eof: false,
                 },
 
                 // {xcstart}
@@ -1619,6 +1702,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xc,
                     pattern: Regex::new(r#"(?-u)^((\/\*([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])*))"#).unwrap(),
                     kind: RuleKind::xc1,
+                    eof: false,
                 },
 
                 // {xcstop}
@@ -1626,6 +1710,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xc,
                     pattern: Regex::new(r#"(?-u)^((\*+\/))"#).unwrap(),
                     kind: RuleKind::xc2,
+                    eof: false,
                 },
 
                 // {xcinside}
@@ -1633,6 +1718,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xc,
                     pattern: Regex::new(r#"(?-u)^(([^*/]+))"#).unwrap(),
                     kind: RuleKind::xc3,
+                    eof: false,
                 },
 
                 // {op_chars}
@@ -1640,6 +1726,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xc,
                     pattern: Regex::new(r#"(?-u)^(([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=]))"#).unwrap(),
                     kind: RuleKind::xc4,
+                    eof: false,
                 },
 
                 // \*+
@@ -1647,6 +1734,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xc,
                     pattern: Regex::new(r#"(?-u)^(\*+)"#).unwrap(),
                     kind: RuleKind::xc5,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -1654,6 +1742,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xc,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xc6,
+                    eof: true,
                 },
 
                 // {xbstart}
@@ -1661,6 +1750,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(([bB](')))"#).unwrap(),
                     kind: RuleKind::INITIAL4,
+                    eof: false,
                 },
 
                 // {xhinside}
@@ -1668,6 +1758,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xh,
                     pattern: Regex::new(r#"(?-u)^(([^']*))"#).unwrap(),
                     kind: RuleKind::xh1,
+                    eof: false,
                 },
 
                 // {xbinside}
@@ -1675,6 +1766,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xb,
                     pattern: Regex::new(r#"(?-u)^(([^']*))"#).unwrap(),
                     kind: RuleKind::xb1,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -1682,6 +1774,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xb,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xb2,
+                    eof: true,
                 },
 
                 // {xhstart}
@@ -1689,6 +1782,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(([xX](')))"#).unwrap(),
                     kind: RuleKind::INITIAL5,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -1696,6 +1790,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xh,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xh2,
+                    eof: true,
                 },
 
                 // {xnstart}
@@ -1703,6 +1798,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(([nN](')))"#).unwrap(),
                     kind: RuleKind::INITIAL6,
+                    eof: false,
                 },
 
                 // {xqstart}
@@ -1710,6 +1806,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(((')))"#).unwrap(),
                     kind: RuleKind::INITIAL7,
+                    eof: false,
                 },
 
                 // {xestart}
@@ -1717,6 +1814,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(([eE](')))"#).unwrap(),
                     kind: RuleKind::INITIAL8,
+                    eof: false,
                 },
 
                 // {xusstart}
@@ -1724,6 +1822,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(([uU]&(')))"#).unwrap(),
                     kind: RuleKind::INITIAL9,
+                    eof: false,
                 },
 
                 // {quote}
@@ -1731,6 +1830,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xb,
                     pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xb3,
+                    eof: false,
                 },
 
                 // {quote}
@@ -1738,6 +1838,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xh,
                     pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xh3,
+                    eof: false,
                 },
 
                 // {quote}
@@ -1745,6 +1846,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xq,
                     pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xq1,
+                    eof: false,
                 },
 
                 // {quote}
@@ -1752,6 +1854,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xe1,
+                    eof: false,
                 },
 
                 // {quote}
@@ -1759,6 +1862,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xus,
                     pattern: Regex::new(r#"(?-u)^(('))"#).unwrap(),
                     kind: RuleKind::xus1,
+                    eof: false,
                 },
 
                 // {quotecontinue}
@@ -1766,6 +1870,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xqs,
                     pattern: Regex::new(r#"(?-u)^((((((([ \t\f\v])))*([\n\r])((([ \t\n\r\f\v])+))*))(')))"#).unwrap(),
                     kind: RuleKind::xqs1,
+                    eof: false,
                 },
 
                 // {quotecontinuefail}
@@ -1773,6 +1878,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xqs,
                     pattern: Regex::new(r#"(?-u)^((((([ \t\n\r\f\v])+))*-?))"#).unwrap(),
                     kind: RuleKind::xqs2,
+                    eof: false,
                 },
 
                 // {other}
@@ -1780,6 +1886,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xqs,
                     pattern: Regex::new(r#"(?-u)^((.))"#).unwrap(),
                     kind: RuleKind::xqs3,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -1787,6 +1894,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xqs,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xqs4,
+                    eof: true,
                 },
 
                 // {xqdouble}
@@ -1794,6 +1902,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xq,
                     pattern: Regex::new(r#"(?-u)^(((')(')))"#).unwrap(),
                     kind: RuleKind::xq2,
+                    eof: false,
                 },
 
                 // {xqdouble}
@@ -1801,6 +1910,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(((')(')))"#).unwrap(),
                     kind: RuleKind::xe2,
+                    eof: false,
                 },
 
                 // {xqdouble}
@@ -1808,6 +1918,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xus,
                     pattern: Regex::new(r#"(?-u)^(((')(')))"#).unwrap(),
                     kind: RuleKind::xus2,
+                    eof: false,
                 },
 
                 // {xqinside}
@@ -1815,6 +1926,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xq,
                     pattern: Regex::new(r#"(?-u)^(([^']+))"#).unwrap(),
                     kind: RuleKind::xq3,
+                    eof: false,
                 },
 
                 // {xqinside}
@@ -1822,6 +1934,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xus,
                     pattern: Regex::new(r#"(?-u)^(([^']+))"#).unwrap(),
                     kind: RuleKind::xus3,
+                    eof: false,
                 },
 
                 // {xeinside}
@@ -1829,6 +1942,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(([^\\']+))"#).unwrap(),
                     kind: RuleKind::xe3,
+                    eof: false,
                 },
 
                 // {xeunicode}
@@ -1836,6 +1950,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(([\\](u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})))"#).unwrap(),
                     kind: RuleKind::xe4,
+                    eof: false,
                 },
 
                 // {xeunicode}
@@ -1843,6 +1958,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xeu,
                     pattern: Regex::new(r#"(?-u)^(([\\](u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})))"#).unwrap(),
                     kind: RuleKind::xeu1,
+                    eof: false,
                 },
 
                 // .
@@ -1850,6 +1966,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xeu,
                     pattern: Regex::new(r#"(?-u)^(.)"#).unwrap(),
                     kind: RuleKind::xeu2,
+                    eof: false,
                 },
 
                 // \n
@@ -1857,6 +1974,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xeu,
                     pattern: Regex::new(r#"(?-u)^(\n)"#).unwrap(),
                     kind: RuleKind::xeu3,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -1864,6 +1982,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xeu,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xeu4,
+                    eof: true,
                 },
 
                 // {xeunicodefail}
@@ -1871,6 +1990,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(([\\](u[0-9A-Fa-f]{0,3}|U[0-9A-Fa-f]{0,7})))"#).unwrap(),
                     kind: RuleKind::xe5,
+                    eof: false,
                 },
 
                 // {xeunicodefail}
@@ -1878,6 +1998,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xeu,
                     pattern: Regex::new(r#"(?-u)^(([\\](u[0-9A-Fa-f]{0,3}|U[0-9A-Fa-f]{0,7})))"#).unwrap(),
                     kind: RuleKind::xeu5,
+                    eof: false,
                 },
 
                 // {xeescape}
@@ -1885,6 +2006,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(([\\][^0-7]))"#).unwrap(),
                     kind: RuleKind::xe6,
+                    eof: false,
                 },
 
                 // {xeoctesc}
@@ -1892,6 +2014,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(([\\][0-7]{1,3}))"#).unwrap(),
                     kind: RuleKind::xe7,
+                    eof: false,
                 },
 
                 // {xehexesc}
@@ -1899,6 +2022,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(([\\]x[0-9A-Fa-f]{1,2}))"#).unwrap(),
                     kind: RuleKind::xe8,
+                    eof: false,
                 },
 
                 // .
@@ -1906,6 +2030,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(.)"#).unwrap(),
                     kind: RuleKind::xe9,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -1913,6 +2038,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xq,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xq4,
+                    eof: true,
                 },
 
                 // <<EOF>>
@@ -1920,6 +2046,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xe,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xe10,
+                    eof: true,
                 },
 
                 // <<EOF>>
@@ -1927,6 +2054,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xus,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xus4,
+                    eof: true,
                 },
 
                 // {dolqdelim}
@@ -1934,6 +2062,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((\$(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*)?\$))"#).unwrap(),
                     kind: RuleKind::INITIAL10,
+                    eof: false,
                 },
 
                 // {dolqfailed}
@@ -1941,6 +2070,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((\$([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*))"#).unwrap(),
                     kind: RuleKind::INITIAL11,
+                    eof: false,
                 },
 
                 // {dolqdelim}
@@ -1948,6 +2078,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xdolq,
                     pattern: Regex::new(r#"(?-u)^((\$(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*)?\$))"#).unwrap(),
                     kind: RuleKind::xdolq1,
+                    eof: false,
                 },
 
                 // {dolqinside}
@@ -1955,6 +2086,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xdolq,
                     pattern: Regex::new(r#"(?-u)^(([^$]+))"#).unwrap(),
                     kind: RuleKind::xdolq2,
+                    eof: false,
                 },
 
                 // {dolqfailed}
@@ -1962,6 +2094,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xdolq,
                     pattern: Regex::new(r#"(?-u)^((\$([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9])*))"#).unwrap(),
                     kind: RuleKind::xdolq3,
+                    eof: false,
                 },
 
                 // .
@@ -1969,6 +2102,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xdolq,
                     pattern: Regex::new(r#"(?-u)^(.)"#).unwrap(),
                     kind: RuleKind::xdolq4,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -1976,6 +2110,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xdolq,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xdolq5,
+                    eof: true,
                 },
 
                 // {xdstart}
@@ -1983,6 +2118,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(((\")))"#).unwrap(),
                     kind: RuleKind::INITIAL12,
+                    eof: false,
                 },
 
                 // {xuistart}
@@ -1990,6 +2126,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(([uU]&(\")))"#).unwrap(),
                     kind: RuleKind::INITIAL13,
+                    eof: false,
                 },
 
                 // {xdstop}
@@ -1997,6 +2134,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xd,
                     pattern: Regex::new(r#"(?-u)^(((\")))"#).unwrap(),
                     kind: RuleKind::xd1,
+                    eof: false,
                 },
 
                 // {dquote}
@@ -2004,6 +2142,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xui,
                     pattern: Regex::new(r#"(?-u)^((\"))"#).unwrap(),
                     kind: RuleKind::xui1,
+                    eof: false,
                 },
 
                 // {xddouble}
@@ -2011,6 +2150,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xd,
                     pattern: Regex::new(r#"(?-u)^(((\")(\")))"#).unwrap(),
                     kind: RuleKind::xd2,
+                    eof: false,
                 },
 
                 // {xddouble}
@@ -2018,6 +2158,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xui,
                     pattern: Regex::new(r#"(?-u)^(((\")(\")))"#).unwrap(),
                     kind: RuleKind::xui2,
+                    eof: false,
                 },
 
                 // {xdinside}
@@ -2025,6 +2166,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xd,
                     pattern: Regex::new(r#"(?-u)^(([^"]+))"#).unwrap(),
                     kind: RuleKind::xd3,
+                    eof: false,
                 },
 
                 // {xdinside}
@@ -2032,6 +2174,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xui,
                     pattern: Regex::new(r#"(?-u)^(([^"]+))"#).unwrap(),
                     kind: RuleKind::xui3,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -2039,6 +2182,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xd,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xd4,
+                    eof: true,
                 },
 
                 // <<EOF>>
@@ -2046,6 +2190,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::xui,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::xui4,
+                    eof: true,
                 },
 
                 // {xufailed}
@@ -2053,6 +2198,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(([uU]&))"#).unwrap(),
                     kind: RuleKind::INITIAL14,
+                    eof: false,
                 },
 
                 // {typecast}
@@ -2060,6 +2206,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((::))"#).unwrap(),
                     kind: RuleKind::INITIAL15,
+                    eof: false,
                 },
 
                 // {dot_dot}
@@ -2067,6 +2214,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((\.\.))"#).unwrap(),
                     kind: RuleKind::INITIAL16,
+                    eof: false,
                 },
 
                 // {colon_equals}
@@ -2074,6 +2222,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((:=))"#).unwrap(),
                     kind: RuleKind::INITIAL17,
+                    eof: false,
                 },
 
                 // {equals_greater}
@@ -2081,6 +2230,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((=>))"#).unwrap(),
                     kind: RuleKind::INITIAL18,
+                    eof: false,
                 },
 
                 // {less_equals}
@@ -2088,6 +2238,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((<=))"#).unwrap(),
                     kind: RuleKind::INITIAL19,
+                    eof: false,
                 },
 
                 // {greater_equals}
@@ -2095,6 +2246,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((>=))"#).unwrap(),
                     kind: RuleKind::INITIAL20,
+                    eof: false,
                 },
 
                 // {less_greater}
@@ -2102,6 +2254,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((<>))"#).unwrap(),
                     kind: RuleKind::INITIAL21,
+                    eof: false,
                 },
 
                 // {not_equals}
@@ -2109,6 +2262,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((!=))"#).unwrap(),
                     kind: RuleKind::INITIAL22,
+                    eof: false,
                 },
 
                 // {self}
@@ -2116,6 +2270,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(([,()\[\].;\:\+\-\*\/\%\^<>\=]))"#).unwrap(),
                     kind: RuleKind::INITIAL23,
+                    eof: false,
                 },
 
                 // {operator}
@@ -2123,6 +2278,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((([\~\!\@\#\^\&\|\`\?\+\-\*\/\%<>\=])+))"#).unwrap(),
                     kind: RuleKind::INITIAL24,
+                    eof: false,
                 },
 
                 // {param}
@@ -2130,6 +2286,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((\$([0-9])+))"#).unwrap(),
                     kind: RuleKind::INITIAL25,
+                    eof: false,
                 },
 
                 // {decinteger}
@@ -2137,6 +2294,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((([0-9])(_?([0-9]))*))"#).unwrap(),
                     kind: RuleKind::INITIAL26,
+                    eof: false,
                 },
 
                 // {hexinteger}
@@ -2144,6 +2302,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((0[xX](_?([0-9A-Fa-f]))+))"#).unwrap(),
                     kind: RuleKind::INITIAL27,
+                    eof: false,
                 },
 
                 // {octinteger}
@@ -2151,6 +2310,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((0[oO](_?([0-7]))+))"#).unwrap(),
                     kind: RuleKind::INITIAL28,
+                    eof: false,
                 },
 
                 // {bininteger}
@@ -2158,6 +2318,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((0[bB](_?([0-1]))+))"#).unwrap(),
                     kind: RuleKind::INITIAL29,
+                    eof: false,
                 },
 
                 // {hexfail}
@@ -2165,6 +2326,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((0[xX]_?))"#).unwrap(),
                     kind: RuleKind::INITIAL30,
+                    eof: false,
                 },
 
                 // {octfail}
@@ -2172,6 +2334,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((0[oO]_?))"#).unwrap(),
                     kind: RuleKind::INITIAL31,
+                    eof: false,
                 },
 
                 // {binfail}
@@ -2179,6 +2342,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((0[bB]_?))"#).unwrap(),
                     kind: RuleKind::INITIAL32,
+                    eof: false,
                 },
 
                 // {numeric}
@@ -2186,6 +2350,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))"#).unwrap(),
                     kind: RuleKind::INITIAL33,
+                    eof: false,
                 },
 
                 // {numericfail}
@@ -2193,6 +2358,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(((([0-9])(_?([0-9]))*)\.\.))"#).unwrap(),
                     kind: RuleKind::INITIAL34,
+                    eof: false,
                 },
 
                 // {real}
@@ -2200,6 +2366,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]?(([0-9])(_?([0-9]))*)))"#).unwrap(),
                     kind: RuleKind::INITIAL35,
+                    eof: false,
                 },
 
                 // {realfail}
@@ -2207,6 +2374,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]))"#).unwrap(),
                     kind: RuleKind::INITIAL36,
+                    eof: false,
                 },
 
                 // {integer_junk}
@@ -2214,6 +2382,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(((([0-9])(_?([0-9]))*)(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*)))"#).unwrap(),
                     kind: RuleKind::INITIAL37,
+                    eof: false,
                 },
 
                 // {numeric_junk}
@@ -2221,6 +2390,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*))))(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*)))"#).unwrap(),
                     kind: RuleKind::INITIAL38,
+                    eof: false,
                 },
 
                 // {real_junk}
@@ -2228,6 +2398,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(((((([0-9])(_?([0-9]))*)|((((([0-9])(_?([0-9]))*)\.(([0-9])(_?([0-9]))*)?)|(\.(([0-9])(_?([0-9]))*)))))[Ee][-+]?(([0-9])(_?([0-9]))*))(([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*)))"#).unwrap(),
                     kind: RuleKind::INITIAL39,
+                    eof: false,
                 },
 
                 // {identifier}
@@ -2235,6 +2406,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((([A-Za-z\x80-\xFF_])([A-Za-z\x80-\xFF_0-9\$])*))"#).unwrap(),
                     kind: RuleKind::INITIAL40,
+                    eof: false,
                 },
 
                 // {other}
@@ -2242,6 +2414,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^((.))"#).unwrap(),
                     kind: RuleKind::INITIAL41,
+                    eof: false,
                 },
 
                 // <<EOF>>
@@ -2249,6 +2422,7 @@ pub fn get_rules() -> Vec<Rule> {
                     state: State::INITIAL,
                     pattern: Regex::new(r#"(?-u)^(^$)"#).unwrap(),
                     kind: RuleKind::INITIAL42,
+                    eof: true,
                 }]
 }
 

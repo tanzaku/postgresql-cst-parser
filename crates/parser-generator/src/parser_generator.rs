@@ -5,7 +5,6 @@ mod bison;
 mod id_mapper;
 mod lalr;
 mod lexer;
-mod parser_error;
 
 use std::process::Command;
 
@@ -240,14 +239,14 @@ fn write_file(bison: &Bison, lalr: &Lalr) {
     .unwrap();
 
     std::fs::copy(
-        "./crates/parser-generator/src/parser_generator/lexer.rs",
-        "./crates/postgresql-cst-parser/src/lexer.rs",
+        "./crates/parser-generator/src/parser_generator/lexer/parser_error.rs",
+        "./crates/postgresql-cst-parser/src/lexer/parser_error.rs",
     )
     .unwrap();
 
     std::fs::copy(
-        "./crates/parser-generator/src/parser_generator/parser_error.rs",
-        "./crates/postgresql-cst-parser/src/parser_error.rs",
+        "./crates/parser-generator/src/parser_generator/lexer.rs",
+        "./crates/postgresql-cst-parser/src/lexer.rs",
     )
     .unwrap();
 }

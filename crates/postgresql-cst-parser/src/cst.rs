@@ -4,13 +4,12 @@ use cstree::{
 use miniz_oxide::inflate::decompress_to_vec;
 
 use crate::{
-    lexer::{lex, TokenKind},
+    lexer::{lex, parser_error::ParserError, TokenKind},
     parser::{
         end_rule_id, end_rule_kind, num_non_terminal_symbol, num_terminal_symbol,
         rule_name_to_component_id, token_kind_to_component_id, Action, ACTION_TABLE, GOTO_TABLE,
         RULES,
     },
-    ParserError,
 };
 
 use super::{lexer::Token, syntax_kind::SyntaxKind};
