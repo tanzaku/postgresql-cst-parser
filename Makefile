@@ -20,7 +20,7 @@ copy-from-original-source: prepare-original-source
 	cp $(ROOT_DIR)tmp/libpg_query/tmp/postgres/src/backend/parser/gram.y $(ROOT_DIR)crates/parser-generator/resources
 
 make-patch: prepare-original-source
-	diff -u $(ROOT_DIR)tmp/libpg_query/tmp/postgres/src/backend/parser/scan.l ./crates/lexer-generator/resources/scan.l > ./patches/patch_scan.patch || true
+	diff -u ./tmp/libpg_query/tmp/postgres/src/backend/parser/scan.l ./crates/lexer-generator/resources/scan.l > ./patches/patch_scan.patch || true
 
 clean:
 	-@ rm -rf ./tmp

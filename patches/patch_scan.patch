@@ -1,4 +1,4 @@
---- /home/user/ghq/github.com/tanzaku/postgresql-cst-parser/tmp/libpg_query/tmp/postgres/src/backend/parser/scan.l	2025-03-17 03:24:16.633922437 +0900
+--- ./tmp/libpg_query/tmp/postgres/src/backend/parser/scan.l	2025-03-17 08:53:57.058425153 +0900
 +++ ./crates/lexer-generator/resources/scan.l	2025-03-17 03:08:27.795419496 +0900
 @@ -296,8 +296,8 @@
   * {dolqfailed} is an error rule to avoid scanner backup when {dolqdelim}
