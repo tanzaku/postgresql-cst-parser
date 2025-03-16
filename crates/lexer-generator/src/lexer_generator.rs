@@ -52,9 +52,9 @@ fn construct_actions(flex_file: &FlexFile) -> String {
 }
 
 /// Convert rule patterns to regular expressions
-fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> String {
+fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> (String, bool) {
     if pattern == "<<EOF>>" {
-        return "^$".to_string();
+        return ("^$".to_string(), true);
     }
 
     // Regular expression pattern to extract {xxx} patterns
@@ -99,19 +99,22 @@ fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> String {
     }
 
     // Expand {xxx} to actual regular expression patterns
-    p.replace_all(&pattern, |caps: &regex::Captures| {
-        let name = caps.get(1).unwrap().as_str();
+    let replaced = p
+        .replace_all(&pattern, |caps: &regex::Captures| {
+            let name = caps.get(1).unwrap().as_str();
 
-        // Check if xxx in {xxx} is defined
-        if let Some(def) = flex_file.definitions.iter().find(|def| def.name == name) {
-            let pattern = remove_unnecessary_quote(&def.def);
-            let rep = extract_rule_pattern(flex_file, &pattern);
-            format!("({})", rep)
-        } else {
-            format!("{{{name}}}")
-        }
-    })
-    .to_string()
+            // Check if xxx in {xxx} is defined
+            if let Some(def) = flex_file.definitions.iter().find(|def| def.name == name) {
+                let pattern = remove_unnecessary_quote(&def.def);
+                let (rep, _) = extract_rule_pattern(flex_file, &pattern);
+                format!("({})", rep)
+            } else {
+                format!("{{{name}}}")
+            }
+        })
+        .to_string();
+
+    (replaced, false)
 }
 
 /// Generate Rule structures
@@ -124,6 +127,7 @@ fn construct_rule_defs(flex_file: &FlexFile) -> String {
             let e = map.entry(s).or_default();
             *e += 1;
 
+            let (pattern, eof) = extract_rule_pattern(flex_file, &rule.pattern);
             res.push(format!(
                 r###"
                 // {original_pattern}
@@ -131,9 +135,11 @@ fn construct_rule_defs(flex_file: &FlexFile) -> String {
                     state: State::{s},
                     pattern: Regex::new(r#"(?-u)^({pattern})"#).unwrap(),
                     kind: RuleKind::{rule_kind},
+                    eof: {eof},
                 }}"###,
                 original_pattern = rule.pattern,
-                pattern = extract_rule_pattern(flex_file, &rule.pattern),
+                pattern = pattern,
+                eof = eof,
                 rule_kind = format!("{}{}", s, e),
             ));
         }

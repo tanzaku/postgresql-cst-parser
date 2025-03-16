@@ -1,7 +1,5 @@
 use std::io::Read;
 
-use postgresql_cst_parser;
-
 fn main() {
     let mut sql = String::new();
     std::io::stdin().read_to_string(&mut sql).unwrap();

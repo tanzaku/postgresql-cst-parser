@@ -1,11 +1,13 @@
+#[macro_use]
 mod generated;
+pub mod parser_error;
 mod util;
 
 use std::collections::HashMap;
 
+use parser_error::{ParserError, ScanReport};
 use regex::bytes::Regex;
-
-use crate::lexer::generated::get_rules;
+// use serde::{Deserialize, Serialize};
 
 use self::generated::{RuleKind, State};
 
@@ -34,6 +36,9 @@ pub struct Lexer {
     pub state_before_str_stop: State,
     pub yylloc_stack: Vec<usize>,
     pub dolqstart: String,
+    pub warn_on_first_escape: bool,
+    pub saw_non_ascii: bool,
+    pub utf16_first_part: u32,
 
     // states
     pub yylval: Yylval,
@@ -41,15 +46,18 @@ pub struct Lexer {
 
     pub rules: Vec<Rule>,
     pub keyword_map: HashMap<&'static str, &'static str>,
+    pub reports: Vec<ScanReport>,
 }
 
 pub struct Rule {
     pub state: State,
     pub pattern: Regex,
+    pub eof: bool,
     pub kind: RuleKind,
 }
 
 #[allow(clippy::all)]
+// #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum TokenKind {
     RAW(String),
@@ -132,11 +140,13 @@ where
             "PARAM" => TokenKind::PARAM,
             "FCONST" => TokenKind::FCONST,
             "ICONST" => TokenKind::ICONST,
-            _ => TokenKind::KEYWORD(s.as_ref().to_string()), // TODO check if keyword
+            s if s.starts_with('\'') => TokenKind::RAW(s.to_string()), // TODO is it necessary?
+            s => TokenKind::KEYWORD(s.to_string()),                    // TODO check if keyword
         }
     }
 }
 
+// #[derive(Debug, Clone, Serialize, Deserialize)]
 #[derive(Debug, Clone)]
 pub struct Token {
     pub start_byte_pos: usize,
@@ -145,13 +155,11 @@ pub struct Token {
     pub value: String,
 }
 
-pub fn lex(input: &str) -> Vec<Token> {
-    let rules = get_rules();
-
-    let mut lexer = Lexer::new(input, rules);
+pub fn lex(input: &str) -> Result<Vec<Token>, ParserError> {
+    let mut lexer = Lexer::new(input);
 
     let mut tokens = vec![];
-    while let Some(kind) = lexer.parse_token() {
+    while let Some(kind) = lexer.parse_token()? {
         // dbg!(&kind);
         if kind == TokenKind::EOF {
             break;
@@ -181,5 +189,5 @@ pub fn lex(input: &str) -> Vec<Token> {
     }
 
     // dbg!(&tokens);
-    tokens
+    Ok(tokens)
 }

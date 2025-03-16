@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize};
 
 use super::bison::{Component, ComponentId};
 
-#[derive(Debug, Serialize, Deserialize)]
+// #[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct IdMapper {
     component_map: HashMap<Component, ComponentId>,
     pub components: Vec<Component>,
