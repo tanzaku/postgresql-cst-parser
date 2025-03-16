@@ -5,7 +5,6 @@ Root@0..318
         toplevel_stmt@0..316
           stmt@0..316
             MergeStmt@0..316
-              opt_with_clause@0..0
               MERGE@0..5 "MERGE"
               Whitespace@5..6 " "
               INTO@6..10 "INTO"
@@ -68,7 +67,6 @@ Root@0..318
                       WHEN@73..77 "WHEN"
                       Whitespace@77..78 " "
                       MATCHED@78..85 "MATCHED"
-                    opt_merge_when_condition@85..85
                     Whitespace@85..86 " "
                     THEN@86..90 "THEN"
                     Whitespace@90..99 "\n        "
@@ -83,7 +81,6 @@ Root@0..318
                             ColId@118..119
                               IDENT@118..119 "p"
                             opt_indirection@119..134
-                              opt_indirection@119..119
                               indirection_el@119..134
                                 Dot@119..120 "."
                                 attr_name@120..134
@@ -126,7 +123,6 @@ Root@0..318
                     NOT@176..179 "NOT"
                     Whitespace@179..180 " "
                     MATCHED@180..187 "MATCHED"
-                  opt_merge_when_condition@187..187
                   Whitespace@187..188 " "
                   THEN@188..192 "THEN"
                   Whitespace@192..201 "\n        "
@@ -142,7 +138,6 @@ Root@0..318
                               ColId@209..210
                                 IDENT@209..210 "p"
                               opt_indirection@210..213
-                                opt_indirection@210..210
                                 indirection_el@210..213
                                   Dot@210..211 "."
                                   attr_name@211..213
@@ -154,7 +149,6 @@ Root@0..318
                             ColId@215..216
                               IDENT@215..216 "p"
                             opt_indirection@216..221
-                              opt_indirection@216..216
                               indirection_el@216..221
                                 Dot@216..217 "."
                                 attr_name@217..221
@@ -167,7 +161,6 @@ Root@0..318
                           ColId@223..224
                             IDENT@223..224 "p"
                           opt_indirection@224..230
-                            opt_indirection@224..224
                             indirection_el@224..230
                               Dot@224..225 "."
                               attr_name@225..230
@@ -179,7 +172,6 @@ Root@0..318
                         ColId@232..233
                           IDENT@232..233 "p"
                         opt_indirection@233..248
-                          opt_indirection@233..233
                           indirection_el@233..248
                             Dot@233..234 "."
                             attr_name@234..248
@@ -246,8 +238,5 @@ Root@0..318
                                     ColLabel@307..315
                                       IDENT@307..315 "quantity"
                       RParen@315..316 ")"
-              returning_clause@316..316
       Semicolon@316..317 ";"
-      toplevel_stmt@317..317
-        stmt@317..317
   Whitespace@317..318 "\n"

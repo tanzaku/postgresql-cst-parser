@@ -22,7 +22,6 @@ Root@0..2119
                                       stmt@68..310
                                         CreateStmt@68..310
                                           CREATE@68..74 "CREATE"
-                                          OptTemp@74..74
                                           Whitespace@74..75 " "
                                           TABLE@75..80 "TABLE"
                                           Whitespace@80..81 " "
@@ -50,17 +49,11 @@ Root@0..2119
                                                                   CharacterWithLength@105..112
                                                                     character@105..109
                                                                       CHAR_P@105..109 "char"
-                                                                      opt_varying@109..109
                                                                     LParen@109..110 "("
                                                                     Iconst@110..111
                                                                       ICONST@110..111 "5"
                                                                     RParen@111..112 ")"
-                                                              opt_array_bounds@112..112
-                                                            opt_column_storage@112..112
-                                                            opt_column_compression@112..112
-                                                            create_generic_options@112..112
                                                             ColQualList@112..144
-                                                              ColQualList@112..112
                                                               Whitespace@112..113 " "
                                                               ColConstraint@113..144
                                                                 CONSTRAINT@113..123 "CONSTRAINT"
@@ -73,8 +66,6 @@ Root@0..2119
                                                                   PRIMARY@133..140 "PRIMARY"
                                                                   Whitespace@140..141 " "
                                                                   KEY@141..144 "KEY"
-                                                                  opt_definition@144..144
-                                                                  OptConsTableSpace@144..144
                                                       Comma@144..145 ","
                                                       Whitespace@145..150 "\n    "
                                                       TableElement@150..182
@@ -92,12 +83,7 @@ Root@0..2119
                                                                   Iconst@170..172
                                                                     ICONST@170..172 "40"
                                                                   RParen@172..173 ")"
-                                                            opt_array_bounds@173..173
-                                                          opt_column_storage@173..173
-                                                          opt_column_compression@173..173
-                                                          create_generic_options@173..173
                                                           ColQualList@173..182
-                                                            ColQualList@173..173
                                                             Whitespace@173..174 " "
                                                             ColConstraint@174..182
                                                               ColConstraintElem@174..182
@@ -115,12 +101,7 @@ Root@0..2119
                                                           SimpleTypename@200..207
                                                             Numeric@200..207
                                                               INTEGER@200..207 "integer"
-                                                          opt_array_bounds@207..207
-                                                        opt_column_storage@207..207
-                                                        opt_column_compression@207..207
-                                                        create_generic_options@207..207
                                                         ColQualList@207..216
-                                                          ColQualList@207..207
                                                           Whitespace@207..208 " "
                                                           ColConstraint@208..216
                                                             ColConstraintElem@208..216
@@ -139,12 +120,6 @@ Root@0..2119
                                                           GenericType@234..238
                                                             type_function_name@234..238
                                                               IDENT@234..238 "date"
-                                                            opt_type_modifiers@238..238
-                                                        opt_array_bounds@238..238
-                                                      opt_column_storage@238..238
-                                                      opt_column_compression@238..238
-                                                      create_generic_options@238..238
-                                                      ColQualList@238..238
                                                 Comma@238..239 ","
                                                 Whitespace@239..244 "\n    "
                                                 TableElement@244..267
@@ -162,11 +137,6 @@ Root@0..2119
                                                             Iconst@264..266
                                                               ICONST@264..266 "10"
                                                             RParen@266..267 ")"
-                                                      opt_array_bounds@267..267
-                                                    opt_column_storage@267..267
-                                                    opt_column_compression@267..267
-                                                    create_generic_options@267..267
-                                                    ColQualList@267..267
                                               Comma@267..268 ","
                                               Whitespace@268..273 "\n    "
                                               TableElement@273..308
@@ -185,26 +155,14 @@ Root@0..2119
                                                         TO@299..301 "to"
                                                         Whitespace@301..302 " "
                                                         MINUTE_P@302..308 "minute"
-                                                    opt_array_bounds@308..308
-                                                  opt_column_storage@308..308
-                                                  opt_column_compression@308..308
-                                                  create_generic_options@308..308
-                                                  ColQualList@308..308
                                           Whitespace@308..309 "\n"
                                           RParen@309..310 ")"
-                                          OptInherit@310..310
-                                          OptPartitionSpec@310..310
-                                          table_access_method_clause@310..310
-                                          OptWith@310..310
-                                          OnCommitOption@310..310
-                                          OptTableSpace@310..310
                                   Semicolon@310..311 ";"
                                   Whitespace@311..312 "\n"
                                   toplevel_stmt@312..452
                                     stmt@312..452
                                       CreateStmt@312..452
                                         CREATE@312..318 "CREATE"
-                                        OptTemp@318..318
                                         Whitespace@318..319 " "
                                         TABLE@319..324 "TABLE"
                                         Whitespace@324..325 " "
@@ -226,21 +184,14 @@ Root@0..2119
                                                     SimpleTypename@352..359
                                                       Numeric@352..359
                                                         INTEGER@352..359 "integer"
-                                                    opt_array_bounds@359..359
-                                                  opt_column_storage@359..359
-                                                  opt_column_compression@359..359
-                                                  create_generic_options@359..359
                                                   ColQualList@359..397
                                                     ColQualList@359..371
-                                                      ColQualList@359..359
                                                       Whitespace@359..360 " "
                                                       ColConstraint@360..371
                                                         ColConstraintElem@360..371
                                                           PRIMARY@360..367 "PRIMARY"
                                                           Whitespace@367..368 " "
                                                           KEY@368..371 "KEY"
-                                                          opt_definition@371..371
-                                                          OptConsTableSpace@371..371
                                                     Whitespace@371..372 " "
                                                     ColConstraint@372..397
                                                       ColConstraintElem@372..397
@@ -261,11 +212,7 @@ Root@0..2119
                                                                         AexprConst@388..396
                                                                           Sconst@388..396
                                                                             SCONST@388..396 "'serial'"
-                                                                opt_sort_clause@396..396
                                                                 RParen@396..397 ")"
-                                                              within_group_clause@397..397
-                                                              filter_clause@397..397
-                                                              over_clause@397..397
                                             Comma@397..398 ","
                                             Whitespace@398..404 "\n     "
                                             TableElement@404..450
@@ -284,13 +231,8 @@ Root@0..2119
                                                         Iconst@419..421
                                                           ICONST@419..421 "40"
                                                         RParen@421..422 ")"
-                                                  opt_array_bounds@422..422
-                                                opt_column_storage@422..422
-                                                opt_column_compression@422..422
-                                                create_generic_options@422..422
                                                 ColQualList@422..450
                                                   ColQualList@422..431
-                                                    ColQualList@422..422
                                                     Whitespace@422..423 " "
                                                     ColConstraint@423..431
                                                       ColConstraintElem@423..431
@@ -319,22 +261,14 @@ Root@0..2119
                                                               Sconst@447..449
                                                                 SCONST@447..449 "''"
                                                       RParen@449..450 ")"
-                                                      opt_no_inherit@450..450
                                         Whitespace@450..451 "\n"
                                         RParen@451..452 ")"
-                                        OptInherit@452..452
-                                        OptPartitionSpec@452..452
-                                        table_access_method_clause@452..452
-                                        OptWith@452..452
-                                        OnCommitOption@452..452
-                                        OptTableSpace@452..452
                                 Semicolon@452..453 ";"
                                 Whitespace@453..454 "\n"
                                 toplevel_stmt@454..500
                                   stmt@454..500
                                     CreateStmt@454..500
                                       CREATE@454..460 "CREATE"
-                                      OptTemp@460..460
                                       Whitespace@460..461 " "
                                       TABLE@461..466 "TABLE"
                                       Whitespace@466..467 " "
@@ -357,30 +291,18 @@ Root@0..2119
                                                     INT_P@491..494 "int"
                                                 opt_array_bounds@494..498
                                                   opt_array_bounds@494..496
-                                                    opt_array_bounds@494..494
                                                     LBracket@494..495 "["
                                                     RBracket@495..496 "]"
                                                   LBracket@496..497 "["
                                                   RBracket@497..498 "]"
-                                              opt_column_storage@498..498
-                                              opt_column_compression@498..498
-                                              create_generic_options@498..498
-                                              ColQualList@498..498
                                       Whitespace@498..499 "\n"
                                       RParen@499..500 ")"
-                                      OptInherit@500..500
-                                      OptPartitionSpec@500..500
-                                      table_access_method_clause@500..500
-                                      OptWith@500..500
-                                      OnCommitOption@500..500
-                                      OptTableSpace@500..500
                               Semicolon@500..501 ";"
                               Whitespace@501..502 "\n"
                               toplevel_stmt@502..739
                                 stmt@502..739
                                   CreateStmt@502..739
                                     CREATE@502..508 "CREATE"
-                                    OptTemp@508..508
                                     Whitespace@508..509 " "
                                     TABLE@509..514 "TABLE"
                                     Whitespace@514..515 " "
@@ -409,16 +331,10 @@ Root@0..2119
                                                               CharacterWithLength@539..546
                                                                 character@539..543
                                                                   CHAR_P@539..543 "char"
-                                                                  opt_varying@543..543
                                                                 LParen@543..544 "("
                                                                 Iconst@544..545
                                                                   ICONST@544..545 "5"
                                                                 RParen@545..546 ")"
-                                                          opt_array_bounds@546..546
-                                                        opt_column_storage@546..546
-                                                        opt_column_compression@546..546
-                                                        create_generic_options@546..546
-                                                        ColQualList@546..546
                                                   Comma@546..547 ","
                                                   Whitespace@547..552 "\n    "
                                                   TableElement@552..575
@@ -436,11 +352,6 @@ Root@0..2119
                                                               Iconst@572..574
                                                                 ICONST@572..574 "40"
                                                               RParen@574..575 ")"
-                                                        opt_array_bounds@575..575
-                                                      opt_column_storage@575..575
-                                                      opt_column_compression@575..575
-                                                      create_generic_options@575..575
-                                                      ColQualList@575..575
                                                 Comma@575..576 ","
                                                 Whitespace@576..581 "\n    "
                                                 TableElement@581..600
@@ -452,11 +363,6 @@ Root@0..2119
                                                       SimpleTypename@593..600
                                                         Numeric@593..600
                                                           INTEGER@593..600 "integer"
-                                                      opt_array_bounds@600..600
-                                                    opt_column_storage@600..600
-                                                    opt_column_compression@600..600
-                                                    create_generic_options@600..600
-                                                    ColQualList@600..600
                                               Comma@600..601 ","
                                               Whitespace@601..606 "\n    "
                                               TableElement@606..622
@@ -469,12 +375,6 @@ Root@0..2119
                                                       GenericType@618..622
                                                         type_function_name@618..622
                                                           IDENT@618..622 "date"
-                                                        opt_type_modifiers@622..622
-                                                    opt_array_bounds@622..622
-                                                  opt_column_storage@622..622
-                                                  opt_column_compression@622..622
-                                                  create_generic_options@622..622
-                                                  ColQualList@622..622
                                             Comma@622..623 ","
                                             Whitespace@623..628 "\n    "
                                             TableElement@628..651
@@ -492,11 +392,6 @@ Root@0..2119
                                                         Iconst@648..650
                                                           ICONST@648..650 "10"
                                                         RParen@650..651 ")"
-                                                  opt_array_bounds@651..651
-                                                opt_column_storage@651..651
-                                                opt_column_compression@651..651
-                                                create_generic_options@651..651
-                                                ColQualList@651..651
                                           Comma@651..652 ","
                                           Whitespace@652..657 "\n    "
                                           TableElement@657..692
@@ -515,11 +410,6 @@ Root@0..2119
                                                     TO@683..685 "to"
                                                     Whitespace@685..686 " "
                                                     MINUTE_P@686..692 "minute"
-                                                opt_array_bounds@692..692
-                                              opt_column_storage@692..692
-                                              opt_column_compression@692..692
-                                              create_generic_options@692..692
-                                              ColQualList@692..692
                                         Comma@692..693 ","
                                         Whitespace@693..698 "\n    "
                                         TableElement@698..737
@@ -532,32 +422,20 @@ Root@0..2119
                                             Whitespace@719..720 " "
                                             ConstraintElem@720..737
                                               UNIQUE@720..726 "UNIQUE"
-                                              opt_unique_null_treatment@726..726
                                               LParen@726..727 "("
                                               columnList@727..736
                                                 columnElem@727..736
                                                   ColId@727..736
                                                     IDENT@727..736 "date_prod"
                                               RParen@736..737 ")"
-                                              opt_c_include@737..737
-                                              opt_definition@737..737
-                                              OptConsTableSpace@737..737
-                                              ConstraintAttributeSpec@737..737
                                     Whitespace@737..738 "\n"
                                     RParen@738..739 ")"
-                                    OptInherit@739..739
-                                    OptPartitionSpec@739..739
-                                    table_access_method_clause@739..739
-                                    OptWith@739..739
-                                    OnCommitOption@739..739
-                                    OptTableSpace@739..739
                             Semicolon@739..740 ";"
                             Whitespace@740..741 "\n"
                             toplevel_stmt@741..833
                               stmt@741..833
                                 CreateStmt@741..833
                                   CREATE@741..747 "CREATE"
-                                  OptTemp@747..747
                                   Whitespace@747..748 " "
                                   TABLE@748..753 "TABLE"
                                   Whitespace@753..754 " "
@@ -579,12 +457,7 @@ Root@0..2119
                                               SimpleTypename@781..788
                                                 Numeric@781..788
                                                   INTEGER@781..788 "integer"
-                                              opt_array_bounds@788..788
-                                            opt_column_storage@788..788
-                                            opt_column_compression@788..788
-                                            create_generic_options@788..788
                                             ColQualList@788..806
-                                              ColQualList@788..788
                                               Whitespace@788..789 " "
                                               ColConstraint@789..806
                                                 ColConstraintElem@789..806
@@ -606,7 +479,6 @@ Root@0..2119
                                                           Iconst@802..805
                                                             ICONST@802..805 "100"
                                                   RParen@805..806 ")"
-                                                  opt_no_inherit@806..806
                                       Comma@806..807 ","
                                       Whitespace@807..812 "\n    "
                                       TableElement@812..831
@@ -625,26 +497,14 @@ Root@0..2119
                                                   Iconst@828..830
                                                     ICONST@828..830 "40"
                                                   RParen@830..831 ")"
-                                            opt_array_bounds@831..831
-                                          opt_column_storage@831..831
-                                          opt_column_compression@831..831
-                                          create_generic_options@831..831
-                                          ColQualList@831..831
                                   Whitespace@831..832 "\n"
                                   RParen@832..833 ")"
-                                  OptInherit@833..833
-                                  OptPartitionSpec@833..833
-                                  table_access_method_clause@833..833
-                                  OptWith@833..833
-                                  OnCommitOption@833..833
-                                  OptTableSpace@833..833
                           Semicolon@833..834 ";"
                           Whitespace@834..835 "\n"
                           toplevel_stmt@835..962
                             stmt@835..962
                               CreateStmt@835..962
                                 CREATE@835..841 "CREATE"
-                                OptTemp@841..841
                                 Whitespace@841..842 " "
                                 TABLE@842..847 "TABLE"
                                 Whitespace@847..848 " "
@@ -666,11 +526,6 @@ Root@0..2119
                                             SimpleTypename@875..882
                                               Numeric@875..882
                                                 INTEGER@875..882 "integer"
-                                            opt_array_bounds@882..882
-                                          opt_column_storage@882..882
-                                          opt_column_compression@882..882
-                                          create_generic_options@882..882
-                                          ColQualList@882..882
                                     Comma@882..883 ","
                                     Whitespace@883..888 "\n    "
                                     TableElement@888..960
@@ -689,12 +544,7 @@ Root@0..2119
                                                 Iconst@904..906
                                                   ICONST@904..906 "40"
                                                 RParen@906..907 ")"
-                                          opt_array_bounds@907..907
-                                        opt_column_storage@907..907
-                                        opt_column_compression@907..907
-                                        create_generic_options@907..907
                                         ColQualList@907..960
-                                          ColQualList@907..907
                                           Whitespace@907..912 "\n    "
                                           ColConstraint@912..960
                                             CONSTRAINT@912..922 "CONSTRAINT"
@@ -741,22 +591,14 @@ Root@0..2119
                                                         Sconst@957..959
                                                           SCONST@957..959 "''"
                                               RParen@959..960 ")"
-                                              opt_no_inherit@960..960
                                 Whitespace@960..961 "\n"
                                 RParen@961..962 ")"
-                                OptInherit@962..962
-                                OptPartitionSpec@962..962
-                                table_access_method_clause@962..962
-                                OptWith@962..962
-                                OnCommitOption@962..962
-                                OptTableSpace@962..962
                         Semicolon@962..963 ";"
                         Whitespace@963..964 "\n"
                         toplevel_stmt@964..1207
                           stmt@964..1207
                             CreateStmt@964..1207
                               CREATE@964..970 "CREATE"
-                              OptTemp@970..970
                               Whitespace@970..971 " "
                               TABLE@971..976 "TABLE"
                               Whitespace@976..977 " "
@@ -785,16 +627,10 @@ Root@0..2119
                                                         CharacterWithLength@1001..1008
                                                           character@1001..1005
                                                             CHAR_P@1001..1005 "char"
-                                                            opt_varying@1005..1005
                                                           LParen@1005..1006 "("
                                                           Iconst@1006..1007
                                                             ICONST@1006..1007 "5"
                                                           RParen@1007..1008 ")"
-                                                    opt_array_bounds@1008..1008
-                                                  opt_column_storage@1008..1008
-                                                  opt_column_compression@1008..1008
-                                                  create_generic_options@1008..1008
-                                                  ColQualList@1008..1008
                                             Comma@1008..1009 ","
                                             Whitespace@1009..1014 "\n    "
                                             TableElement@1014..1037
@@ -812,11 +648,6 @@ Root@0..2119
                                                         Iconst@1034..1036
                                                           ICONST@1034..1036 "40"
                                                         RParen@1036..1037 ")"
-                                                  opt_array_bounds@1037..1037
-                                                opt_column_storage@1037..1037
-                                                opt_column_compression@1037..1037
-                                                create_generic_options@1037..1037
-                                                ColQualList@1037..1037
                                           Comma@1037..1038 ","
                                           Whitespace@1038..1043 "\n    "
                                           TableElement@1043..1062
@@ -828,11 +659,6 @@ Root@0..2119
                                                 SimpleTypename@1055..1062
                                                   Numeric@1055..1062
                                                     INTEGER@1055..1062 "integer"
-                                                opt_array_bounds@1062..1062
-                                              opt_column_storage@1062..1062
-                                              opt_column_compression@1062..1062
-                                              create_generic_options@1062..1062
-                                              ColQualList@1062..1062
                                         Comma@1062..1063 ","
                                         Whitespace@1063..1068 "\n    "
                                         TableElement@1068..1084
@@ -845,12 +671,6 @@ Root@0..2119
                                                 GenericType@1080..1084
                                                   type_function_name@1080..1084
                                                     IDENT@1080..1084 "date"
-                                                  opt_type_modifiers@1084..1084
-                                              opt_array_bounds@1084..1084
-                                            opt_column_storage@1084..1084
-                                            opt_column_compression@1084..1084
-                                            create_generic_options@1084..1084
-                                            ColQualList@1084..1084
                                       Comma@1084..1085 ","
                                       Whitespace@1085..1090 "\n    "
                                       TableElement@1090..1113
@@ -868,11 +688,6 @@ Root@0..2119
                                                   Iconst@1110..1112
                                                     ICONST@1110..1112 "10"
                                                   RParen@1112..1113 ")"
-                                            opt_array_bounds@1113..1113
-                                          opt_column_storage@1113..1113
-                                          opt_column_compression@1113..1113
-                                          create_generic_options@1113..1113
-                                          ColQualList@1113..1113
                                     Comma@1113..1114 ","
                                     Whitespace@1114..1119 "\n    "
                                     TableElement@1119..1154
@@ -891,11 +706,6 @@ Root@0..2119
                                               TO@1145..1147 "to"
                                               Whitespace@1147..1148 " "
                                               MINUTE_P@1148..1154 "minute"
-                                          opt_array_bounds@1154..1154
-                                        opt_column_storage@1154..1154
-                                        opt_column_compression@1154..1154
-                                        create_generic_options@1154..1154
-                                        ColQualList@1154..1154
                                   Comma@1154..1155 ","
                                   Whitespace@1155..1160 "\n    "
                                   TableElement@1160..1205
@@ -921,25 +731,14 @@ Root@0..2119
                                             ColId@1199..1204
                                               IDENT@1199..1204 "title"
                                         RParen@1204..1205 ")"
-                                        opt_c_include@1205..1205
-                                        opt_definition@1205..1205
-                                        OptConsTableSpace@1205..1205
-                                        ConstraintAttributeSpec@1205..1205
                               Whitespace@1205..1206 "\n"
                               RParen@1206..1207 ")"
-                              OptInherit@1207..1207
-                              OptPartitionSpec@1207..1207
-                              table_access_method_clause@1207..1207
-                              OptWith@1207..1207
-                              OnCommitOption@1207..1207
-                              OptTableSpace@1207..1207
                       Semicolon@1207..1208 ";"
                       Whitespace@1208..1209 "\n"
                       toplevel_stmt@1209..1305
                         stmt@1209..1305
                           CreateStmt@1209..1305
                             CREATE@1209..1215 "CREATE"
-                            OptTemp@1215..1215
                             Whitespace@1215..1216 " "
                             TABLE@1216..1221 "TABLE"
                             Whitespace@1221..1222 " "
@@ -962,11 +761,6 @@ Root@0..2119
                                           SimpleTypename@1249..1256
                                             Numeric@1249..1256
                                               INTEGER@1249..1256 "integer"
-                                          opt_array_bounds@1256..1256
-                                        opt_column_storage@1256..1256
-                                        opt_column_compression@1256..1256
-                                        create_generic_options@1256..1256
-                                        ColQualList@1256..1256
                                   Comma@1256..1257 ","
                                   Whitespace@1257..1262 "\n    "
                                   TableElement@1262..1281
@@ -985,11 +779,6 @@ Root@0..2119
                                               Iconst@1278..1280
                                                 ICONST@1278..1280 "40"
                                               RParen@1280..1281 ")"
-                                        opt_array_bounds@1281..1281
-                                      opt_column_storage@1281..1281
-                                      opt_column_compression@1281..1281
-                                      create_generic_options@1281..1281
-                                      ColQualList@1281..1281
                                 Comma@1281..1282 ","
                                 Whitespace@1282..1287 "\n    "
                                 TableElement@1287..1303
@@ -1004,25 +793,14 @@ Root@0..2119
                                           ColId@1299..1302
                                             IDENT@1299..1302 "did"
                                       RParen@1302..1303 ")"
-                                      opt_c_include@1303..1303
-                                      opt_definition@1303..1303
-                                      OptConsTableSpace@1303..1303
-                                      ConstraintAttributeSpec@1303..1303
                             Whitespace@1303..1304 "\n"
                             RParen@1304..1305 ")"
-                            OptInherit@1305..1305
-                            OptPartitionSpec@1305..1305
-                            table_access_method_clause@1305..1305
-                            OptWith@1305..1305
-                            OnCommitOption@1305..1305
-                            OptTableSpace@1305..1305
                     Semicolon@1305..1306 ";"
                     Whitespace@1306..1308 " \n"
                     toplevel_stmt@1308..1394
                       stmt@1308..1394
                         CreateStmt@1308..1394
                           CREATE@1308..1314 "CREATE"
-                          OptTemp@1314..1314
                           Whitespace@1314..1315 " "
                           TABLE@1315..1320 "TABLE"
                           Whitespace@1320..1321 " "
@@ -1044,20 +822,13 @@ Root@0..2119
                                       SimpleTypename@1348..1355
                                         Numeric@1348..1355
                                           INTEGER@1348..1355 "integer"
-                                      opt_array_bounds@1355..1355
-                                    opt_column_storage@1355..1355
-                                    opt_column_compression@1355..1355
-                                    create_generic_options@1355..1355
                                     ColQualList@1355..1367
-                                      ColQualList@1355..1355
                                       Whitespace@1355..1356 " "
                                       ColConstraint@1356..1367
                                         ColConstraintElem@1356..1367
                                           PRIMARY@1356..1363 "PRIMARY"
                                           Whitespace@1363..1364 " "
                                           KEY@1364..1367 "KEY"
-                                          opt_definition@1367..1367
-                                          OptConsTableSpace@1367..1367
                               Comma@1367..1368 ","
                               Whitespace@1368..1373 "\n    "
                               TableElement@1373..1392
@@ -1076,26 +847,14 @@ Root@0..2119
                                           Iconst@1389..1391
                                             ICONST@1389..1391 "40"
                                           RParen@1391..1392 ")"
-                                    opt_array_bounds@1392..1392
-                                  opt_column_storage@1392..1392
-                                  opt_column_compression@1392..1392
-                                  create_generic_options@1392..1392
-                                  ColQualList@1392..1392
                           Whitespace@1392..1393 "\n"
                           RParen@1393..1394 ")"
-                          OptInherit@1394..1394
-                          OptPartitionSpec@1394..1394
-                          table_access_method_clause@1394..1394
-                          OptWith@1394..1394
-                          OnCommitOption@1394..1394
-                          OptTableSpace@1394..1394
                   Semicolon@1394..1395 ";"
                   Whitespace@1395..1396 "\n"
                   toplevel_stmt@1396..1585
                     stmt@1396..1585
                       CreateStmt@1396..1585
                         CREATE@1396..1402 "CREATE"
-                        OptTemp@1402..1402
                         Whitespace@1402..1403 " "
                         TABLE@1403..1408 "TABLE"
                         Whitespace@1408..1409 " "
@@ -1125,12 +884,7 @@ Root@0..2119
                                             Iconst@1446..1448
                                               ICONST@1446..1448 "40"
                                             RParen@1448..1449 ")"
-                                      opt_array_bounds@1449..1449
-                                    opt_column_storage@1449..1449
-                                    opt_column_compression@1449..1449
-                                    create_generic_options@1449..1449
                                     ColQualList@1449..1470
-                                      ColQualList@1449..1449
                                       Whitespace@1449..1450 " "
                                       ColConstraint@1450..1470
                                         ColConstraintElem@1450..1470
@@ -1152,12 +906,7 @@ Root@0..2119
                                     SimpleTypename@1486..1493
                                       Numeric@1486..1493
                                         INTEGER@1486..1493 "integer"
-                                    opt_array_bounds@1493..1493
-                                  opt_column_storage@1493..1493
-                                  opt_column_compression@1493..1493
-                                  create_generic_options@1493..1493
                                   ColQualList@1493..1532
-                                    ColQualList@1493..1493
                                     Whitespace@1493..1494 " "
                                     ColConstraint@1494..1532
                                       ColConstraintElem@1494..1532
@@ -1178,11 +927,7 @@ Root@0..2119
                                                         AexprConst@1510..1531
                                                           Sconst@1510..1531
                                                             SCONST@1510..1531 "'distributors_serial'"
-                                                opt_sort_clause@1531..1531
                                                 RParen@1531..1532 ")"
-                                              within_group_clause@1532..1532
-                                              filter_clause@1532..1532
-                                              over_clause@1532..1532
                             Comma@1532..1533 ","
                             Whitespace@1533..1538 "\n    "
                             TableElement@1538..1583
@@ -1194,13 +939,7 @@ Root@0..2119
                                   SimpleTypename@1548..1557
                                     ConstDatetime@1548..1557
                                       TIMESTAMP@1548..1557 "timestamp"
-                                      opt_timezone@1557..1557
-                                  opt_array_bounds@1557..1557
-                                opt_column_storage@1557..1557
-                                opt_column_compression@1557..1557
-                                create_generic_options@1557..1557
                                 ColQualList@1557..1583
-                                  ColQualList@1557..1557
                                   Whitespace@1557..1558 " "
                                   ColConstraint@1558..1583
                                     ColConstraintElem@1558..1583
@@ -1213,19 +952,12 @@ Root@0..2119
                                               CURRENT_TIMESTAMP@1566..1583 "current_timestamp"
                         Whitespace@1583..1584 "\n"
                         RParen@1584..1585 ")"
-                        OptInherit@1585..1585
-                        OptPartitionSpec@1585..1585
-                        table_access_method_clause@1585..1585
-                        OptWith@1585..1585
-                        OnCommitOption@1585..1585
-                        OptTableSpace@1585..1585
                 Semicolon@1585..1586 ";"
                 Whitespace@1586..1587 "\n"
                 toplevel_stmt@1587..1698
                   stmt@1587..1698
                     CreateStmt@1587..1698
                       CREATE@1587..1593 "CREATE"
-                      OptTemp@1593..1593
                       Whitespace@1593..1594 " "
                       TABLE@1594..1599 "TABLE"
                       Whitespace@1599..1600 " "
@@ -1247,12 +979,7 @@ Root@0..2119
                                   SimpleTypename@1627..1634
                                     Numeric@1627..1634
                                       INTEGER@1627..1634 "integer"
-                                  opt_array_bounds@1634..1634
-                                opt_column_storage@1634..1634
-                                opt_column_compression@1634..1634
-                                create_generic_options@1634..1634
                                 ColQualList@1634..1662
-                                  ColQualList@1634..1634
                                   Whitespace@1634..1635 " "
                                   ColConstraint@1635..1662
                                     CONSTRAINT@1635..1645 "CONSTRAINT"
@@ -1283,12 +1010,7 @@ Root@0..2119
                                       Iconst@1684..1686
                                         ICONST@1684..1686 "40"
                                       RParen@1686..1687 ")"
-                                opt_array_bounds@1687..1687
-                              opt_column_storage@1687..1687
-                              opt_column_compression@1687..1687
-                              create_generic_options@1687..1687
                               ColQualList@1687..1696
-                                ColQualList@1687..1687
                                 Whitespace@1687..1688 " "
                                 ColConstraint@1688..1696
                                   ColConstraintElem@1688..1696
@@ -1297,19 +1019,12 @@ Root@0..2119
                                     NULL_P@1692..1696 "NULL"
                       Whitespace@1696..1697 "\n"
                       RParen@1697..1698 ")"
-                      OptInherit@1698..1698
-                      OptPartitionSpec@1698..1698
-                      table_access_method_clause@1698..1698
-                      OptWith@1698..1698
-                      OnCommitOption@1698..1698
-                      OptTableSpace@1698..1698
               Semicolon@1698..1699 ";"
               Whitespace@1699..1700 "\n"
               toplevel_stmt@1700..1781
                 stmt@1700..1781
                   CreateStmt@1700..1781
                     CREATE@1700..1706 "CREATE"
-                    OptTemp@1706..1706
                     Whitespace@1706..1707 " "
                     TABLE@1707..1712 "TABLE"
                     Whitespace@1712..1713 " "
@@ -1331,11 +1046,6 @@ Root@0..2119
                                 SimpleTypename@1740..1747
                                   Numeric@1740..1747
                                     INTEGER@1740..1747 "integer"
-                                opt_array_bounds@1747..1747
-                              opt_column_storage@1747..1747
-                              opt_column_compression@1747..1747
-                              create_generic_options@1747..1747
-                              ColQualList@1747..1747
                         Comma@1747..1748 ","
                         Whitespace@1748..1753 "\n    "
                         TableElement@1753..1779
@@ -1354,34 +1064,19 @@ Root@0..2119
                                     Iconst@1769..1771
                                       ICONST@1769..1771 "40"
                                     RParen@1771..1772 ")"
-                              opt_array_bounds@1772..1772
-                            opt_column_storage@1772..1772
-                            opt_column_compression@1772..1772
-                            create_generic_options@1772..1772
                             ColQualList@1772..1779
-                              ColQualList@1772..1772
                               Whitespace@1772..1773 " "
                               ColConstraint@1773..1779
                                 ColConstraintElem@1773..1779
                                   UNIQUE@1773..1779 "UNIQUE"
-                                  opt_unique_null_treatment@1779..1779
-                                  opt_definition@1779..1779
-                                  OptConsTableSpace@1779..1779
                     Whitespace@1779..1780 "\n"
                     RParen@1780..1781 ")"
-                    OptInherit@1781..1781
-                    OptPartitionSpec@1781..1781
-                    table_access_method_clause@1781..1781
-                    OptWith@1781..1781
-                    OnCommitOption@1781..1781
-                    OptTableSpace@1781..1781
             Semicolon@1781..1782 ";"
             Whitespace@1782..1783 "\n"
             toplevel_stmt@1783..1875
               stmt@1783..1875
                 CreateStmt@1783..1875
                   CREATE@1783..1789 "CREATE"
-                  OptTemp@1789..1789
                   Whitespace@1789..1790 " "
                   TABLE@1790..1795 "TABLE"
                   Whitespace@1795..1796 " "
@@ -1404,11 +1099,6 @@ Root@0..2119
                                 SimpleTypename@1823..1830
                                   Numeric@1823..1830
                                     INTEGER@1823..1830 "integer"
-                                opt_array_bounds@1830..1830
-                              opt_column_storage@1830..1830
-                              opt_column_compression@1830..1830
-                              create_generic_options@1830..1830
-                              ColQualList@1830..1830
                         Comma@1830..1831 ","
                         Whitespace@1831..1836 "\n    "
                         TableElement@1836..1855
@@ -1427,18 +1117,12 @@ Root@0..2119
                                     Iconst@1852..1854
                                       ICONST@1852..1854 "40"
                                     RParen@1854..1855 ")"
-                              opt_array_bounds@1855..1855
-                            opt_column_storage@1855..1855
-                            opt_column_compression@1855..1855
-                            create_generic_options@1855..1855
-                            ColQualList@1855..1855
                       Comma@1855..1856 ","
                       Whitespace@1856..1861 "\n    "
                       TableElement@1861..1873
                         TableConstraint@1861..1873
                           ConstraintElem@1861..1873
                             UNIQUE@1861..1867 "UNIQUE"
-                            opt_unique_null_treatment@1867..1867
                             LParen@1867..1868 "("
                             columnList@1868..1872
                               columnElem@1868..1872
@@ -1446,25 +1130,14 @@ Root@0..2119
                                   unreserved_keyword@1868..1872
                                     NAME_P@1868..1872 "name"
                             RParen@1872..1873 ")"
-                            opt_c_include@1873..1873
-                            opt_definition@1873..1873
-                            OptConsTableSpace@1873..1873
-                            ConstraintAttributeSpec@1873..1873
                   Whitespace@1873..1874 "\n"
                   RParen@1874..1875 ")"
-                  OptInherit@1875..1875
-                  OptPartitionSpec@1875..1875
-                  table_access_method_clause@1875..1875
-                  OptWith@1875..1875
-                  OnCommitOption@1875..1875
-                  OptTableSpace@1875..1875
           Semicolon@1875..1876 ";"
           Whitespace@1876..1877 "\n"
           toplevel_stmt@1877..2011
             stmt@1877..2011
               CreateStmt@1877..2011
                 CREATE@1877..1883 "CREATE"
-                OptTemp@1883..1883
                 Whitespace@1883..1884 " "
                 TABLE@1884..1889 "TABLE"
                 Whitespace@1889..1890 " "
@@ -1487,11 +1160,6 @@ Root@0..2119
                               SimpleTypename@1917..1924
                                 Numeric@1917..1924
                                   INTEGER@1917..1924 "integer"
-                              opt_array_bounds@1924..1924
-                            opt_column_storage@1924..1924
-                            opt_column_compression@1924..1924
-                            create_generic_options@1924..1924
-                            ColQualList@1924..1924
                       Comma@1924..1925 ","
                       Whitespace@1925..1930 "\n    "
                       TableElement@1930..1949
@@ -1510,18 +1178,12 @@ Root@0..2119
                                   Iconst@1946..1948
                                     ICONST@1946..1948 "40"
                                   RParen@1948..1949 ")"
-                            opt_array_bounds@1949..1949
-                          opt_column_storage@1949..1949
-                          opt_column_compression@1949..1949
-                          create_generic_options@1949..1949
-                          ColQualList@1949..1949
                     Comma@1949..1950 ","
                     Whitespace@1950..1955 "\n    "
                     TableElement@1955..1988
                       TableConstraint@1955..1988
                         ConstraintElem@1955..1988
                           UNIQUE@1955..1961 "UNIQUE"
-                          opt_unique_null_treatment@1961..1961
                           LParen@1961..1962 "("
                           columnList@1962..1966
                             columnElem@1962..1966
@@ -1529,7 +1191,6 @@ Root@0..2119
                                 unreserved_keyword@1962..1966
                                   NAME_P@1962..1966 "name"
                           RParen@1966..1967 ")"
-                          opt_c_include@1967..1967
                           Whitespace@1967..1968 " "
                           opt_definition@1968..1988
                             WITH@1968..1972 "WITH"
@@ -1547,13 +1208,8 @@ Root@0..2119
                                         Iconst@1985..1987
                                           ICONST@1985..1987 "70"
                               RParen@1987..1988 ")"
-                          OptConsTableSpace@1988..1988
-                          ConstraintAttributeSpec@1988..1988
                 Whitespace@1988..1989 "\n"
                 RParen@1989..1990 ")"
-                OptInherit@1990..1990
-                OptPartitionSpec@1990..1990
-                table_access_method_clause@1990..1990
                 Whitespace@1990..1991 "\n"
                 OptWith@1991..2011
                   WITH@1991..1995 "WITH"
@@ -1571,15 +1227,12 @@ Root@0..2119
                               Iconst@2008..2010
                                 ICONST@2008..2010 "70"
                     RParen@2010..2011 ")"
-                OnCommitOption@2011..2011
-                OptTableSpace@2011..2011
         Semicolon@2011..2012 ";"
         Whitespace@2012..2013 "\n"
         toplevel_stmt@2013..2117
           stmt@2013..2117
             CreateStmt@2013..2117
               CREATE@2013..2019 "CREATE"
-              OptTemp@2019..2019
               Whitespace@2019..2020 " "
               TABLE@2020..2025 "TABLE"
               Whitespace@2025..2026 " "
@@ -1603,12 +1256,6 @@ Root@0..2119
                               GenericType@2047..2053
                                 type_function_name@2047..2053
                                   IDENT@2047..2053 "serial"
-                                opt_type_modifiers@2053..2053
-                            opt_array_bounds@2053..2053
-                          opt_column_storage@2053..2053
-                          opt_column_compression@2053..2053
-                          create_generic_options@2053..2053
-                          ColQualList@2053..2053
                     Comma@2053..2054 ","
                     Whitespace@2054..2063 "\n        "
                     TableElement@2063..2072
@@ -1623,12 +1270,6 @@ Root@0..2119
                               type_function_name@2068..2072
                                 unreserved_keyword@2068..2072
                                   TEXT_P@2068..2072 "text"
-                              opt_type_modifiers@2072..2072
-                          opt_array_bounds@2072..2072
-                        opt_column_storage@2072..2072
-                        opt_column_compression@2072..2072
-                        create_generic_options@2072..2072
-                        ColQualList@2072..2072
                   Comma@2072..2073 ","
                   Whitespace@2073..2082 "\n        "
                   TableElement@2082..2095
@@ -1643,19 +1284,8 @@ Root@0..2119
                             type_function_name@2091..2095
                               unreserved_keyword@2091..2095
                                 TEXT_P@2091..2095 "text"
-                            opt_type_modifiers@2095..2095
-                        opt_array_bounds@2095..2095
-                      opt_column_storage@2095..2095
-                      opt_column_compression@2095..2095
-                      create_generic_options@2095..2095
-                      ColQualList@2095..2095
               Whitespace@2095..2096 "\n"
               RParen@2096..2097 ")"
-              OptInherit@2097..2097
-              OptPartitionSpec@2097..2097
-              table_access_method_clause@2097..2097
-              OptWith@2097..2097
-              OnCommitOption@2097..2097
               Whitespace@2097..2098 " "
               OptTableSpace@2098..2117
                 TABLESPACE@2098..2108 "TABLESPACE"
@@ -1664,6 +1294,4 @@ Root@0..2119
                   ColId@2109..2117
                     IDENT@2109..2117 "diskvol1"
       Semicolon@2117..2118 ";"
-      toplevel_stmt@2118..2118
-        stmt@2118..2118
   Whitespace@2118..2119 "\n"

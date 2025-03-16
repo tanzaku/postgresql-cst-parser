@@ -57,6 +57,12 @@ impl Parser {
         node: &Node,
         peekable: &mut std::iter::Peekable<std::vec::IntoIter<(SyntaxKind, usize, usize, &str)>>,
     ) {
+        if cfg!(feature = "remove-empty-node") {
+            if node.start_byte_pos == node.end_byte_pos {
+                return;
+            }
+        }
+
         while let Some((kind, start, _, text)) = peekable.peek() {
             // TODO: Consider whether the presence or absence of an equals sign changes the position of comments. Determine which option is preferable
             if *start >= node.start_byte_pos {

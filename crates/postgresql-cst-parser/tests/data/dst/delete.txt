@@ -12,7 +12,6 @@ Root@0..479
                     toplevel_stmt@53..149
                       stmt@53..149
                         DeleteStmt@53..149
-                          opt_with_clause@53..53
                           Whitespace@53..54 "\n"
                           DELETE_P@54..60 "DELETE"
                           Whitespace@60..61 " "
@@ -33,7 +32,6 @@ Root@0..479
                                   qualified_name@78..87
                                     ColId@78..87
                                       IDENT@78..87 "producers"
-                                opt_alias_clause@87..87
                           Whitespace@87..90 "\n  "
                           where_or_current_clause@90..149
                             WHERE@90..95 "WHERE"
@@ -83,12 +81,10 @@ Root@0..479
                                     AexprConst@144..149
                                       Sconst@144..149
                                         SCONST@144..149 "'foo'"
-                          returning_clause@149..149
                   Semicolon@149..150 ";"
                   toplevel_stmt@150..237
                     stmt@150..237
                       DeleteStmt@150..237
-                        opt_with_clause@150..150
                         Whitespace@150..151 "\n"
                         DELETE_P@151..157 "DELETE"
                         Whitespace@157..158 " "
@@ -99,7 +95,6 @@ Root@0..479
                             qualified_name@163..168
                               ColId@163..168
                                 IDENT@163..168 "films"
-                        using_clause@168..168
                         Whitespace@168..171 "\n  "
                         where_or_current_clause@171..237
                           WHERE@171..176 "WHERE"
@@ -119,7 +114,6 @@ Root@0..479
                                 select_no_parens@193..236
                                   simple_select@193..236
                                     SELECT@193..199 "SELECT"
-                                    opt_all_clause@199..199
                                     Whitespace@199..200 " "
                                     opt_target_list@200..202
                                       target_list@200..202
@@ -129,7 +123,6 @@ Root@0..479
                                               columnref@200..202
                                                 ColId@200..202
                                                   IDENT@200..202 "id"
-                                    into_clause@202..202
                                     Whitespace@202..203 " "
                                     from_clause@203..217
                                       FROM@203..207 "FROM"
@@ -140,7 +133,6 @@ Root@0..479
                                             qualified_name@208..217
                                               ColId@208..217
                                                 IDENT@208..217 "producers"
-                                          opt_alias_clause@217..217
                                     Whitespace@217..218 " "
                                     where_clause@218..236
                                       WHERE@218..223 "WHERE"
@@ -160,16 +152,11 @@ Root@0..479
                                             AexprConst@231..236
                                               Sconst@231..236
                                                 SCONST@231..236 "'foo'"
-                                    group_clause@236..236
-                                    having_clause@236..236
-                                    window_clause@236..236
                                 RParen@236..237 ")"
-                        returning_clause@237..237
                 Semicolon@237..238 ";"
                 toplevel_stmt@238..280
                   stmt@238..280
                     DeleteStmt@238..280
-                      opt_with_clause@238..238
                       Whitespace@238..239 "\n"
                       DELETE_P@239..245 "DELETE"
                       Whitespace@245..246 " "
@@ -180,7 +167,6 @@ Root@0..479
                           qualified_name@251..256
                             ColId@251..256
                               IDENT@251..256 "films"
-                      using_clause@256..256
                       Whitespace@256..257 " "
                       where_or_current_clause@257..280
                         WHERE@257..262 "WHERE"
@@ -199,12 +185,10 @@ Root@0..479
                               AexprConst@271..280
                                 Sconst@271..280
                                   SCONST@271..280 "'Musical'"
-                      returning_clause@280..280
               Semicolon@280..281 ";"
               toplevel_stmt@281..299
                 stmt@281..299
                   DeleteStmt@281..299
-                    opt_with_clause@281..281
                     Whitespace@281..282 "\n"
                     DELETE_P@282..288 "DELETE"
                     Whitespace@288..289 " "
@@ -215,14 +199,10 @@ Root@0..479
                         qualified_name@294..299
                           ColId@294..299
                             IDENT@294..299 "films"
-                    using_clause@299..299
-                    where_or_current_clause@299..299
-                    returning_clause@299..299
             Semicolon@299..300 ";"
             toplevel_stmt@300..352
               stmt@300..352
                 DeleteStmt@300..352
-                  opt_with_clause@300..300
                   Whitespace@300..301 "\n"
                   DELETE_P@301..307 "DELETE"
                   Whitespace@307..308 " "
@@ -233,7 +213,6 @@ Root@0..479
                       qualified_name@313..318
                         ColId@313..318
                           IDENT@313..318 "tasks"
-                  using_clause@318..318
                   Whitespace@318..319 " "
                   where_or_current_clause@319..340
                     WHERE@319..324 "WHERE"
@@ -263,7 +242,6 @@ Root@0..479
           toplevel_stmt@353..396
             stmt@353..396
               DeleteStmt@353..396
-                opt_with_clause@353..353
                 Whitespace@353..354 "\n"
                 DELETE_P@354..360 "DELETE"
                 Whitespace@360..361 " "
@@ -274,7 +252,6 @@ Root@0..479
                     qualified_name@366..371
                       ColId@366..371
                         IDENT@366..371 "tasks"
-                using_clause@371..371
                 Whitespace@371..372 " "
                 where_or_current_clause@372..396
                   WHERE@372..377 "WHERE"
@@ -287,12 +264,10 @@ Root@0..479
                     name@389..396
                       ColId@389..396
                         IDENT@389..396 "c_tasks"
-                returning_clause@396..396
         Semicolon@396..397 ";"
         toplevel_stmt@397..478
           stmt@397..478
             DeleteStmt@397..478
-              opt_with_clause@397..397
               Whitespace@397..398 "\n"
               DELETE_P@398..404 "DELETE"
               Whitespace@404..405 " "
@@ -303,7 +278,6 @@ Root@0..479
                   qualified_name@410..419
                     ColId@410..419
                       IDENT@410..419 "employees"
-              using_clause@419..419
               Whitespace@419..428 "\n        "
               where_or_current_clause@428..478
                 WHERE@428..433 "WHERE"
@@ -341,7 +315,4 @@ Root@0..479
                         AexprConst@473..478
                           Iconst@473..478
                             ICONST@473..478 "70000"
-              returning_clause@478..478
       Semicolon@478..479 ";"
-      toplevel_stmt@479..479
-        stmt@479..479
