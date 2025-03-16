@@ -24,7 +24,6 @@ Root@0..1857
                                             toplevel_stmt@53..101
                                               stmt@53..101
                                                 InsertStmt@53..101
-                                                  opt_with_clause@53..53
                                                   Whitespace@53..54 "\n"
                                                   INSERT@54..60 "INSERT"
                                                   Whitespace@60..61 " "
@@ -65,13 +64,10 @@ Root@0..1857
                                                                   AexprConst@96..100
                                                                     FCONST@96..100 "9.99"
                                                             RParen@100..101 ")"
-                                                  opt_on_conflict@101..101
-                                                  returning_clause@101..101
                                           Semicolon@101..102 ";"
                                           toplevel_stmt@102..176
                                             stmt@102..176
                                               InsertStmt@102..176
-                                                opt_with_clause@102..102
                                                 Whitespace@102..103 "\n"
                                                 INSERT@103..109 "INSERT"
                                                 Whitespace@109..110 " "
@@ -90,20 +86,17 @@ Root@0..1857
                                                         insert_column_item@125..135
                                                           ColId@125..135
                                                             IDENT@125..135 "product_no"
-                                                          opt_indirection@135..135
                                                       Comma@135..136 ","
                                                       Whitespace@136..137 " "
                                                       insert_column_item@137..141
                                                         ColId@137..141
                                                           unreserved_keyword@137..141
                                                             NAME_P@137..141 "name"
-                                                        opt_indirection@141..141
                                                     Comma@141..142 ","
                                                     Whitespace@142..143 " "
                                                     insert_column_item@143..148
                                                       ColId@143..148
                                                         IDENT@143..148 "price"
-                                                      opt_indirection@148..148
                                                   RParen@148..149 ")"
                                                   Whitespace@149..150 " "
                                                   SelectStmt@150..176
@@ -135,13 +128,10 @@ Root@0..1857
                                                                 AexprConst@171..175
                                                                   FCONST@171..175 "9.99"
                                                           RParen@175..176 ")"
-                                                opt_on_conflict@176..176
-                                                returning_clause@176..176
                                         Semicolon@176..177 ";"
                                         toplevel_stmt@177..251
                                           stmt@177..251
                                             InsertStmt@177..251
-                                              opt_with_clause@177..177
                                               Whitespace@177..178 "\n"
                                               INSERT@178..184 "INSERT"
                                               Whitespace@184..185 " "
@@ -161,19 +151,16 @@ Root@0..1857
                                                         ColId@200..204
                                                           unreserved_keyword@200..204
                                                             NAME_P@200..204 "name"
-                                                        opt_indirection@204..204
                                                     Comma@204..205 ","
                                                     Whitespace@205..206 " "
                                                     insert_column_item@206..211
                                                       ColId@206..211
                                                         IDENT@206..211 "price"
-                                                      opt_indirection@211..211
                                                   Comma@211..212 ","
                                                   Whitespace@212..213 " "
                                                   insert_column_item@213..223
                                                     ColId@213..223
                                                       IDENT@213..223 "product_no"
-                                                    opt_indirection@223..223
                                                 RParen@223..224 ")"
                                                 Whitespace@224..225 " "
                                                 SelectStmt@225..251
@@ -205,13 +192,10 @@ Root@0..1857
                                                                 Iconst@249..250
                                                                   ICONST@249..250 "1"
                                                         RParen@250..251 ")"
-                                              opt_on_conflict@251..251
-                                              returning_clause@251..251
                                       Semicolon@251..252 ";"
                                       toplevel_stmt@252..313
                                         stmt@252..313
                                           InsertStmt@252..313
-                                            opt_with_clause@252..252
                                             Whitespace@252..253 "\n"
                                             INSERT@253..259 "INSERT"
                                             Whitespace@259..260 " "
@@ -229,14 +213,12 @@ Root@0..1857
                                                   insert_column_item@275..285
                                                     ColId@275..285
                                                       IDENT@275..285 "product_no"
-                                                    opt_indirection@285..285
                                                 Comma@285..286 ","
                                                 Whitespace@286..287 " "
                                                 insert_column_item@287..291
                                                   ColId@287..291
                                                     unreserved_keyword@287..291
                                                       NAME_P@287..291 "name"
-                                                  opt_indirection@291..291
                                               RParen@291..292 ")"
                                               Whitespace@292..293 " "
                                               SelectStmt@293..313
@@ -261,13 +243,10 @@ Root@0..1857
                                                               Sconst@304..312
                                                                 SCONST@304..312 "'Cheese'"
                                                       RParen@312..313 ")"
-                                            opt_on_conflict@313..313
-                                            returning_clause@313..313
                                     Semicolon@313..314 ";"
                                     toplevel_stmt@314..356
                                       stmt@314..356
                                         InsertStmt@314..356
-                                          opt_with_clause@314..314
                                           Whitespace@314..315 "\n"
                                           INSERT@315..321 "INSERT"
                                           Whitespace@321..322 " "
@@ -301,13 +280,10 @@ Root@0..1857
                                                             Sconst@347..355
                                                               SCONST@347..355 "'Cheese'"
                                                     RParen@355..356 ")"
-                                          opt_on_conflict@356..356
-                                          returning_clause@356..356
                                   Semicolon@356..357 ";"
                                   toplevel_stmt@357..434
                                     stmt@357..434
                                       InsertStmt@357..434
-                                        opt_with_clause@357..357
                                         Whitespace@357..358 "\n"
                                         INSERT@358..364 "INSERT"
                                         Whitespace@364..365 " "
@@ -326,20 +302,17 @@ Root@0..1857
                                                 insert_column_item@380..390
                                                   ColId@380..390
                                                     IDENT@380..390 "product_no"
-                                                  opt_indirection@390..390
                                               Comma@390..391 ","
                                               Whitespace@391..392 " "
                                               insert_column_item@392..396
                                                 ColId@392..396
                                                   unreserved_keyword@392..396
                                                     NAME_P@392..396 "name"
-                                                opt_indirection@396..396
                                             Comma@396..397 ","
                                             Whitespace@397..398 " "
                                             insert_column_item@398..403
                                               ColId@398..403
                                                 IDENT@398..403 "price"
-                                              opt_indirection@403..403
                                           RParen@403..404 ")"
                                           Whitespace@404..405 " "
                                           SelectStmt@405..434
@@ -369,13 +342,10 @@ Root@0..1857
                                                     a_expr@426..433
                                                       DEFAULT@426..433 "DEFAULT"
                                                   RParen@433..434 ")"
-                                        opt_on_conflict@434..434
-                                        returning_clause@434..434
                                 Semicolon@434..435 ";"
                                 toplevel_stmt@435..471
                                   stmt@435..471
                                     InsertStmt@435..471
-                                      opt_with_clause@435..435
                                       Whitespace@435..436 "\n"
                                       INSERT@436..442 "INSERT"
                                       Whitespace@442..443 " "
@@ -390,13 +360,10 @@ Root@0..1857
                                         DEFAULT@457..464 "DEFAULT"
                                         Whitespace@464..465 " "
                                         VALUES@465..471 "VALUES"
-                                      opt_on_conflict@471..471
-                                      returning_clause@471..471
                               Semicolon@471..472 ";"
                               toplevel_stmt@472..597
                                 stmt@472..597
                                   InsertStmt@472..597
-                                    opt_with_clause@472..472
                                     Whitespace@472..473 "\n"
                                     INSERT@473..479 "INSERT"
                                     Whitespace@479..480 " "
@@ -415,20 +382,17 @@ Root@0..1857
                                             insert_column_item@495..505
                                               ColId@495..505
                                                 IDENT@495..505 "product_no"
-                                              opt_indirection@505..505
                                           Comma@505..506 ","
                                           Whitespace@506..507 " "
                                           insert_column_item@507..511
                                             ColId@507..511
                                               unreserved_keyword@507..511
                                                 NAME_P@507..511 "name"
-                                            opt_indirection@511..511
                                         Comma@511..512 ","
                                         Whitespace@512..513 " "
                                         insert_column_item@513..518
                                           ColId@513..518
                                             IDENT@513..518 "price"
-                                          opt_indirection@518..518
                                       RParen@518..519 ")"
                                       Whitespace@519..520 " "
                                       SelectStmt@520..597
@@ -512,15 +476,12 @@ Root@0..1857
                                                     AexprConst@592..596
                                                       FCONST@592..596 "2.99"
                                               RParen@596..597 ")"
-                                    opt_on_conflict@597..597
-                                    returning_clause@597..597
                             Semicolon@597..598 ";"
                             Whitespace@598..599 "\n"
                             SQL_COMMENT@599..661 "-- https://www.postgr ..."
                             toplevel_stmt@661..754
                               stmt@661..754
                                 InsertStmt@661..754
-                                  opt_with_clause@661..661
                                   Whitespace@661..662 "\n"
                                   INSERT@662..668 "INSERT"
                                   Whitespace@668..669 " "
@@ -586,13 +547,10 @@ Root@0..1857
                                                     Sconst@741..753
                                                       SCONST@741..753 "'82 minutes'"
                                             RParen@753..754 ")"
-                                  opt_on_conflict@754..754
-                                  returning_clause@754..754
                           Semicolon@754..755 ";"
                           toplevel_stmt@755..869
                             stmt@755..869
                               InsertStmt@755..869
-                                opt_with_clause@755..755
                                 Whitespace@755..756 "\n"
                                 INSERT@756..762 "INSERT"
                                 Whitespace@762..763 " "
@@ -613,31 +571,26 @@ Root@0..1857
                                             insert_column_item@775..779
                                               ColId@775..779
                                                 IDENT@775..779 "code"
-                                              opt_indirection@779..779
                                           Comma@779..780 ","
                                           Whitespace@780..781 " "
                                           insert_column_item@781..786
                                             ColId@781..786
                                               IDENT@781..786 "title"
-                                            opt_indirection@786..786
                                         Comma@786..787 ","
                                         Whitespace@787..788 " "
                                         insert_column_item@788..791
                                           ColId@788..791
                                             IDENT@788..791 "did"
-                                          opt_indirection@791..791
                                       Comma@791..792 ","
                                       Whitespace@792..793 " "
                                       insert_column_item@793..802
                                         ColId@793..802
                                           IDENT@793..802 "date_prod"
-                                        opt_indirection@802..802
                                     Comma@802..803 ","
                                     Whitespace@803..804 " "
                                     insert_column_item@804..808
                                       ColId@804..808
                                         IDENT@804..808 "kind"
-                                      opt_indirection@808..808
                                   RParen@808..809 ")"
                                   Whitespace@809..814 "\n    "
                                   SelectStmt@814..869
@@ -686,13 +639,10 @@ Root@0..1857
                                                   Sconst@861..868
                                                     SCONST@861..868 "'Drama'"
                                           RParen@868..869 ")"
-                                opt_on_conflict@869..869
-                                returning_clause@869..869
                         Semicolon@869..870 ";"
                         toplevel_stmt@870..958
                           stmt@870..958
                             InsertStmt@870..958
-                              opt_with_clause@870..870
                               Whitespace@870..871 "\n"
                               INSERT@871..877 "INSERT"
                               Whitespace@877..878 " "
@@ -755,13 +705,10 @@ Root@0..1857
                                                 Sconst@945..957
                                                   SCONST@945..957 "'82 minutes'"
                                         RParen@957..958 ")"
-                              opt_on_conflict@958..958
-                              returning_clause@958..958
                       Semicolon@958..959 ";"
                       toplevel_stmt@959..1068
                         stmt@959..1068
                           InsertStmt@959..1068
-                            opt_with_clause@959..959
                             Whitespace@959..960 "\n"
                             INSERT@960..966 "INSERT"
                             Whitespace@966..967 " "
@@ -782,31 +729,26 @@ Root@0..1857
                                         insert_column_item@979..983
                                           ColId@979..983
                                             IDENT@979..983 "code"
-                                          opt_indirection@983..983
                                       Comma@983..984 ","
                                       Whitespace@984..985 " "
                                       insert_column_item@985..990
                                         ColId@985..990
                                           IDENT@985..990 "title"
-                                        opt_indirection@990..990
                                     Comma@990..991 ","
                                     Whitespace@991..992 " "
                                     insert_column_item@992..995
                                       ColId@992..995
                                         IDENT@992..995 "did"
-                                      opt_indirection@995..995
                                   Comma@995..996 ","
                                   Whitespace@996..997 " "
                                   insert_column_item@997..1006
                                     ColId@997..1006
                                       IDENT@997..1006 "date_prod"
-                                    opt_indirection@1006..1006
                                 Comma@1006..1007 ","
                                 Whitespace@1007..1008 " "
                                 insert_column_item@1008..1012
                                   ColId@1008..1012
                                     IDENT@1008..1012 "kind"
-                                  opt_indirection@1012..1012
                               RParen@1012..1013 ")"
                               Whitespace@1013..1018 "\n    "
                               SelectStmt@1018..1068
@@ -852,13 +794,10 @@ Root@0..1857
                                               Sconst@1060..1067
                                                 SCONST@1060..1067 "'Drama'"
                                       RParen@1067..1068 ")"
-                            opt_on_conflict@1068..1068
-                            returning_clause@1068..1068
                     Semicolon@1068..1069 ";"
                     toplevel_stmt@1069..1102
                       stmt@1069..1102
                         InsertStmt@1069..1102
-                          opt_with_clause@1069..1069
                           Whitespace@1069..1070 "\n"
                           INSERT@1070..1076 "INSERT"
                           Whitespace@1076..1077 " "
@@ -873,13 +812,10 @@ Root@0..1857
                             DEFAULT@1088..1095 "DEFAULT"
                             Whitespace@1095..1096 " "
                             VALUES@1096..1102 "VALUES"
-                          opt_on_conflict@1102..1102
-                          returning_clause@1102..1102
                   Semicolon@1102..1103 ";"
                   toplevel_stmt@1103..1276
                     stmt@1103..1276
                       InsertStmt@1103..1276
-                        opt_with_clause@1103..1103
                         Whitespace@1103..1104 "\n"
                         INSERT@1104..1110 "INSERT"
                         Whitespace@1110..1111 " "
@@ -900,31 +836,26 @@ Root@0..1857
                                     insert_column_item@1123..1127
                                       ColId@1123..1127
                                         IDENT@1123..1127 "code"
-                                      opt_indirection@1127..1127
                                   Comma@1127..1128 ","
                                   Whitespace@1128..1129 " "
                                   insert_column_item@1129..1134
                                     ColId@1129..1134
                                       IDENT@1129..1134 "title"
-                                    opt_indirection@1134..1134
                                 Comma@1134..1135 ","
                                 Whitespace@1135..1136 " "
                                 insert_column_item@1136..1139
                                   ColId@1136..1139
                                     IDENT@1136..1139 "did"
-                                  opt_indirection@1139..1139
                               Comma@1139..1140 ","
                               Whitespace@1140..1141 " "
                               insert_column_item@1141..1150
                                 ColId@1141..1150
                                   IDENT@1141..1150 "date_prod"
-                                opt_indirection@1150..1150
                             Comma@1150..1151 ","
                             Whitespace@1151..1152 " "
                             insert_column_item@1152..1156
                               ColId@1152..1156
                                 IDENT@1152..1156 "kind"
-                              opt_indirection@1156..1156
                           RParen@1156..1157 ")"
                           Whitespace@1157..1158 " "
                           SelectStmt@1158..1276
@@ -1013,13 +944,10 @@ Root@0..1857
                                           Sconst@1267..1275
                                             SCONST@1267..1275 "'Comedy'"
                                   RParen@1275..1276 ")"
-                        opt_on_conflict@1276..1276
-                        returning_clause@1276..1276
                 Semicolon@1276..1277 ";"
                 toplevel_stmt@1277..1350
                   stmt@1277..1350
                     InsertStmt@1277..1350
-                      opt_with_clause@1277..1277
                       Whitespace@1277..1278 "\n"
                       INSERT@1278..1284 "INSERT"
                       Whitespace@1284..1285 " "
@@ -1035,13 +963,11 @@ Root@0..1857
                           select_no_parens@1296..1350
                             simple_select@1296..1350
                               SELECT@1296..1302 "SELECT"
-                              opt_all_clause@1302..1302
                               Whitespace@1302..1303 " "
                               opt_target_list@1303..1304
                                 target_list@1303..1304
                                   target_el@1303..1304
                                     Star@1303..1304 "*"
-                              into_clause@1304..1304
                               Whitespace@1304..1305 " "
                               from_clause@1305..1319
                                 FROM@1305..1309 "FROM"
@@ -1052,7 +978,6 @@ Root@0..1857
                                       qualified_name@1310..1319
                                         ColId@1310..1319
                                           IDENT@1310..1319 "tmp_films"
-                                    opt_alias_clause@1319..1319
                               Whitespace@1319..1320 " "
                               where_clause@1320..1350
                                 WHERE@1320..1325 "WHERE"
@@ -1071,16 +996,10 @@ Root@0..1857
                                       AexprConst@1338..1350
                                         Sconst@1338..1350
                                           SCONST@1338..1350 "'2004-05-07'"
-                              group_clause@1350..1350
-                              having_clause@1350..1350
-                              window_clause@1350..1350
-                      opt_on_conflict@1350..1350
-                      returning_clause@1350..1350
               Semicolon@1350..1351 ";"
               toplevel_stmt@1351..1459
                 stmt@1351..1459
                   InsertStmt@1351..1459
-                    opt_with_clause@1351..1351
                     Whitespace@1351..1352 "\n"
                     INSERT@1352..1358 "INSERT"
                     Whitespace@1358..1359 " "
@@ -1098,7 +1017,6 @@ Root@0..1857
                           insert_column_item@1375..1379
                             ColId@1375..1379
                               IDENT@1375..1379 "game"
-                            opt_indirection@1379..1379
                         Comma@1379..1380 ","
                         Whitespace@1380..1381 " "
                         insert_column_item@1381..1396
@@ -1106,7 +1024,6 @@ Root@0..1857
                             IDENT@1381..1386 "board"
                           opt_indirection@1386..1396
                             opt_indirection@1386..1391
-                              opt_indirection@1386..1386
                               indirection_el@1386..1391
                                 LBracket@1386..1387 "["
                                 opt_slice_bound@1387..1388
@@ -1163,13 +1080,10 @@ Root@0..1857
                                       Sconst@1413..1458
                                         SCONST@1413..1458 "'{{\" \",\" \",\" \"},{\" \", ..."
                               RParen@1458..1459 ")"
-                    opt_on_conflict@1459..1459
-                    returning_clause@1459..1459
             Semicolon@1459..1460 ";"
             toplevel_stmt@1460..1552
               stmt@1460..1552
                 InsertStmt@1460..1552
-                  opt_with_clause@1460..1460
                   Whitespace@1460..1461 "\n"
                   INSERT@1461..1467 "INSERT"
                   Whitespace@1467..1468 " "
@@ -1187,13 +1101,11 @@ Root@0..1857
                         insert_column_item@1484..1488
                           ColId@1484..1488
                             IDENT@1484..1488 "game"
-                          opt_indirection@1488..1488
                       Comma@1488..1489 ","
                       Whitespace@1489..1490 " "
                       insert_column_item@1490..1495
                         ColId@1490..1495
                           IDENT@1490..1495 "board"
-                        opt_indirection@1495..1495
                     RParen@1495..1496 ")"
                     Whitespace@1496..1501 "\n    "
                     SelectStmt@1501..1552
@@ -1218,13 +1130,10 @@ Root@0..1857
                                     Sconst@1512..1551
                                       SCONST@1512..1551 "'{{X,\" \",\" \"},{\" \",O, ..."
                             RParen@1551..1552 ")"
-                  opt_on_conflict@1552..1552
-                  returning_clause@1552..1552
           Semicolon@1552..1553 ";"
           toplevel_stmt@1553..1640
             stmt@1553..1640
               InsertStmt@1553..1640
-                opt_with_clause@1553..1553
                 Whitespace@1553..1554 "\n"
                 INSERT@1554..1560 "INSERT"
                 Whitespace@1560..1561 " "
@@ -1242,13 +1151,11 @@ Root@0..1857
                       insert_column_item@1580..1583
                         ColId@1580..1583
                           IDENT@1580..1583 "did"
-                        opt_indirection@1583..1583
                     Comma@1583..1584 ","
                     Whitespace@1584..1585 " "
                     insert_column_item@1585..1590
                       ColId@1585..1590
                         IDENT@1585..1590 "dname"
-                      opt_indirection@1590..1590
                   RParen@1590..1591 ")"
                   Whitespace@1591..1592 " "
                   SelectStmt@1592..1623
@@ -1270,7 +1177,6 @@ Root@0..1857
                                   Sconst@1609..1622
                                     SCONST@1609..1622 "'XYZ Widgets'"
                           RParen@1622..1623 ")"
-                opt_on_conflict@1623..1623
                 Whitespace@1623..1627 "\n   "
                 returning_clause@1627..1640
                   RETURNING@1627..1636 "RETURNING"
@@ -1286,7 +1192,6 @@ Root@0..1857
         toplevel_stmt@1641..1856
           stmt@1641..1856
             InsertStmt@1641..1856
-              opt_with_clause@1641..1641
               Whitespace@1641..1642 "\n"
               INSERT@1642..1648 "INSERT"
               Whitespace@1648..1649 " "
@@ -1307,33 +1212,28 @@ Root@0..1857
                           insert_column_item@1665..1667
                             ColId@1665..1667
                               IDENT@1665..1667 "id"
-                            opt_indirection@1667..1667
                         Comma@1667..1668 ","
                         Whitespace@1668..1669 " "
                         insert_column_item@1669..1673
                           ColId@1669..1673
                             unreserved_keyword@1669..1673
                               NAME_P@1669..1673 "name"
-                          opt_indirection@1673..1673
                       Comma@1673..1674 ","
                       Whitespace@1674..1675 " "
                       insert_column_item@1675..1683
                         ColId@1675..1683
                           col_name_keyword@1675..1683
                             POSITION@1675..1683 "position"
-                        opt_indirection@1683..1683
                     Comma@1683..1684 ","
                     Whitespace@1684..1685 " "
                     insert_column_item@1685..1691
                       ColId@1685..1691
                         IDENT@1685..1691 "salary"
-                      opt_indirection@1691..1691
                   Comma@1691..1692 ","
                   Whitespace@1692..1693 " "
                   insert_column_item@1693..1706
                     ColId@1693..1706
                       IDENT@1693..1706 "department_id"
-                    opt_indirection@1706..1706
                 RParen@1706..1707 ")"
                 Whitespace@1707..1708 "\n"
                 SelectStmt@1708..1856
@@ -1468,8 +1368,4 @@ Root@0..1857
                                 Iconst@1854..1855
                                   ICONST@1854..1855 "2"
                         RParen@1855..1856 ")"
-              opt_on_conflict@1856..1856
-              returning_clause@1856..1856
       Semicolon@1856..1857 ";"
-      toplevel_stmt@1857..1857
-        stmt@1857..1857

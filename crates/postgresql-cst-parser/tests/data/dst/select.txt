@@ -5,7 +5,7 @@ Root@0..3272
     stmtmulti@54..3272
       stmtmulti@54..3271
         stmtmulti@54..3253
-          stmtmulti@54..3235
+          stmtmulti@54..3230
             stmtmulti@54..3166
               stmtmulti@54..2685
                 stmtmulti@54..2223
@@ -77,7 +77,6 @@ Root@0..3272
                                                                           columnref@100..106
                                                                             ColId@100..106
                                                                               IDENT@100..106 "report"
-                                                                  into_clause@106..106
                                                                   Whitespace@106..111 "\n    "
                                                                   from_clause@111..131
                                                                     FROM@111..115 "FROM"
@@ -88,11 +87,6 @@ Root@0..3272
                                                                           qualified_name@116..131
                                                                             ColId@116..131
                                                                               IDENT@116..131 "weather_reports"
-                                                                        opt_alias_clause@131..131
-                                                                  where_clause@131..131
-                                                                  group_clause@131..131
-                                                                  having_clause@131..131
-                                                                  window_clause@131..131
                                                               Whitespace@131..136 "\n    "
                                                               sort_clause@136..164
                                                                 ORDER@136..141 "ORDER"
@@ -108,8 +102,6 @@ Root@0..3272
                                                                             ColId@145..153
                                                                               unreserved_keyword@145..153
                                                                                 LOCATION@145..153 "location"
-                                                                      opt_asc_desc@153..153
-                                                                      opt_nulls_order@153..153
                                                                   Comma@153..154 ","
                                                                   Whitespace@154..155 " "
                                                                   sortby@155..164
@@ -122,7 +114,6 @@ Root@0..3272
                                                                     Whitespace@159..160 " "
                                                                     opt_asc_desc@160..164
                                                                       DESC@160..164 "DESC"
-                                                                    opt_nulls_order@164..164
                                                     Semicolon@164..165 ";"
                                                     Whitespace@165..166 "\n"
                                                     toplevel_stmt@166..209
@@ -132,7 +123,6 @@ Root@0..3272
                                                             select_clause@166..195
                                                               simple_select@166..195
                                                                 SELECT@166..172 "SELECT"
-                                                                opt_all_clause@172..172
                                                                 Whitespace@172..173 " "
                                                                 opt_target_list@173..177
                                                                   target_list@173..177
@@ -143,7 +133,6 @@ Root@0..3272
                                                                             ColId@173..177
                                                                               unreserved_keyword@173..177
                                                                                 NAME_P@173..177 "name"
-                                                                into_clause@177..177
                                                                 Whitespace@177..178 " "
                                                                 from_clause@178..195
                                                                   FROM@178..182 "FROM"
@@ -154,11 +143,6 @@ Root@0..3272
                                                                         qualified_name@183..195
                                                                           ColId@183..195
                                                                             IDENT@183..195 "distributors"
-                                                                      opt_alias_clause@195..195
-                                                                where_clause@195..195
-                                                                group_clause@195..195
-                                                                having_clause@195..195
-                                                                window_clause@195..195
                                                             Whitespace@195..196 " "
                                                             sort_clause@196..209
                                                               ORDER@196..201 "ORDER"
@@ -172,8 +156,6 @@ Root@0..3272
                                                                       columnref@205..209
                                                                         ColId@205..209
                                                                           IDENT@205..209 "code"
-                                                                  opt_asc_desc@209..209
-                                                                  opt_nulls_order@209..209
                                                   Semicolon@209..210 ";"
                                                   Whitespace@210..211 "\n"
                                                   toplevel_stmt@211..277
@@ -182,13 +164,11 @@ Root@0..3272
                                                         select_no_parens@211..277
                                                           simple_select@211..277
                                                             SELECT@211..217 "SELECT"
-                                                            opt_all_clause@217..217
                                                             Whitespace@217..218 " "
                                                             opt_target_list@218..219
                                                               target_list@218..219
                                                                 target_el@218..219
                                                                   Star@218..219 "*"
-                                                            into_clause@219..219
                                                             Whitespace@219..220 " "
                                                             from_clause@220..262
                                                               FROM@220..224 "FROM"
@@ -201,13 +181,11 @@ Root@0..3272
                                                                       select_clause@226..247
                                                                         simple_select@226..247
                                                                           SELECT@226..232 "SELECT"
-                                                                          opt_all_clause@232..232
                                                                           Whitespace@232..233 " "
                                                                           opt_target_list@233..234
                                                                             target_list@233..234
                                                                               target_el@233..234
                                                                                 Star@233..234 "*"
-                                                                          into_clause@234..234
                                                                           Whitespace@234..235 " "
                                                                           from_clause@235..247
                                                                             FROM@235..239 "FROM"
@@ -218,12 +196,6 @@ Root@0..3272
                                                                                   qualified_name@240..247
                                                                                     ColId@240..247
                                                                                       IDENT@240..247 "mytable"
-                                                                                opt_alias_clause@247..247
-                                                                          where_clause@247..247
-                                                                          group_clause@247..247
-                                                                          having_clause@247..247
-                                                                          window_clause@247..247
-                                                                      opt_sort_clause@247..247
                                                                       Whitespace@247..248 " "
                                                                       for_locking_clause@248..258
                                                                         for_locking_items@248..258
@@ -232,9 +204,6 @@ Root@0..3272
                                                                               FOR@248..251 "FOR"
                                                                               Whitespace@251..252 " "
                                                                               UPDATE@252..258 "UPDATE"
-                                                                            locked_rels_list@258..258
-                                                                            opt_nowait_or_skip@258..258
-                                                                      opt_select_limit@258..258
                                                                     RParen@258..259 ")"
                                                                   Whitespace@259..260 " "
                                                                   opt_alias_clause@260..262
@@ -259,9 +228,6 @@ Root@0..3272
                                                                     AexprConst@276..277
                                                                       Iconst@276..277
                                                                         ICONST@276..277 "5"
-                                                            group_clause@277..277
-                                                            having_clause@277..277
-                                                            window_clause@277..277
                                                 Semicolon@277..278 ";"
                                                 Whitespace@278..279 "\n"
                                                 toplevel_stmt@279..347
@@ -271,13 +237,11 @@ Root@0..3272
                                                         select_clause@279..330
                                                           simple_select@279..330
                                                             SELECT@279..285 "SELECT"
-                                                            opt_all_clause@285..285
                                                             Whitespace@285..286 " "
                                                             opt_target_list@286..287
                                                               target_list@286..287
                                                                 target_el@286..287
                                                                   Star@286..287 "*"
-                                                            into_clause@287..287
                                                             Whitespace@287..288 " "
                                                             from_clause@288..330
                                                               FROM@288..292 "FROM"
@@ -290,13 +254,11 @@ Root@0..3272
                                                                       select_clause@294..315
                                                                         simple_select@294..315
                                                                           SELECT@294..300 "SELECT"
-                                                                          opt_all_clause@300..300
                                                                           Whitespace@300..301 " "
                                                                           opt_target_list@301..302
                                                                             target_list@301..302
                                                                               target_el@301..302
                                                                                 Star@301..302 "*"
-                                                                          into_clause@302..302
                                                                           Whitespace@302..303 " "
                                                                           from_clause@303..315
                                                                             FROM@303..307 "FROM"
@@ -307,12 +269,6 @@ Root@0..3272
                                                                                   qualified_name@308..315
                                                                                     ColId@308..315
                                                                                       IDENT@308..315 "mytable"
-                                                                                opt_alias_clause@315..315
-                                                                          where_clause@315..315
-                                                                          group_clause@315..315
-                                                                          having_clause@315..315
-                                                                          window_clause@315..315
-                                                                      opt_sort_clause@315..315
                                                                       Whitespace@315..316 " "
                                                                       for_locking_clause@316..326
                                                                         for_locking_items@316..326
@@ -321,19 +277,12 @@ Root@0..3272
                                                                               FOR@316..319 "FOR"
                                                                               Whitespace@319..320 " "
                                                                               UPDATE@320..326 "UPDATE"
-                                                                            locked_rels_list@326..326
-                                                                            opt_nowait_or_skip@326..326
-                                                                      opt_select_limit@326..326
                                                                     RParen@326..327 ")"
                                                                   Whitespace@327..328 " "
                                                                   opt_alias_clause@328..330
                                                                     alias_clause@328..330
                                                                       ColId@328..330
                                                                         IDENT@328..330 "ss"
-                                                            where_clause@330..330
-                                                            group_clause@330..330
-                                                            having_clause@330..330
-                                                            window_clause@330..330
                                                         Whitespace@330..331 " "
                                                         sort_clause@331..347
                                                           ORDER@331..336 "ORDER"
@@ -347,8 +296,6 @@ Root@0..3272
                                                                   columnref@340..347
                                                                     ColId@340..347
                                                                       IDENT@340..347 "column1"
-                                                              opt_asc_desc@347..347
-                                                              opt_nulls_order@347..347
                                               Semicolon@347..348 ";"
                                               Whitespace@348..349 "\n"
                                               toplevel_stmt@349..456
@@ -357,7 +304,6 @@ Root@0..3272
                                                     select_no_parens@349..456
                                                       simple_select@349..456
                                                         SELECT@349..355 "SELECT"
-                                                        opt_all_clause@355..355
                                                         Whitespace@355..356 " "
                                                         opt_target_list@356..399
                                                           target_list@356..399
@@ -434,7 +380,6 @@ Root@0..3272
                                                                         attr_name@395..399
                                                                           ColLabel@395..399
                                                                             IDENT@395..399 "kind"
-                                                        into_clause@399..399
                                                         Whitespace@399..404 "\n    "
                                                         from_clause@404..432
                                                           FROM@404..408 "FROM"
@@ -493,9 +438,6 @@ Root@0..3272
                                                                       attr_name@453..456
                                                                         ColLabel@453..456
                                                                           IDENT@453..456 "did"
-                                                        group_clause@456..456
-                                                        having_clause@456..456
-                                                        window_clause@456..456
                                             Semicolon@456..457 ";"
                                             Whitespace@457..458 "\n"
                                             toplevel_stmt@458..513
@@ -504,7 +446,6 @@ Root@0..3272
                                                   select_no_parens@458..513
                                                     simple_select@458..513
                                                       SELECT@458..464 "SELECT"
-                                                      opt_all_clause@464..464
                                                       Whitespace@464..465 " "
                                                       opt_target_list@465..488
                                                         target_list@465..488
@@ -533,17 +474,12 @@ Root@0..3272
                                                                             columnref@475..478
                                                                               ColId@475..478
                                                                                 IDENT@475..478 "len"
-                                                                    opt_sort_clause@478..478
                                                                     RParen@478..479 ")"
-                                                                  within_group_clause@479..479
-                                                                  filter_clause@479..479
-                                                                  over_clause@479..479
                                                             Whitespace@479..480 " "
                                                             AS@480..482 "AS"
                                                             Whitespace@482..483 " "
                                                             ColLabel@483..488
                                                               IDENT@483..488 "total"
-                                                      into_clause@488..488
                                                       Whitespace@488..489 " "
                                                       from_clause@489..499
                                                         FROM@489..493 "FROM"
@@ -554,14 +490,11 @@ Root@0..3272
                                                               qualified_name@494..499
                                                                 ColId@494..499
                                                                   IDENT@494..499 "films"
-                                                            opt_alias_clause@499..499
-                                                      where_clause@499..499
                                                       Whitespace@499..500 " "
                                                       group_clause@500..513
                                                         GROUP_P@500..505 "GROUP"
                                                         Whitespace@505..506 " "
                                                         BY@506..508 "BY"
-                                                        set_quantifier@508..508
                                                         Whitespace@508..509 " "
                                                         group_by_list@509..513
                                                           group_by_item@509..513
@@ -570,8 +503,6 @@ Root@0..3272
                                                                 columnref@509..513
                                                                   ColId@509..513
                                                                     IDENT@509..513 "kind"
-                                                      having_clause@513..513
-                                                      window_clause@513..513
                                           Semicolon@513..514 ";"
                                           Whitespace@514..515 "\n"
                                           toplevel_stmt@515..619
@@ -580,7 +511,6 @@ Root@0..3272
                                                 select_no_parens@515..619
                                                   simple_select@515..619
                                                     SELECT@515..521 "SELECT"
-                                                    opt_all_clause@521..521
                                                     Whitespace@521..522 " "
                                                     opt_target_list@522..545
                                                       target_list@522..545
@@ -609,17 +539,12 @@ Root@0..3272
                                                                           columnref@532..535
                                                                             ColId@532..535
                                                                               IDENT@532..535 "len"
-                                                                  opt_sort_clause@535..535
                                                                   RParen@535..536 ")"
-                                                                within_group_clause@536..536
-                                                                filter_clause@536..536
-                                                                over_clause@536..536
                                                           Whitespace@536..537 " "
                                                           AS@537..539 "AS"
                                                           Whitespace@539..540 " "
                                                           ColLabel@540..545
                                                             IDENT@540..545 "total"
-                                                    into_clause@545..545
                                                     Whitespace@545..550 "\n    "
                                                     from_clause@550..560
                                                       FROM@550..554 "FROM"
@@ -630,14 +555,11 @@ Root@0..3272
                                                             qualified_name@555..560
                                                               ColId@555..560
                                                                 IDENT@555..560 "films"
-                                                          opt_alias_clause@560..560
-                                                    where_clause@560..560
                                                     Whitespace@560..565 "\n    "
                                                     group_clause@565..578
                                                       GROUP_P@565..570 "GROUP"
                                                       Whitespace@570..571 " "
                                                       BY@571..573 "BY"
-                                                      set_quantifier@573..573
                                                       Whitespace@573..574 " "
                                                       group_by_list@574..578
                                                         group_by_item@574..578
@@ -666,11 +588,7 @@ Root@0..3272
                                                                         columnref@594..597
                                                                           ColId@594..597
                                                                             IDENT@594..597 "len"
-                                                                opt_sort_clause@597..597
                                                                 RParen@597..598 ")"
-                                                              within_group_clause@598..598
-                                                              filter_clause@598..598
-                                                              over_clause@598..598
                                                         Whitespace@598..599 " "
                                                         Less@599..600 "<"
                                                         Whitespace@600..601 " "
@@ -682,8 +600,6 @@ Root@0..3272
                                                               Whitespace@609..610 " "
                                                               Sconst@610..619
                                                                 SCONST@610..619 "'5 hours'"
-                                                              opt_interval@619..619
-                                                    window_clause@619..619
                                         Semicolon@619..620 ";"
                                         Whitespace@620..621 "\n"
                                         toplevel_stmt@621..661
@@ -693,13 +609,11 @@ Root@0..3272
                                                 select_clause@621..647
                                                   simple_select@621..647
                                                     SELECT@621..627 "SELECT"
-                                                    opt_all_clause@627..627
                                                     Whitespace@627..628 " "
                                                     opt_target_list@628..629
                                                       target_list@628..629
                                                         target_el@628..629
                                                           Star@628..629 "*"
-                                                    into_clause@629..629
                                                     Whitespace@629..630 " "
                                                     from_clause@630..647
                                                       FROM@630..634 "FROM"
@@ -710,11 +624,6 @@ Root@0..3272
                                                             qualified_name@635..647
                                                               ColId@635..647
                                                                 IDENT@635..647 "distributors"
-                                                          opt_alias_clause@647..647
-                                                    where_clause@647..647
-                                                    group_clause@647..647
-                                                    having_clause@647..647
-                                                    window_clause@647..647
                                                 Whitespace@647..648 " "
                                                 sort_clause@648..661
                                                   ORDER@648..653 "ORDER"
@@ -729,8 +638,6 @@ Root@0..3272
                                                             ColId@657..661
                                                               unreserved_keyword@657..661
                                                                 NAME_P@657..661 "name"
-                                                      opt_asc_desc@661..661
-                                                      opt_nulls_order@661..661
                                       Semicolon@661..662 ";"
                                       Whitespace@662..663 "\n"
                                       toplevel_stmt@663..700
@@ -740,13 +647,11 @@ Root@0..3272
                                               select_clause@663..689
                                                 simple_select@663..689
                                                   SELECT@663..669 "SELECT"
-                                                  opt_all_clause@669..669
                                                   Whitespace@669..670 " "
                                                   opt_target_list@670..671
                                                     target_list@670..671
                                                       target_el@670..671
                                                         Star@670..671 "*"
-                                                  into_clause@671..671
                                                   Whitespace@671..672 " "
                                                   from_clause@672..689
                                                     FROM@672..676 "FROM"
@@ -757,11 +662,6 @@ Root@0..3272
                                                           qualified_name@677..689
                                                             ColId@677..689
                                                               IDENT@677..689 "distributors"
-                                                        opt_alias_clause@689..689
-                                                  where_clause@689..689
-                                                  group_clause@689..689
-                                                  having_clause@689..689
-                                                  window_clause@689..689
                                               Whitespace@689..690 " "
                                               sort_clause@690..700
                                                 ORDER@690..695 "ORDER"
@@ -775,8 +675,6 @@ Root@0..3272
                                                         AexprConst@699..700
                                                           Iconst@699..700
                                                             ICONST@699..700 "2"
-                                                    opt_asc_desc@700..700
-                                                    opt_nulls_order@700..700
                                     Semicolon@700..701 ";"
                                     Whitespace@701..702 "\n"
                                     toplevel_stmt@702..859
@@ -787,7 +685,6 @@ Root@0..3272
                                               select_clause@702..786
                                                 simple_select@702..786
                                                   SELECT@702..708 "SELECT"
-                                                  opt_all_clause@708..708
                                                   Whitespace@708..709 " "
                                                   opt_target_list@709..726
                                                     target_list@709..726
@@ -804,7 +701,6 @@ Root@0..3272
                                                                     ColLabel@722..726
                                                                       unreserved_keyword@722..726
                                                                         NAME_P@722..726 "name"
-                                                  into_clause@726..726
                                                   Whitespace@726..731 "\n    "
                                                   from_clause@731..748
                                                     FROM@731..735 "FROM"
@@ -815,7 +711,6 @@ Root@0..3272
                                                           qualified_name@736..748
                                                             ColId@736..748
                                                               IDENT@736..748 "distributors"
-                                                        opt_alias_clause@748..748
                                                   Whitespace@748..753 "\n    "
                                                   where_clause@753..786
                                                     WHERE@753..758 "WHERE"
@@ -841,17 +736,12 @@ Root@0..3272
                                                           AexprConst@782..786
                                                             Sconst@782..786
                                                               SCONST@782..786 "'W%'"
-                                                  group_clause@786..786
-                                                  having_clause@786..786
-                                                  window_clause@786..786
                                               Whitespace@786..787 "\n"
                                               UNION@787..792 "UNION"
-                                              set_quantifier@792..792
                                               Whitespace@792..793 "\n"
                                               select_clause@793..859
                                                 simple_select@793..859
                                                   SELECT@793..799 "SELECT"
-                                                  opt_all_clause@799..799
                                                   Whitespace@799..800 " "
                                                   opt_target_list@800..811
                                                     target_list@800..811
@@ -868,7 +758,6 @@ Root@0..3272
                                                                     ColLabel@807..811
                                                                       unreserved_keyword@807..811
                                                                         NAME_P@807..811 "name"
-                                                  into_clause@811..811
                                                   Whitespace@811..816 "\n    "
                                                   from_clause@816..827
                                                     FROM@816..820 "FROM"
@@ -879,7 +768,6 @@ Root@0..3272
                                                           qualified_name@821..827
                                                             ColId@821..827
                                                               IDENT@821..827 "actors"
-                                                        opt_alias_clause@827..827
                                                   Whitespace@827..832 "\n    "
                                                   where_clause@832..859
                                                     WHERE@832..837 "WHERE"
@@ -905,16 +793,12 @@ Root@0..3272
                                                           AexprConst@855..859
                                                             Sconst@855..859
                                                               SCONST@855..859 "'W%'"
-                                                  group_clause@859..859
-                                                  having_clause@859..859
-                                                  window_clause@859..859
                                   Semicolon@859..860 ";"
                                   Whitespace@860..861 "\n"
                                   toplevel_stmt@861..990
                                     stmt@861..990
                                       CreateFunctionStmt@861..990
                                         CREATE@861..867 "CREATE"
-                                        opt_or_replace@867..867
                                         Whitespace@867..868 " "
                                         FUNCTION@868..876 "FUNCTION"
                                         Whitespace@876..877 " "
@@ -931,7 +815,6 @@ Root@0..3272
                                                     SimpleTypename@890..893
                                                       Numeric@890..893
                                                         INT_P@890..893 "int"
-                                                    opt_array_bounds@893..893
                                           RParen@893..894 ")"
                                         Whitespace@894..895 " "
                                         RETURNS@895..902 "RETURNS"
@@ -945,8 +828,6 @@ Root@0..3272
                                                 GenericType@909..921
                                                   type_function_name@909..921
                                                     IDENT@909..921 "distributors"
-                                                  opt_type_modifiers@921..921
-                                              opt_array_bounds@921..921
                                         Whitespace@921..922 " "
                                         opt_createfunc_opt_list@922..990
                                           createfunc_opt_list@922..990
@@ -965,7 +846,6 @@ Root@0..3272
                                                 NonReservedWord@987..990
                                                   unreserved_keyword@987..990
                                                     SQL_P@987..990 "SQL"
-                                        opt_routine_body@990..990
                                 Semicolon@990..991 ";"
                                 Whitespace@991..992 "\n"
                                 toplevel_stmt@992..1023
@@ -974,13 +854,11 @@ Root@0..3272
                                       select_no_parens@992..1023
                                         simple_select@992..1023
                                           SELECT@992..998 "SELECT"
-                                          opt_all_clause@998..998
                                           Whitespace@998..999 " "
                                           opt_target_list@999..1000
                                             target_list@999..1000
                                               target_el@999..1000
                                                 Star@999..1000 "*"
-                                          into_clause@1000..1000
                                           Whitespace@1000..1001 " "
                                           from_clause@1001..1023
                                             FROM@1001..1005 "FROM"
@@ -1001,21 +879,13 @@ Root@0..3272
                                                               AexprConst@1019..1022
                                                                 Iconst@1019..1022
                                                                   ICONST@1019..1022 "111"
-                                                      opt_sort_clause@1022..1022
                                                       RParen@1022..1023 ")"
-                                                  opt_ordinality@1023..1023
-                                                func_alias_clause@1023..1023
-                                          where_clause@1023..1023
-                                          group_clause@1023..1023
-                                          having_clause@1023..1023
-                                          window_clause@1023..1023
                               Semicolon@1023..1024 ";"
                               Whitespace@1024..1025 "\n"
                               toplevel_stmt@1025..1150
                                 stmt@1025..1150
                                   CreateFunctionStmt@1025..1150
                                     CREATE@1025..1031 "CREATE"
-                                    opt_or_replace@1031..1031
                                     Whitespace@1031..1032 " "
                                     FUNCTION@1032..1040 "FUNCTION"
                                     Whitespace@1040..1041 " "
@@ -1032,7 +902,6 @@ Root@0..3272
                                                 SimpleTypename@1056..1059
                                                   Numeric@1056..1059
                                                     INT_P@1056..1059 "int"
-                                                opt_array_bounds@1059..1059
                                       RParen@1059..1060 ")"
                                     Whitespace@1060..1061 " "
                                     RETURNS@1061..1068 "RETURNS"
@@ -1046,8 +915,6 @@ Root@0..3272
                                             GenericType@1075..1081
                                               type_function_name@1075..1081
                                                 IDENT@1075..1081 "record"
-                                              opt_type_modifiers@1081..1081
-                                          opt_array_bounds@1081..1081
                                     Whitespace@1081..1082 " "
                                     opt_createfunc_opt_list@1082..1150
                                       createfunc_opt_list@1082..1150
@@ -1066,7 +933,6 @@ Root@0..3272
                                             NonReservedWord@1147..1150
                                               unreserved_keyword@1147..1150
                                                 SQL_P@1147..1150 "SQL"
-                                    opt_routine_body@1150..1150
                             Semicolon@1150..1151 ";"
                             Whitespace@1151..1153 "\n\n"
                             toplevel_stmt@1153..1207
@@ -1075,13 +941,11 @@ Root@0..3272
                                   select_no_parens@1153..1207
                                     simple_select@1153..1207
                                       SELECT@1153..1159 "SELECT"
-                                      opt_all_clause@1159..1159
                                       Whitespace@1159..1160 " "
                                       opt_target_list@1160..1161
                                         target_list@1160..1161
                                           target_el@1160..1161
                                             Star@1160..1161 "*"
-                                      into_clause@1161..1161
                                       Whitespace@1161..1162 " "
                                       from_clause@1162..1207
                                         FROM@1162..1166 "FROM"
@@ -1102,9 +966,7 @@ Root@0..3272
                                                           AexprConst@1182..1185
                                                             Iconst@1182..1185
                                                               ICONST@1182..1185 "111"
-                                                  opt_sort_clause@1185..1185
                                                   RParen@1185..1186 ")"
-                                              opt_ordinality@1186..1186
                                             Whitespace@1186..1187 " "
                                             func_alias_clause@1187..1207
                                               AS@1187..1189 "AS"
@@ -1120,8 +982,6 @@ Root@0..3272
                                                       SimpleTypename@1194..1197
                                                         Numeric@1194..1197
                                                           INT_P@1194..1197 "int"
-                                                      opt_array_bounds@1197..1197
-                                                    opt_collate_clause@1197..1197
                                                 Comma@1197..1198 ","
                                                 Whitespace@1198..1199 " "
                                                 TableFuncElement@1199..1206
@@ -1134,14 +994,7 @@ Root@0..3272
                                                         type_function_name@1202..1206
                                                           unreserved_keyword@1202..1206
                                                             TEXT_P@1202..1206 "text"
-                                                        opt_type_modifiers@1206..1206
-                                                    opt_array_bounds@1206..1206
-                                                  opt_collate_clause@1206..1206
                                               RParen@1206..1207 ")"
-                                      where_clause@1207..1207
-                                      group_clause@1207..1207
-                                      having_clause@1207..1207
-                                      window_clause@1207..1207
                           Semicolon@1207..1208 ";"
                           Whitespace@1208..1209 "\n"
                           toplevel_stmt@1209..1318
@@ -1156,10 +1009,8 @@ Root@0..3272
                                         name@1214..1215
                                           ColId@1214..1215
                                             IDENT@1214..1215 "t"
-                                        opt_name_list@1215..1215
                                         Whitespace@1215..1216 " "
                                         AS@1216..1218 "AS"
-                                        opt_materialized@1218..1218
                                         Whitespace@1218..1219 " "
                                         LParen@1219..1220 "("
                                         Whitespace@1220..1225 "\n    "
@@ -1168,7 +1019,6 @@ Root@0..3272
                                             select_no_parens@1225..1272
                                               simple_select@1225..1272
                                                 SELECT@1225..1231 "SELECT"
-                                                opt_all_clause@1231..1231
                                                 Whitespace@1231..1232 " "
                                                 opt_target_list@1232..1245
                                                   target_list@1232..1245
@@ -1182,15 +1032,11 @@ Root@0..3272
                                                                   IDENT@1232..1238 "random"
                                                               LParen@1238..1239 "("
                                                               RParen@1239..1240 ")"
-                                                            within_group_clause@1240..1240
-                                                            filter_clause@1240..1240
-                                                            over_clause@1240..1240
                                                       Whitespace@1240..1241 " "
                                                       AS@1241..1243 "as"
                                                       Whitespace@1243..1244 " "
                                                       ColLabel@1244..1245
                                                         IDENT@1244..1245 "x"
-                                                into_clause@1245..1245
                                                 Whitespace@1245..1246 " "
                                                 from_clause@1246..1272
                                                   FROM@1246..1250 "FROM"
@@ -1220,31 +1066,20 @@ Root@0..3272
                                                                     AexprConst@1270..1271
                                                                       Iconst@1270..1271
                                                                         ICONST@1270..1271 "3"
-                                                            opt_sort_clause@1271..1271
                                                             RParen@1271..1272 ")"
-                                                        opt_ordinality@1272..1272
-                                                      func_alias_clause@1272..1272
-                                                where_clause@1272..1272
-                                                group_clause@1272..1272
-                                                having_clause@1272..1272
-                                                window_clause@1272..1272
                                         Whitespace@1272..1275 "\n  "
                                         RParen@1275..1276 ")"
-                                        opt_search_clause@1276..1276
-                                        opt_cycle_clause@1276..1276
                                   Whitespace@1276..1277 "\n"
                                   select_clause@1277..1318
                                     simple_select@1277..1318
                                       select_clause@1277..1292
                                         simple_select@1277..1292
                                           SELECT@1277..1283 "SELECT"
-                                          opt_all_clause@1283..1283
                                           Whitespace@1283..1284 " "
                                           opt_target_list@1284..1285
                                             target_list@1284..1285
                                               target_el@1284..1285
                                                 Star@1284..1285 "*"
-                                          into_clause@1285..1285
                                           Whitespace@1285..1286 " "
                                           from_clause@1286..1292
                                             FROM@1286..1290 "FROM"
@@ -1255,11 +1090,6 @@ Root@0..3272
                                                   qualified_name@1291..1292
                                                     ColId@1291..1292
                                                       IDENT@1291..1292 "t"
-                                                opt_alias_clause@1292..1292
-                                          where_clause@1292..1292
-                                          group_clause@1292..1292
-                                          having_clause@1292..1292
-                                          window_clause@1292..1292
                                       Whitespace@1292..1293 "\n"
                                       UNION@1293..1298 "UNION"
                                       Whitespace@1298..1299 " "
@@ -1269,13 +1099,11 @@ Root@0..3272
                                       select_clause@1303..1318
                                         simple_select@1303..1318
                                           SELECT@1303..1309 "SELECT"
-                                          opt_all_clause@1309..1309
                                           Whitespace@1309..1310 " "
                                           opt_target_list@1310..1311
                                             target_list@1310..1311
                                               target_el@1310..1311
                                                 Star@1310..1311 "*"
-                                          into_clause@1311..1311
                                           Whitespace@1311..1312 " "
                                           from_clause@1312..1318
                                             FROM@1312..1316 "FROM"
@@ -1286,11 +1114,6 @@ Root@0..3272
                                                   qualified_name@1317..1318
                                                     ColId@1317..1318
                                                       IDENT@1317..1318 "t"
-                                                opt_alias_clause@1318..1318
-                                          where_clause@1318..1318
-                                          group_clause@1318..1318
-                                          having_clause@1318..1318
-                                          window_clause@1318..1318
                         Semicolon@1318..1319 ";"
                         Whitespace@1319..1320 "\n"
                         toplevel_stmt@1320..1707
@@ -1328,7 +1151,6 @@ Root@0..3272
                                         RParen@1391..1392 ")"
                                       Whitespace@1392..1393 " "
                                       AS@1393..1395 "AS"
-                                      opt_materialized@1395..1395
                                       Whitespace@1395..1396 " "
                                       LParen@1396..1397 "("
                                       Whitespace@1397..1402 "\n    "
@@ -1339,7 +1161,6 @@ Root@0..3272
                                               select_clause@1402..1489
                                                 simple_select@1402..1489
                                                   SELECT@1402..1408 "SELECT"
-                                                  opt_all_clause@1408..1408
                                                   Whitespace@1408..1409 " "
                                                   opt_target_list@1409..1439
                                                     target_list@1409..1439
@@ -1367,7 +1188,6 @@ Root@0..3272
                                                             columnref@1427..1439
                                                               ColId@1427..1439
                                                                 IDENT@1427..1439 "manager_name"
-                                                  into_clause@1439..1439
                                                   Whitespace@1439..1444 "\n    "
                                                   from_clause@1444..1457
                                                     FROM@1444..1448 "FROM"
@@ -1378,7 +1198,6 @@ Root@0..3272
                                                           qualified_name@1449..1457
                                                             ColId@1449..1457
                                                               IDENT@1449..1457 "employee"
-                                                        opt_alias_clause@1457..1457
                                                   Whitespace@1457..1462 "\n    "
                                                   where_clause@1462..1489
                                                     WHERE@1462..1467 "WHERE"
@@ -1397,9 +1216,6 @@ Root@0..3272
                                                           AexprConst@1483..1489
                                                             Sconst@1483..1489
                                                               SCONST@1483..1489 "'Mary'"
-                                                  group_clause@1489..1489
-                                                  having_clause@1489..1489
-                                                  window_clause@1489..1489
                                               Whitespace@1489..1492 "\n  "
                                               UNION@1492..1497 "UNION"
                                               Whitespace@1497..1498 " "
@@ -1409,7 +1225,6 @@ Root@0..3272
                                               select_clause@1506..1648
                                                 simple_select@1506..1648
                                                   SELECT@1506..1512 "SELECT"
-                                                  opt_all_clause@1512..1512
                                                   Whitespace@1512..1513 " "
                                                   opt_target_list@1513..1561
                                                     target_list@1513..1561
@@ -1464,7 +1279,6 @@ Root@0..3272
                                                                   attr_name@1549..1561
                                                                     ColLabel@1549..1561
                                                                       IDENT@1549..1561 "manager_name"
-                                                  into_clause@1561..1561
                                                   Whitespace@1561..1566 "\n    "
                                                   from_clause@1566..1604
                                                     FROM@1566..1570 "FROM"
@@ -1523,18 +1337,12 @@ Root@0..3272
                                                                 attr_name@1636..1648
                                                                   ColLabel@1636..1648
                                                                     IDENT@1636..1648 "manager_name"
-                                                  group_clause@1648..1648
-                                                  having_clause@1648..1648
-                                                  window_clause@1648..1648
                                       Whitespace@1648..1651 "\n  "
                                       RParen@1651..1652 ")"
-                                      opt_search_clause@1652..1652
-                                      opt_cycle_clause@1652..1652
                                 Whitespace@1652..1653 "\n"
                                 select_clause@1653..1707
                                   simple_select@1653..1707
                                     SELECT@1653..1659 "SELECT"
-                                    opt_all_clause@1659..1659
                                     Whitespace@1659..1660 " "
                                     opt_target_list@1660..1683
                                       target_list@1660..1683
@@ -1553,7 +1361,6 @@ Root@0..3272
                                               columnref@1670..1683
                                                 ColId@1670..1683
                                                   IDENT@1670..1683 "employee_name"
-                                    into_clause@1683..1683
                                     Whitespace@1683..1684 " "
                                     from_clause@1684..1707
                                       FROM@1684..1688 "FROM"
@@ -1564,11 +1371,6 @@ Root@0..3272
                                             qualified_name@1689..1707
                                               ColId@1689..1707
                                                 IDENT@1689..1707 "employee_recursive"
-                                          opt_alias_clause@1707..1707
-                                    where_clause@1707..1707
-                                    group_clause@1707..1707
-                                    having_clause@1707..1707
-                                    window_clause@1707..1707
                       Semicolon@1707..1708 ";"
                       Whitespace@1708..1709 "\n"
                       toplevel_stmt@1709..1719
@@ -1577,7 +1379,6 @@ Root@0..3272
                             select_no_parens@1709..1719
                               simple_select@1709..1719
                                 SELECT@1709..1715 "SELECT"
-                                opt_all_clause@1715..1715
                                 Whitespace@1715..1716 " "
                                 opt_target_list@1716..1719
                                   target_list@1716..1719
@@ -1594,12 +1395,6 @@ Root@0..3272
                                             AexprConst@1718..1719
                                               Iconst@1718..1719
                                                 ICONST@1718..1719 "2"
-                                into_clause@1719..1719
-                                from_clause@1719..1719
-                                where_clause@1719..1719
-                                group_clause@1719..1719
-                                having_clause@1719..1719
-                                window_clause@1719..1719
                     Semicolon@1719..1720 ";"
                     Whitespace@1720..1721 "\n"
                     toplevel_stmt@1721..1779
@@ -1608,7 +1403,6 @@ Root@0..3272
                           select_no_parens@1721..1779
                             simple_select@1721..1779
                               SELECT@1721..1727 "SELECT"
-                              opt_all_clause@1727..1727
                               Whitespace@1727..1728 " "
                               opt_target_list@1728..1742
                                 target_list@1728..1742
@@ -1622,8 +1416,6 @@ Root@0..3272
                                             indirection_el@1740..1742
                                               Dot@1740..1741 "."
                                               Star@1741..1742 "*"
-                              into_clause@1742..1742
-                              from_clause@1742..1742
                               Whitespace@1742..1743 " "
                               where_clause@1743..1779
                                 WHERE@1743..1748 "WHERE"
@@ -1649,9 +1441,6 @@ Root@0..3272
                                       AexprConst@1769..1779
                                         Sconst@1769..1779
                                           SCONST@1769..1779 "'Westward'"
-                              group_clause@1779..1779
-                              having_clause@1779..1779
-                              window_clause@1779..1779
                   Semicolon@1779..1780 ";"
                   Whitespace@1780..1781 "\n"
                   toplevel_stmt@1781..2223
@@ -1667,10 +1456,8 @@ Root@0..3272
                                   name@1786..1800
                                     ColId@1786..1800
                                       IDENT@1786..1800 "regional_sales"
-                                  opt_name_list@1800..1800
                                   Whitespace@1800..1801 " "
                                   AS@1801..1803 "AS"
-                                  opt_materialized@1803..1803
                                   Whitespace@1803..1804 " "
                                   LParen@1804..1805 "("
                                   Whitespace@1805..1810 "\n    "
@@ -1679,7 +1466,6 @@ Root@0..3272
                                       select_no_parens@1810..1887
                                         simple_select@1810..1887
                                           SELECT@1810..1816 "SELECT"
-                                          opt_all_clause@1816..1816
                                           Whitespace@1816..1817 " "
                                           opt_target_list@1817..1851
                                             target_list@1817..1851
@@ -1708,17 +1494,12 @@ Root@0..3272
                                                                 columnref@1829..1835
                                                                   ColId@1829..1835
                                                                     IDENT@1829..1835 "amount"
-                                                        opt_sort_clause@1835..1835
                                                         RParen@1835..1836 ")"
-                                                      within_group_clause@1836..1836
-                                                      filter_clause@1836..1836
-                                                      over_clause@1836..1836
                                                 Whitespace@1836..1837 " "
                                                 AS@1837..1839 "AS"
                                                 Whitespace@1839..1840 " "
                                                 ColLabel@1840..1851
                                                   IDENT@1840..1851 "total_sales"
-                                          into_clause@1851..1851
                                           Whitespace@1851..1856 "\n    "
                                           from_clause@1856..1867
                                             FROM@1856..1860 "FROM"
@@ -1729,14 +1510,11 @@ Root@0..3272
                                                   qualified_name@1861..1867
                                                     ColId@1861..1867
                                                       IDENT@1861..1867 "orders"
-                                                opt_alias_clause@1867..1867
-                                          where_clause@1867..1867
                                           Whitespace@1867..1872 "\n    "
                                           group_clause@1872..1887
                                             GROUP_P@1872..1877 "GROUP"
                                             Whitespace@1877..1878 " "
                                             BY@1878..1880 "BY"
-                                            set_quantifier@1880..1880
                                             Whitespace@1880..1881 " "
                                             group_by_list@1881..1887
                                               group_by_item@1881..1887
@@ -1745,22 +1523,16 @@ Root@0..3272
                                                     columnref@1881..1887
                                                       ColId@1881..1887
                                                         IDENT@1881..1887 "region"
-                                          having_clause@1887..1887
-                                          window_clause@1887..1887
                                   Whitespace@1887..1888 "\n"
                                   RParen@1888..1889 ")"
-                                  opt_search_clause@1889..1889
-                                  opt_cycle_clause@1889..1889
                               Comma@1889..1890 ","
                               Whitespace@1890..1891 " "
                               common_table_expr@1891..2028
                                 name@1891..1902
                                   ColId@1891..1902
                                     IDENT@1891..1902 "top_regions"
-                                opt_name_list@1902..1902
                                 Whitespace@1902..1903 " "
                                 AS@1903..1905 "AS"
-                                opt_materialized@1905..1905
                                 Whitespace@1905..1906 " "
                                 LParen@1906..1907 "("
                                 Whitespace@1907..1912 "\n    "
@@ -1769,7 +1541,6 @@ Root@0..3272
                                     select_no_parens@1912..2026
                                       simple_select@1912..2026
                                         SELECT@1912..1918 "SELECT"
-                                        opt_all_clause@1918..1918
                                         Whitespace@1918..1919 " "
                                         opt_target_list@1919..1925
                                           target_list@1919..1925
@@ -1779,7 +1550,6 @@ Root@0..3272
                                                   columnref@1919..1925
                                                     ColId@1919..1925
                                                       IDENT@1919..1925 "region"
-                                        into_clause@1925..1925
                                         Whitespace@1925..1930 "\n    "
                                         from_clause@1930..1949
                                           FROM@1930..1934 "FROM"
@@ -1790,7 +1560,6 @@ Root@0..3272
                                                 qualified_name@1935..1949
                                                   ColId@1935..1949
                                                     IDENT@1935..1949 "regional_sales"
-                                              opt_alias_clause@1949..1949
                                         Whitespace@1949..1954 "\n    "
                                         where_clause@1954..2026
                                           WHERE@1954..1959 "WHERE"
@@ -1811,7 +1580,6 @@ Root@0..3272
                                                   select_no_parens@1975..2025
                                                     simple_select@1975..2025
                                                       SELECT@1975..1981 "SELECT"
-                                                      opt_all_clause@1981..1981
                                                       Whitespace@1981..1982 " "
                                                       opt_target_list@1982..2005
                                                         target_list@1982..2005
@@ -1833,11 +1601,7 @@ Root@0..3272
                                                                                 columnref@1986..1997
                                                                                   ColId@1986..1997
                                                                                     IDENT@1986..1997 "total_sales"
-                                                                        opt_sort_clause@1997..1997
                                                                         RParen@1997..1998 ")"
-                                                                      within_group_clause@1998..1998
-                                                                      filter_clause@1998..1998
-                                                                      over_clause@1998..1998
                                                                 Star@1998..1999 "*"
                                                                 a_expr@1999..2002
                                                                   c_expr@1999..2002
@@ -1849,7 +1613,6 @@ Root@0..3272
                                                                   AexprConst@2003..2005
                                                                     Iconst@2003..2005
                                                                       ICONST@2003..2005 "10"
-                                                      into_clause@2005..2005
                                                       Whitespace@2005..2006 " "
                                                       from_clause@2006..2025
                                                         FROM@2006..2010 "FROM"
@@ -1860,24 +1623,13 @@ Root@0..3272
                                                               qualified_name@2011..2025
                                                                 ColId@2011..2025
                                                                   IDENT@2011..2025 "regional_sales"
-                                                            opt_alias_clause@2025..2025
-                                                      where_clause@2025..2025
-                                                      group_clause@2025..2025
-                                                      having_clause@2025..2025
-                                                      window_clause@2025..2025
                                                   RParen@2025..2026 ")"
-                                        group_clause@2026..2026
-                                        having_clause@2026..2026
-                                        window_clause@2026..2026
                                 Whitespace@2026..2027 "\n"
                                 RParen@2027..2028 ")"
-                                opt_search_clause@2028..2028
-                                opt_cycle_clause@2028..2028
                           Whitespace@2028..2029 "\n"
                           select_clause@2029..2223
                             simple_select@2029..2223
                               SELECT@2029..2035 "SELECT"
-                              opt_all_clause@2035..2035
                               Whitespace@2035..2036 " "
                               opt_target_list@2036..2137
                                 target_list@2036..2137
@@ -1916,11 +1668,7 @@ Root@0..3272
                                                       columnref@2073..2081
                                                         ColId@2073..2081
                                                           IDENT@2073..2081 "quantity"
-                                              opt_sort_clause@2081..2081
                                               RParen@2081..2082 ")"
-                                            within_group_clause@2082..2082
-                                            filter_clause@2082..2082
-                                            over_clause@2082..2082
                                       Whitespace@2082..2083 " "
                                       AS@2083..2085 "AS"
                                       Whitespace@2085..2086 " "
@@ -1944,17 +1692,12 @@ Root@0..3272
                                                     columnref@2113..2119
                                                       ColId@2113..2119
                                                         IDENT@2113..2119 "amount"
-                                            opt_sort_clause@2119..2119
                                             RParen@2119..2120 ")"
-                                          within_group_clause@2120..2120
-                                          filter_clause@2120..2120
-                                          over_clause@2120..2120
                                     Whitespace@2120..2121 " "
                                     AS@2121..2123 "AS"
                                     Whitespace@2123..2124 " "
                                     ColLabel@2124..2137
                                       IDENT@2124..2137 "product_sales"
-                              into_clause@2137..2137
                               Whitespace@2137..2138 "\n"
                               from_clause@2138..2149
                                 FROM@2138..2142 "FROM"
@@ -1965,7 +1708,6 @@ Root@0..3272
                                       qualified_name@2143..2149
                                         ColId@2143..2149
                                           IDENT@2143..2149 "orders"
-                                    opt_alias_clause@2149..2149
                               Whitespace@2149..2150 "\n"
                               where_clause@2150..2198
                                 WHERE@2150..2155 "WHERE"
@@ -1985,7 +1727,6 @@ Root@0..3272
                                       select_no_parens@2167..2197
                                         simple_select@2167..2197
                                           SELECT@2167..2173 "SELECT"
-                                          opt_all_clause@2173..2173
                                           Whitespace@2173..2174 " "
                                           opt_target_list@2174..2180
                                             target_list@2174..2180
@@ -1995,7 +1736,6 @@ Root@0..3272
                                                     columnref@2174..2180
                                                       ColId@2174..2180
                                                         IDENT@2174..2180 "region"
-                                          into_clause@2180..2180
                                           Whitespace@2180..2181 " "
                                           from_clause@2181..2197
                                             FROM@2181..2185 "FROM"
@@ -2006,18 +1746,12 @@ Root@0..3272
                                                   qualified_name@2186..2197
                                                     ColId@2186..2197
                                                       IDENT@2186..2197 "top_regions"
-                                                opt_alias_clause@2197..2197
-                                          where_clause@2197..2197
-                                          group_clause@2197..2197
-                                          having_clause@2197..2197
-                                          window_clause@2197..2197
                                       RParen@2197..2198 ")"
                               Whitespace@2198..2199 "\n"
                               group_clause@2199..2223
                                 GROUP_P@2199..2204 "GROUP"
                                 Whitespace@2204..2205 " "
                                 BY@2205..2207 "BY"
-                                set_quantifier@2207..2207
                                 Whitespace@2207..2208 " "
                                 group_by_list@2208..2223
                                   group_by_list@2208..2214
@@ -2035,8 +1769,6 @@ Root@0..3272
                                         columnref@2216..2223
                                           ColId@2216..2223
                                             IDENT@2216..2223 "product"
-                              having_clause@2223..2223
-                              window_clause@2223..2223
                 Semicolon@2223..2224 ";"
                 Whitespace@2224..2225 "\n"
                 toplevel_stmt@2225..2685
@@ -2052,10 +1784,8 @@ Root@0..3272
                                 name@2230..2244
                                   ColId@2230..2244
                                     IDENT@2230..2244 "regional_sales"
-                                opt_name_list@2244..2244
                                 Whitespace@2244..2245 " "
                                 AS@2245..2247 "AS"
-                                opt_materialized@2247..2247
                                 Whitespace@2247..2248 " "
                                 LParen@2248..2249 "("
                                 Whitespace@2249..2254 "\n    "
@@ -2064,7 +1794,6 @@ Root@0..3272
                                     select_no_parens@2254..2331
                                       simple_select@2254..2331
                                         SELECT@2254..2260 "SELECT"
-                                        opt_all_clause@2260..2260
                                         Whitespace@2260..2261 " "
                                         opt_target_list@2261..2295
                                           target_list@2261..2295
@@ -2093,17 +1822,12 @@ Root@0..3272
                                                               columnref@2273..2279
                                                                 ColId@2273..2279
                                                                   IDENT@2273..2279 "amount"
-                                                      opt_sort_clause@2279..2279
                                                       RParen@2279..2280 ")"
-                                                    within_group_clause@2280..2280
-                                                    filter_clause@2280..2280
-                                                    over_clause@2280..2280
                                               Whitespace@2280..2281 " "
                                               AS@2281..2283 "AS"
                                               Whitespace@2283..2284 " "
                                               ColLabel@2284..2295
                                                 IDENT@2284..2295 "total_sales"
-                                        into_clause@2295..2295
                                         Whitespace@2295..2300 "\n    "
                                         from_clause@2300..2311
                                           FROM@2300..2304 "FROM"
@@ -2114,14 +1838,11 @@ Root@0..3272
                                                 qualified_name@2305..2311
                                                   ColId@2305..2311
                                                     IDENT@2305..2311 "orders"
-                                              opt_alias_clause@2311..2311
-                                        where_clause@2311..2311
                                         Whitespace@2311..2316 "\n    "
                                         group_clause@2316..2331
                                           GROUP_P@2316..2321 "GROUP"
                                           Whitespace@2321..2322 " "
                                           BY@2322..2324 "BY"
-                                          set_quantifier@2324..2324
                                           Whitespace@2324..2325 " "
                                           group_by_list@2325..2331
                                             group_by_item@2325..2331
@@ -2130,22 +1851,16 @@ Root@0..3272
                                                   columnref@2325..2331
                                                     ColId@2325..2331
                                                       IDENT@2325..2331 "region"
-                                        having_clause@2331..2331
-                                        window_clause@2331..2331
                                 Whitespace@2331..2332 "\n"
                                 RParen@2332..2333 ")"
-                                opt_search_clause@2333..2333
-                                opt_cycle_clause@2333..2333
                             Comma@2333..2334 ","
                             Whitespace@2334..2335 " "
                             common_table_expr@2335..2468
                               name@2335..2346
                                 ColId@2335..2346
                                   IDENT@2335..2346 "top_regions"
-                              opt_name_list@2346..2346
                               Whitespace@2346..2347 " "
                               AS@2347..2349 "AS"
-                              opt_materialized@2349..2349
                               Whitespace@2349..2350 " "
                               LParen@2350..2351 "("
                               Whitespace@2351..2356 "\n    "
@@ -2154,7 +1869,6 @@ Root@0..3272
                                   select_no_parens@2356..2466
                                     simple_select@2356..2466
                                       SELECT@2356..2362 "SELECT"
-                                      opt_all_clause@2362..2362
                                       Whitespace@2362..2363 " "
                                       opt_target_list@2363..2369
                                         target_list@2363..2369
@@ -2164,7 +1878,6 @@ Root@0..3272
                                                 columnref@2363..2369
                                                   ColId@2363..2369
                                                     IDENT@2363..2369 "region"
-                                      into_clause@2369..2369
                                       Whitespace@2369..2374 "\n    "
                                       from_clause@2374..2393
                                         FROM@2374..2378 "FROM"
@@ -2175,7 +1888,6 @@ Root@0..3272
                                               qualified_name@2379..2393
                                                 ColId@2379..2393
                                                   IDENT@2379..2393 "regional_sales"
-                                            opt_alias_clause@2393..2393
                                       Whitespace@2393..2398 "\n    "
                                       where_clause@2398..2466
                                         WHERE@2398..2403 "WHERE"
@@ -2196,7 +1908,6 @@ Root@0..3272
                                                 select_no_parens@2419..2465
                                                   simple_select@2419..2465
                                                     SELECT@2419..2425 "SELECT"
-                                                    opt_all_clause@2425..2425
                                                     Whitespace@2425..2426 " "
                                                     opt_target_list@2426..2445
                                                       target_list@2426..2445
@@ -2217,18 +1928,13 @@ Root@0..3272
                                                                             columnref@2430..2441
                                                                               ColId@2430..2441
                                                                                 IDENT@2430..2441 "total_sales"
-                                                                    opt_sort_clause@2441..2441
                                                                     RParen@2441..2442 ")"
-                                                                  within_group_clause@2442..2442
-                                                                  filter_clause@2442..2442
-                                                                  over_clause@2442..2442
                                                             Slash@2442..2443 "/"
                                                             a_expr@2443..2445
                                                               c_expr@2443..2445
                                                                 AexprConst@2443..2445
                                                                   Iconst@2443..2445
                                                                     ICONST@2443..2445 "10"
-                                                    into_clause@2445..2445
                                                     Whitespace@2445..2446 " "
                                                     from_clause@2446..2465
                                                       FROM@2446..2450 "FROM"
@@ -2239,24 +1945,13 @@ Root@0..3272
                                                             qualified_name@2451..2465
                                                               ColId@2451..2465
                                                                 IDENT@2451..2465 "regional_sales"
-                                                          opt_alias_clause@2465..2465
-                                                    where_clause@2465..2465
-                                                    group_clause@2465..2465
-                                                    having_clause@2465..2465
-                                                    window_clause@2465..2465
                                                 RParen@2465..2466 ")"
-                                      group_clause@2466..2466
-                                      having_clause@2466..2466
-                                      window_clause@2466..2466
                               Whitespace@2466..2467 "\n"
                               RParen@2467..2468 ")"
-                              opt_search_clause@2468..2468
-                              opt_cycle_clause@2468..2468
                         Whitespace@2468..2469 "\n"
                         select_clause@2469..2685
                           simple_select@2469..2685
                             SELECT@2469..2475 "SELECT"
-                            opt_all_clause@2475..2475
                             Whitespace@2475..2476 " "
                             opt_target_list@2476..2599
                               target_list@2476..2599
@@ -2296,11 +1991,7 @@ Root@0..3272
                                                       columnref@2513..2521
                                                         ColId@2513..2521
                                                           IDENT@2513..2521 "quantity"
-                                              opt_sort_clause@2521..2521
                                               RParen@2521..2522 ")"
-                                            within_group_clause@2522..2522
-                                            filter_clause@2522..2522
-                                            over_clause@2522..2522
                                       Whitespace@2522..2523 " "
                                       AS@2523..2525 "AS"
                                       Whitespace@2525..2526 " "
@@ -2324,11 +2015,7 @@ Root@0..3272
                                                     columnref@2553..2559
                                                       ColId@2553..2559
                                                         IDENT@2553..2559 "amount"
-                                            opt_sort_clause@2559..2559
                                             RParen@2559..2560 ")"
-                                          within_group_clause@2560..2560
-                                          filter_clause@2560..2560
-                                          over_clause@2560..2560
                                     Whitespace@2560..2561 " "
                                     AS@2561..2563 "AS"
                                     Whitespace@2563..2564 " "
@@ -2368,7 +2055,6 @@ Root@0..3272
                                   Whitespace@2597..2598 " "
                                   ColLabel@2598..2599
                                     IDENT@2598..2599 "X"
-                            into_clause@2599..2599
                             Whitespace@2599..2600 "\n"
                             from_clause@2600..2611
                               FROM@2600..2604 "FROM"
@@ -2379,7 +2065,6 @@ Root@0..3272
                                     qualified_name@2605..2611
                                       ColId@2605..2611
                                         IDENT@2605..2611 "orders"
-                                  opt_alias_clause@2611..2611
                             Whitespace@2611..2612 "\n"
                             where_clause@2612..2660
                               WHERE@2612..2617 "WHERE"
@@ -2399,7 +2084,6 @@ Root@0..3272
                                     select_no_parens@2629..2659
                                       simple_select@2629..2659
                                         SELECT@2629..2635 "SELECT"
-                                        opt_all_clause@2635..2635
                                         Whitespace@2635..2636 " "
                                         opt_target_list@2636..2642
                                           target_list@2636..2642
@@ -2409,7 +2093,6 @@ Root@0..3272
                                                   columnref@2636..2642
                                                     ColId@2636..2642
                                                       IDENT@2636..2642 "region"
-                                        into_clause@2642..2642
                                         Whitespace@2642..2643 " "
                                         from_clause@2643..2659
                                           FROM@2643..2647 "FROM"
@@ -2420,18 +2103,12 @@ Root@0..3272
                                                 qualified_name@2648..2659
                                                   ColId@2648..2659
                                                     IDENT@2648..2659 "top_regions"
-                                              opt_alias_clause@2659..2659
-                                        where_clause@2659..2659
-                                        group_clause@2659..2659
-                                        having_clause@2659..2659
-                                        window_clause@2659..2659
                                     RParen@2659..2660 ")"
                             Whitespace@2660..2661 "\n"
                             group_clause@2661..2685
                               GROUP_P@2661..2666 "GROUP"
                               Whitespace@2666..2667 " "
                               BY@2667..2669 "BY"
-                              set_quantifier@2669..2669
                               Whitespace@2669..2670 " "
                               group_by_list@2670..2685
                                 group_by_list@2670..2676
@@ -2449,27 +2126,23 @@ Root@0..3272
                                       columnref@2678..2685
                                         ColId@2678..2685
                                           IDENT@2678..2685 "product"
-                            having_clause@2685..2685
-                            window_clause@2685..2685
               Semicolon@2685..2686 ";"
               Whitespace@2686..2687 "\n"
               toplevel_stmt@2687..3166
                 stmt@2687..3166
                   SelectStmt@2687..3166
                     select_no_parens@2687..3166
-                      with_clause@2687..2949
+                      with_clause@2687..2930
                         WITH@2687..2691 "WITH"
                         Whitespace@2691..2692 " "
-                        cte_list@2692..2949
+                        cte_list@2692..2930
                           cte_list@2692..2795
                             common_table_expr@2692..2795
                               name@2692..2706
                                 ColId@2692..2706
                                   IDENT@2692..2706 "regional_sales"
-                              opt_name_list@2706..2706
                               Whitespace@2706..2707 " "
                               AS@2707..2709 "AS"
-                              opt_materialized@2709..2709
                               Whitespace@2709..2710 " "
                               LParen@2710..2711 "("
                               Whitespace@2711..2716 "\n    "
@@ -2478,7 +2151,6 @@ Root@0..3272
                                   select_no_parens@2716..2793
                                     simple_select@2716..2793
                                       SELECT@2716..2722 "SELECT"
-                                      opt_all_clause@2722..2722
                                       Whitespace@2722..2723 " "
                                       opt_target_list@2723..2757
                                         target_list@2723..2757
@@ -2507,17 +2179,12 @@ Root@0..3272
                                                             columnref@2735..2741
                                                               ColId@2735..2741
                                                                 IDENT@2735..2741 "amount"
-                                                    opt_sort_clause@2741..2741
                                                     RParen@2741..2742 ")"
-                                                  within_group_clause@2742..2742
-                                                  filter_clause@2742..2742
-                                                  over_clause@2742..2742
                                             Whitespace@2742..2743 " "
                                             AS@2743..2745 "AS"
                                             Whitespace@2745..2746 " "
                                             ColLabel@2746..2757
                                               IDENT@2746..2757 "total_sales"
-                                      into_clause@2757..2757
                                       Whitespace@2757..2762 "\n    "
                                       from_clause@2762..2773
                                         FROM@2762..2766 "FROM"
@@ -2528,14 +2195,11 @@ Root@0..3272
                                               qualified_name@2767..2773
                                                 ColId@2767..2773
                                                   IDENT@2767..2773 "orders"
-                                            opt_alias_clause@2773..2773
-                                      where_clause@2773..2773
                                       Whitespace@2773..2778 "\n    "
                                       group_clause@2778..2793
                                         GROUP_P@2778..2783 "GROUP"
                                         Whitespace@2783..2784 " "
                                         BY@2784..2786 "BY"
-                                        set_quantifier@2786..2786
                                         Whitespace@2786..2787 " "
                                         group_by_list@2787..2793
                                           group_by_item@2787..2793
@@ -2544,22 +2208,16 @@ Root@0..3272
                                                 columnref@2787..2793
                                                   ColId@2787..2793
                                                     IDENT@2787..2793 "region"
-                                      having_clause@2793..2793
-                                      window_clause@2793..2793
                               Whitespace@2793..2794 "\n"
                               RParen@2794..2795 ")"
-                              opt_search_clause@2795..2795
-                              opt_cycle_clause@2795..2795
                           Comma@2795..2796 ","
                           Whitespace@2796..2797 " "
-                          common_table_expr@2797..2949
+                          common_table_expr@2797..2930
                             name@2797..2808
                               ColId@2797..2808
                                 IDENT@2797..2808 "top_regions"
-                            opt_name_list@2808..2808
                             Whitespace@2808..2809 " "
                             AS@2809..2811 "AS"
-                            opt_materialized@2811..2811
                             Whitespace@2811..2812 " "
                             LParen@2812..2813 "("
                             Whitespace@2813..2818 "\n    "
@@ -2568,7 +2226,6 @@ Root@0..3272
                                 select_no_parens@2818..2928
                                   simple_select@2818..2928
                                     SELECT@2818..2824 "SELECT"
-                                    opt_all_clause@2824..2824
                                     Whitespace@2824..2825 " "
                                     opt_target_list@2825..2831
                                       target_list@2825..2831
@@ -2578,7 +2235,6 @@ Root@0..3272
                                               columnref@2825..2831
                                                 ColId@2825..2831
                                                   IDENT@2825..2831 "region"
-                                    into_clause@2831..2831
                                     Whitespace@2831..2836 "\n    "
                                     from_clause@2836..2855
                                       FROM@2836..2840 "FROM"
@@ -2589,7 +2245,6 @@ Root@0..3272
                                             qualified_name@2841..2855
                                               ColId@2841..2855
                                                 IDENT@2841..2855 "regional_sales"
-                                          opt_alias_clause@2855..2855
                                     Whitespace@2855..2860 "\n    "
                                     where_clause@2860..2928
                                       WHERE@2860..2865 "WHERE"
@@ -2610,7 +2265,6 @@ Root@0..3272
                                               select_no_parens@2881..2927
                                                 simple_select@2881..2927
                                                   SELECT@2881..2887 "SELECT"
-                                                  opt_all_clause@2887..2887
                                                   Whitespace@2887..2888 " "
                                                   opt_target_list@2888..2907
                                                     target_list@2888..2907
@@ -2631,18 +2285,13 @@ Root@0..3272
                                                                           columnref@2892..2903
                                                                             ColId@2892..2903
                                                                               IDENT@2892..2903 "total_sales"
-                                                                  opt_sort_clause@2903..2903
                                                                   RParen@2903..2904 ")"
-                                                                within_group_clause@2904..2904
-                                                                filter_clause@2904..2904
-                                                                over_clause@2904..2904
                                                           Slash@2904..2905 "/"
                                                           a_expr@2905..2907
                                                             c_expr@2905..2907
                                                               AexprConst@2905..2907
                                                                 Iconst@2905..2907
                                                                   ICONST@2905..2907 "10"
-                                                  into_clause@2907..2907
                                                   Whitespace@2907..2908 " "
                                                   from_clause@2908..2927
                                                     FROM@2908..2912 "FROM"
@@ -2653,28 +2302,17 @@ Root@0..3272
                                                           qualified_name@2913..2927
                                                             ColId@2913..2927
                                                               IDENT@2913..2927 "regional_sales"
-                                                        opt_alias_clause@2927..2927
-                                                  where_clause@2927..2927
-                                                  group_clause@2927..2927
-                                                  having_clause@2927..2927
-                                                  window_clause@2927..2927
                                               RParen@2927..2928 ")"
-                                    group_clause@2928..2928
-                                    having_clause@2928..2928
-                                    window_clause@2928..2928
                             Whitespace@2928..2929 "\n"
                             RParen@2929..2930 ")"
-                            Whitespace@2930..2931 "\n"
-                            SQL_COMMENT@2931..2938 "-- test"
-                            Whitespace@2938..2939 "\n"
-                            C_COMMENT@2939..2949 "/* test */"
-                            opt_search_clause@2949..2949
-                            opt_cycle_clause@2949..2949
+                      Whitespace@2930..2931 "\n"
+                      SQL_COMMENT@2931..2938 "-- test"
+                      Whitespace@2938..2939 "\n"
+                      C_COMMENT@2939..2949 "/* test */"
                       Whitespace@2949..2950 "\n"
                       select_clause@2950..3166
                         simple_select@2950..3166
                           SELECT@2950..2956 "SELECT"
-                          opt_all_clause@2956..2956
                           Whitespace@2956..2957 " "
                           opt_target_list@2957..3080
                             target_list@2957..3080
@@ -2714,11 +2352,7 @@ Root@0..3272
                                                     columnref@2994..3002
                                                       ColId@2994..3002
                                                         IDENT@2994..3002 "quantity"
-                                            opt_sort_clause@3002..3002
                                             RParen@3002..3003 ")"
-                                          within_group_clause@3003..3003
-                                          filter_clause@3003..3003
-                                          over_clause@3003..3003
                                     Whitespace@3003..3004 " "
                                     AS@3004..3006 "AS"
                                     Whitespace@3006..3007 " "
@@ -2742,11 +2376,7 @@ Root@0..3272
                                                   columnref@3034..3040
                                                     ColId@3034..3040
                                                       IDENT@3034..3040 "amount"
-                                          opt_sort_clause@3040..3040
                                           RParen@3040..3041 ")"
-                                        within_group_clause@3041..3041
-                                        filter_clause@3041..3041
-                                        over_clause@3041..3041
                                   Whitespace@3041..3042 " "
                                   AS@3042..3044 "AS"
                                   Whitespace@3044..3045 " "
@@ -2786,7 +2416,6 @@ Root@0..3272
                                 Whitespace@3078..3079 " "
                                 ColLabel@3079..3080
                                   IDENT@3079..3080 "X"
-                          into_clause@3080..3080
                           Whitespace@3080..3081 "\n"
                           from_clause@3081..3092
                             FROM@3081..3085 "FROM"
@@ -2797,7 +2426,6 @@ Root@0..3272
                                   qualified_name@3086..3092
                                     ColId@3086..3092
                                       IDENT@3086..3092 "orders"
-                                opt_alias_clause@3092..3092
                           Whitespace@3092..3093 "\n"
                           where_clause@3093..3141
                             WHERE@3093..3098 "WHERE"
@@ -2817,7 +2445,6 @@ Root@0..3272
                                   select_no_parens@3110..3140
                                     simple_select@3110..3140
                                       SELECT@3110..3116 "SELECT"
-                                      opt_all_clause@3116..3116
                                       Whitespace@3116..3117 " "
                                       opt_target_list@3117..3123
                                         target_list@3117..3123
@@ -2827,7 +2454,6 @@ Root@0..3272
                                                 columnref@3117..3123
                                                   ColId@3117..3123
                                                     IDENT@3117..3123 "region"
-                                      into_clause@3123..3123
                                       Whitespace@3123..3124 " "
                                       from_clause@3124..3140
                                         FROM@3124..3128 "FROM"
@@ -2838,18 +2464,12 @@ Root@0..3272
                                               qualified_name@3129..3140
                                                 ColId@3129..3140
                                                   IDENT@3129..3140 "top_regions"
-                                            opt_alias_clause@3140..3140
-                                      where_clause@3140..3140
-                                      group_clause@3140..3140
-                                      having_clause@3140..3140
-                                      window_clause@3140..3140
                                   RParen@3140..3141 ")"
                           Whitespace@3141..3142 "\n"
                           group_clause@3142..3166
                             GROUP_P@3142..3147 "GROUP"
                             Whitespace@3147..3148 " "
                             BY@3148..3150 "BY"
-                            set_quantifier@3150..3150
                             Whitespace@3150..3151 " "
                             group_by_list@3151..3166
                               group_by_list@3151..3157
@@ -2867,23 +2487,20 @@ Root@0..3272
                                     columnref@3159..3166
                                       ColId@3159..3166
                                         IDENT@3159..3166 "product"
-                          having_clause@3166..3166
-                          window_clause@3166..3166
             Semicolon@3166..3167 ";"
             Whitespace@3167..3168 "\n"
             SQL_COMMENT@3168..3172 "-- a"
             Whitespace@3172..3173 "\n"
             C_COMMENT@3173..3180 "/* b */"
             Whitespace@3180..3181 "\n"
-            toplevel_stmt@3181..3235
-              stmt@3181..3235
-                SelectStmt@3181..3235
-                  select_no_parens@3181..3235
-                    simple_select@3181..3235
+            toplevel_stmt@3181..3230
+              stmt@3181..3230
+                SelectStmt@3181..3230
+                  select_no_parens@3181..3230
+                    simple_select@3181..3230
                       SELECT@3181..3187 "SELECT"
                       Whitespace@3187..3188 " "
                       C_COMMENT@3188..3194 "/*$c*/"
-                      opt_all_clause@3194..3194
                       opt_target_list@3194..3230
                         target_list@3194..3230
                           target_list@3194..3215
@@ -2925,14 +2542,8 @@ Root@0..3272
                                 columnref@3229..3230
                                   ColId@3229..3230
                                     IDENT@3229..3230 "c"
-                      Whitespace@3230..3231 " "
-                      SQL_COMMENT@3231..3235 "-- g"
-                      into_clause@3235..3235
-                      from_clause@3235..3235
-                      where_clause@3235..3235
-                      group_clause@3235..3235
-                      having_clause@3235..3235
-                      window_clause@3235..3235
+          Whitespace@3230..3231 " "
+          SQL_COMMENT@3231..3235 "-- g"
           Whitespace@3235..3236 "\n"
           Semicolon@3236..3237 ";"
           Whitespace@3237..3238 " "
@@ -2944,7 +2555,6 @@ Root@0..3272
                 select_no_parens@3243..3253
                   simple_select@3243..3253
                     SELECT@3243..3249 "select"
-                    opt_all_clause@3249..3249
                     Whitespace@3249..3250 " "
                     opt_target_list@3250..3253
                       target_list@3250..3253
@@ -2958,12 +2568,6 @@ Root@0..3272
                                   AexprConst@3252..3253
                                     Iconst@3252..3253
                                       ICONST@3252..3253 "1"
-                    into_clause@3253..3253
-                    from_clause@3253..3253
-                    where_clause@3253..3253
-                    group_clause@3253..3253
-                    having_clause@3253..3253
-                    window_clause@3253..3253
         Semicolon@3253..3254 ";"
         Whitespace@3254..3255 "\n"
         toplevel_stmt@3255..3271
@@ -2972,7 +2576,6 @@ Root@0..3272
               select_no_parens@3255..3271
                 simple_select@3255..3271
                   SELECT@3255..3261 "select"
-                  opt_all_clause@3261..3261
                   Whitespace@3261..3262 " "
                   opt_target_list@3262..3271
                     target_list@3262..3271
@@ -2982,12 +2585,4 @@ Root@0..3272
                             columnref@3262..3271
                               ColId@3262..3271
                                 IDENT@3262..3271 "カラム"
-                  into_clause@3271..3271
-                  from_clause@3271..3271
-                  where_clause@3271..3271
-                  group_clause@3271..3271
-                  having_clause@3271..3271
-                  window_clause@3271..3271
       Semicolon@3271..3272 ";"
-      toplevel_stmt@3272..3272
-        stmt@3272..3272

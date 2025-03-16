@@ -22,7 +22,6 @@ Root@0..725
                                   UNIQUE@74..80 "UNIQUE"
                                 Whitespace@80..81 " "
                                 INDEX@81..86 "INDEX"
-                                opt_concurrently@86..86
                                 Whitespace@86..87 " "
                                 opt_single_name@87..96
                                   ColId@87..96
@@ -34,35 +33,21 @@ Root@0..725
                                   qualified_name@100..105
                                     ColId@100..105
                                       IDENT@100..105 "films"
-                                access_method_clause@105..105
                                 Whitespace@105..106 " "
                                 LParen@106..107 "("
                                 index_params@107..112
                                   index_elem@107..112
                                     ColId@107..112
                                       IDENT@107..112 "title"
-                                    index_elem_options@112..112
-                                      opt_collate@112..112
-                                      opt_qualified_name@112..112
-                                      opt_asc_desc@112..112
-                                      opt_nulls_order@112..112
                                 RParen@112..113 ")"
-                                opt_include@113..113
-                                opt_unique_null_treatment@113..113
-                                opt_reloptions@113..113
-                                OptTableSpace@113..113
-                                where_clause@113..113
                         Semicolon@113..114 ";"
                         Whitespace@114..115 "\n"
                         toplevel_stmt@115..153
                           stmt@115..153
                             IndexStmt@115..153
                               CREATE@115..121 "CREATE"
-                              opt_unique@121..121
                               Whitespace@121..122 " "
                               INDEX@122..127 "INDEX"
-                              opt_concurrently@127..127
-                              opt_single_name@127..127
                               Whitespace@127..128 " "
                               ON@128..130 "ON"
                               Whitespace@130..131 " "
@@ -70,7 +55,6 @@ Root@0..725
                                 qualified_name@131..136
                                   ColId@131..136
                                     IDENT@131..136 "films"
-                              access_method_clause@136..136
                               Whitespace@136..137 " "
                               LParen@137..138 "("
                               index_params@138..152
@@ -91,33 +75,17 @@ Root@0..725
                                                   columnref@145..150
                                                     ColId@145..150
                                                       IDENT@145..150 "title"
-                                          opt_sort_clause@150..150
                                           RParen@150..151 ")"
-                                        within_group_clause@151..151
-                                        filter_clause@151..151
-                                        over_clause@151..151
                                   RParen@151..152 ")"
-                                  index_elem_options@152..152
-                                    opt_collate@152..152
-                                    opt_qualified_name@152..152
-                                    opt_asc_desc@152..152
-                                    opt_nulls_order@152..152
                               RParen@152..153 ")"
-                              opt_include@153..153
-                              opt_unique_null_treatment@153..153
-                              opt_reloptions@153..153
-                              OptTableSpace@153..153
-                              where_clause@153..153
                       Semicolon@153..154 ";"
                       Whitespace@154..155 "\n"
                       toplevel_stmt@155..217
                         stmt@155..217
                           IndexStmt@155..217
                             CREATE@155..161 "CREATE"
-                            opt_unique@161..161
                             Whitespace@161..162 " "
                             INDEX@162..167 "INDEX"
-                            opt_concurrently@167..167
                             Whitespace@167..168 " "
                             opt_single_name@168..184
                               ColId@168..184
@@ -129,7 +97,6 @@ Root@0..725
                               qualified_name@188..193
                                 ColId@188..193
                                   IDENT@188..193 "films"
-                            access_method_clause@193..193
                             Whitespace@193..194 " "
                             LParen@194..195 "("
                             index_params@195..216
@@ -144,25 +111,15 @@ Root@0..725
                                     any_name@209..216
                                       ColId@209..216
                                         IDENT@209..216 "\"de_DE\""
-                                  opt_qualified_name@216..216
-                                  opt_asc_desc@216..216
-                                  opt_nulls_order@216..216
                             RParen@216..217 ")"
-                            opt_include@217..217
-                            opt_unique_null_treatment@217..217
-                            opt_reloptions@217..217
-                            OptTableSpace@217..217
-                            where_clause@217..217
                     Semicolon@217..218 ";"
                     Whitespace@218..219 "\n"
                     toplevel_stmt@219..280
                       stmt@219..280
                         IndexStmt@219..280
                           CREATE@219..225 "CREATE"
-                          opt_unique@225..225
                           Whitespace@225..226 " "
                           INDEX@226..231 "INDEX"
-                          opt_concurrently@231..231
                           Whitespace@231..232 " "
                           opt_single_name@232..251
                             ColId@232..251
@@ -174,7 +131,6 @@ Root@0..725
                             qualified_name@255..260
                               ColId@255..260
                                 IDENT@255..260 "films"
-                          access_method_clause@260..260
                           Whitespace@260..261 " "
                           LParen@261..262 "("
                           index_params@262..279
@@ -182,20 +138,12 @@ Root@0..725
                               ColId@262..267
                                 IDENT@262..267 "title"
                               index_elem_options@267..279
-                                opt_collate@267..267
-                                opt_qualified_name@267..267
-                                opt_asc_desc@267..267
                                 Whitespace@267..268 " "
                                 opt_nulls_order@268..279
                                   NULLS_LA@268..273 "NULLS"
                                   Whitespace@273..274 " "
                                   FIRST_P@274..279 "FIRST"
                           RParen@279..280 ")"
-                          opt_include@280..280
-                          opt_unique_null_treatment@280..280
-                          opt_reloptions@280..280
-                          OptTableSpace@280..280
-                          where_clause@280..280
                   Semicolon@280..281 ";"
                   Whitespace@281..282 "\n"
                   toplevel_stmt@282..351
@@ -207,7 +155,6 @@ Root@0..725
                           UNIQUE@289..295 "UNIQUE"
                         Whitespace@295..296 " "
                         INDEX@296..301 "INDEX"
-                        opt_concurrently@301..301
                         Whitespace@301..302 " "
                         opt_single_name@302..311
                           ColId@302..311
@@ -219,21 +166,13 @@ Root@0..725
                           qualified_name@315..320
                             ColId@315..320
                               IDENT@315..320 "films"
-                        access_method_clause@320..320
                         Whitespace@320..321 " "
                         LParen@321..322 "("
                         index_params@322..327
                           index_elem@322..327
                             ColId@322..327
                               IDENT@322..327 "title"
-                            index_elem_options@327..327
-                              opt_collate@327..327
-                              opt_qualified_name@327..327
-                              opt_asc_desc@327..327
-                              opt_nulls_order@327..327
                         RParen@327..328 ")"
-                        opt_include@328..328
-                        opt_unique_null_treatment@328..328
                         Whitespace@328..329 " "
                         opt_reloptions@329..351
                           WITH@329..333 "WITH"
@@ -253,18 +192,14 @@ Root@0..725
                                       Iconst@348..350
                                         ICONST@348..350 "70"
                             RParen@350..351 ")"
-                        OptTableSpace@351..351
-                        where_clause@351..351
                 Semicolon@351..352 ";"
                 Whitespace@352..353 "\n"
                 toplevel_stmt@353..438
                   stmt@353..438
                     IndexStmt@353..438
                       CREATE@353..359 "CREATE"
-                      opt_unique@359..359
                       Whitespace@359..360 " "
                       INDEX@360..365 "INDEX"
-                      opt_concurrently@365..365
                       Whitespace@365..366 " "
                       opt_single_name@366..373
                         ColId@366..373
@@ -289,14 +224,7 @@ Root@0..725
                         index_elem@404..413
                           ColId@404..413
                             IDENT@404..413 "locations"
-                          index_elem_options@413..413
-                            opt_collate@413..413
-                            opt_qualified_name@413..413
-                            opt_asc_desc@413..413
-                            opt_nulls_order@413..413
                       RParen@413..414 ")"
-                      opt_include@414..414
-                      opt_unique_null_treatment@414..414
                       Whitespace@414..415 " "
                       opt_reloptions@415..438
                         WITH@415..419 "WITH"
@@ -318,21 +246,15 @@ Root@0..725
                                         type_function_name@434..437
                                           unreserved_keyword@434..437
                                             OFF@434..437 "off"
-                                        opt_type_modifiers@437..437
-                                    opt_array_bounds@437..437
                           RParen@437..438 ")"
-                      OptTableSpace@438..438
-                      where_clause@438..438
               Semicolon@438..439 ";"
               Whitespace@439..440 "\n"
               toplevel_stmt@440..499
                 stmt@440..499
                   IndexStmt@440..499
                     CREATE@440..446 "CREATE"
-                    opt_unique@446..446
                     Whitespace@446..447 " "
                     INDEX@447..452 "INDEX"
-                    opt_concurrently@452..452
                     Whitespace@452..453 " "
                     opt_single_name@453..461
                       ColId@453..461
@@ -344,22 +266,13 @@ Root@0..725
                       qualified_name@465..470
                         ColId@465..470
                           IDENT@465..470 "films"
-                    access_method_clause@470..470
                     Whitespace@470..471 " "
                     LParen@471..472 "("
                     index_params@472..476
                       index_elem@472..476
                         ColId@472..476
                           IDENT@472..476 "code"
-                        index_elem_options@476..476
-                          opt_collate@476..476
-                          opt_qualified_name@476..476
-                          opt_asc_desc@476..476
-                          opt_nulls_order@476..476
                     RParen@476..477 ")"
-                    opt_include@477..477
-                    opt_unique_null_treatment@477..477
-                    opt_reloptions@477..477
                     Whitespace@477..478 " "
                     OptTableSpace@478..499
                       TABLESPACE@478..488 "TABLESPACE"
@@ -367,17 +280,14 @@ Root@0..725
                       name@489..499
                         ColId@489..499
                           IDENT@489..499 "indexspace"
-                    where_clause@499..499
             Semicolon@499..500 ";"
             Whitespace@500..501 "\n"
             toplevel_stmt@501..572
               stmt@501..572
                 IndexStmt@501..572
                   CREATE@501..507 "CREATE"
-                  opt_unique@507..507
                   Whitespace@507..508 " "
                   INDEX@508..513 "INDEX"
-                  opt_concurrently@513..513
                   Whitespace@513..514 " "
                   opt_single_name@514..522
                     ColId@514..522
@@ -423,19 +333,8 @@ Root@0..725
                                     ColId@562..570
                                       unreserved_keyword@562..570
                                         LOCATION@562..570 "location"
-                          opt_sort_clause@570..570
                           RParen@570..571 ")"
-                      index_elem_options@571..571
-                        opt_collate@571..571
-                        opt_qualified_name@571..571
-                        opt_asc_desc@571..571
-                        opt_nulls_order@571..571
                   RParen@571..572 ")"
-                  opt_include@572..572
-                  opt_unique_null_treatment@572..572
-                  opt_reloptions@572..572
-                  OptTableSpace@572..572
-                  where_clause@572..572
           Semicolon@572..573 ";"
           Whitespace@573..574 "\n"
           toplevel_stmt@574..649
@@ -444,13 +343,11 @@ Root@0..725
                 select_no_parens@574..649
                   simple_select@574..649
                     SELECT@574..580 "SELECT"
-                    opt_all_clause@580..580
                     Whitespace@580..581 " "
                     opt_target_list@581..582
                       target_list@581..582
                         target_el@581..582
                           Star@581..582 "*"
-                    into_clause@582..582
                     Whitespace@582..583 " "
                     from_clause@583..594
                       FROM@583..587 "FROM"
@@ -461,7 +358,6 @@ Root@0..725
                             qualified_name@588..594
                               ColId@588..594
                                 IDENT@588..594 "points"
-                          opt_alias_clause@594..594
                     Whitespace@594..599 "\n    "
                     where_clause@599..649
                       WHERE@599..604 "WHERE"
@@ -492,11 +388,7 @@ Root@0..725
                                           ColId@618..626
                                             unreserved_keyword@618..626
                                               LOCATION@618..626 "location"
-                                opt_sort_clause@626..626
                                 RParen@626..627 ")"
-                              within_group_clause@627..627
-                              filter_clause@627..627
-                              over_clause@627..627
                         Whitespace@627..628 " "
                         qual_Op@628..630
                           Op@628..630 "&&"
@@ -513,18 +405,12 @@ Root@0..725
                               GenericType@646..649
                                 type_function_name@646..649
                                   IDENT@646..649 "box"
-                                opt_type_modifiers@649..649
-                            opt_array_bounds@649..649
-                    group_clause@649..649
-                    having_clause@649..649
-                    window_clause@649..649
         Semicolon@649..650 ";"
         Whitespace@650..651 "\n"
         toplevel_stmt@651..723
           stmt@651..723
             IndexStmt@651..723
               CREATE@651..657 "CREATE"
-              opt_unique@657..657
               Whitespace@657..658 " "
               INDEX@658..663 "INDEX"
               Whitespace@663..664 " "
@@ -541,25 +427,12 @@ Root@0..725
                 qualified_name@701..712
                   ColId@701..712
                     IDENT@701..712 "sales_table"
-              access_method_clause@712..712
               Whitespace@712..713 " "
               LParen@713..714 "("
               index_params@714..722
                 index_elem@714..722
                   ColId@714..722
                     IDENT@714..722 "quantity"
-                  index_elem_options@722..722
-                    opt_collate@722..722
-                    opt_qualified_name@722..722
-                    opt_asc_desc@722..722
-                    opt_nulls_order@722..722
               RParen@722..723 ")"
-              opt_include@723..723
-              opt_unique_null_treatment@723..723
-              opt_reloptions@723..723
-              OptTableSpace@723..723
-              where_clause@723..723
       Semicolon@723..724 ";"
-      toplevel_stmt@724..724
-        stmt@724..724
   Whitespace@724..725 "\n"
