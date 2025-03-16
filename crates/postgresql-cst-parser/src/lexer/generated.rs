@@ -6,13 +6,32 @@ use std::collections::HashMap;
 use regex::bytes::Regex;
 
 use super::{
-    util::{get_char_by_byte_pos, yyerror},
-    {Lexer, Rule, TokenKind, Yylval, NAMEDATALEN},
+    util::get_char_by_byte_pos,
+    {Lexer, ParserError, Rule, TokenKind, Yylval, NAMEDATALEN},
 };
+
+macro_rules! ereport {
+    ($lexer:expr, ERROR, (errcode($err_code:expr), errmsg($err_msg:expr), errdetail($err_detail:expr), $err_position:expr)) => {
+        return Err(ParserError::new_report(
+            $err_msg,
+            $err_detail,
+            $err_position,
+        ));
+    };
+    ($lexer:expr, WARNING, (errcode($err_code:expr), errmsg($err_msg:expr), errdetail($err_detail:expr), $err_position:expr)) => {
+        $lexer.add_warning(ScanReport::new($err_msg, $err_detail, $err_position));
+    };
+}
+
+macro_rules! yyerror {
+    ($msg:expr) => {
+        return Err(ParserError::new_error($msg))
+    };
+}
 
 macro_rules! yyterminate {
     () => {
-        return None;
+        return Ok(None);
     };
 }
 
@@ -133,7 +152,7 @@ pub enum State {
 const STANDARD_CONFORMING_STRINGS: bool = true;
 
 impl Lexer {
-    pub fn parse_token(&mut self) -> Option<TokenKind> {
+    pub fn parse_token(&mut self) -> Result<Option<TokenKind>, ParserError> {
         loop {
             let (m, kind) = self.find_match();
 
@@ -145,11 +164,23 @@ impl Lexer {
                     { /* ignore */ }
                 }
                 RuleKind::INITIAL2 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::SQL_COMMENT);
+                    {
+                        // SET_YYLLOC();
+                        // return SQL_COMMENT;
+
+                        self.set_yylloc();
+                        return Ok(Some(TokenKind::SQL_COMMENT));
+                    }
                 }
                 RuleKind::INITIAL3 => {
                     {
+                        // /* Set location in case of syntax error in comment */
+                        // SET_YYLLOC();
+                        // yyextra->xcdepth = 0;
+                        // BEGIN(xc);
+                        // /* Put back any characters past slash-star; see above */
+                        // yyless(2);
+
                         /* Set location in case of syntax error in comment */
                         self.set_yylloc();
                         self.xcdepth = 0;
@@ -160,18 +191,33 @@ impl Lexer {
                 }
                 RuleKind::xc1 => {
                     {
+                        // (yyextra->xcdepth)++;
+                        // /* Put back any characters past slash-star; see above */
+                        // yyless(2);
+
                         self.xcdepth += 1;
                         /* Put back any characters past slash-star; see above */
                         self.yyless(2);
                     }
                 }
                 RuleKind::xc2 => {
-                    if self.xcdepth <= 0 {
-                        self.begin(State::INITIAL);
-                        self.set_yyllocend();
-                        return Some(TokenKind::C_COMMENT);
-                    } else {
-                        self.xcdepth -= 1;
+                    {
+                        // if (yyextra->xcdepth <= 0)
+                        // {
+                        // 	BEGIN(INITIAL);
+                        // 	yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+                        // 	return C_COMMENT;
+                        // }
+                        // else
+                        // 	(yyextra->xcdepth)--;
+
+                        if self.xcdepth <= 0 {
+                            self.begin(State::INITIAL);
+                            self.set_yyllocend();
+                            return Ok(Some(TokenKind::C_COMMENT));
+                        } else {
+                            self.xcdepth -= 1;
+                        }
                     }
                 }
                 RuleKind::xc3 => {
@@ -184,10 +230,21 @@ impl Lexer {
                     { /* ignore */ }
                 }
                 RuleKind::xc6 => {
-                    yyerror("unterminated /* comment");
+                    yyerror!("unterminated /* comment");
                 }
                 RuleKind::INITIAL4 => {
                     {
+                        // /* Binary bit type.
+                        //  * At some point we should simply pass the string
+                        //  * forward to the parser and label it there.
+                        //  * In the meantime, place a leading "b" on the string
+                        //  * to mark it for the input routine as a binary string.
+                        //  */
+                        // SET_YYLLOC();
+                        // BEGIN(xb);
+                        // startlit();
+                        // addlitchar('b', yyscanner);
+
                         /* Binary bit type.
                          * At some point we should simply pass the string
                          * forward to the parser and label it there.
@@ -197,21 +254,32 @@ impl Lexer {
                         self.set_yylloc();
                         self.begin(State::xb);
                         self.literal.clear();
-                        // self.literal += 'b';
                         self.addlitchar('b');
                     }
                 }
                 RuleKind::xh1 | RuleKind::xb1 => {
                     {
                         // addlit(yytext, yyleng, yyscanner);
+
                         self.addlit(self.yyleng);
                     }
                 }
                 RuleKind::xb2 => {
-                    yyerror("unterminated bit string literal");
+                    yyerror!("unterminated bit string literal");
                 }
                 RuleKind::INITIAL5 => {
                     {
+                        // /* Hexadecimal bit type.
+                        //  * At some point we should simply pass the string
+                        //  * forward to the parser and label it there.
+                        //  * In the meantime, place a leading "x" on the string
+                        //  * to mark it for the input routine as a hex string.
+                        //  */
+                        // SET_YYLLOC();
+                        // BEGIN(xh);
+                        // startlit();
+                        // addlitchar('x', yyscanner);
+
                         /* Hexadecimal bit type.
                          * At some point we should simply pass the string
                          * forward to the parser and label it there.
@@ -221,19 +289,18 @@ impl Lexer {
                         self.set_yylloc();
                         self.begin(State::xh);
                         self.literal.clear();
-                        // self.literal += 'x';
                         self.addlitchar('x');
                     }
                 }
                 RuleKind::xh2 => {
-                    yyerror("unterminated hexadecimal string literal");
+                    yyerror!("unterminated hexadecimal string literal");
                 }
                 RuleKind::INITIAL6 => {
                     {
-                        /* National character.
-                         * We will pass this along as a normal character string,
-                         * but preceded with an internally-generated "NCHAR".
-                         */
+                        // /* National character.
+                        //  * We will pass this along as a normal character string,
+                        //  * but preceded with an internally-generated "NCHAR".
+                        //  */
                         // int		kwnum;
                         //
                         // SET_YYLLOC();
@@ -260,12 +327,12 @@ impl Lexer {
 
                         if let Some((kw, kw_token)) = self.get_keyword("nchar") {
                             self.yylval = Yylval::Keyword(kw);
-                            return Some(TokenKind::KEYWORD(kw_token));
+                            return Ok(Some(TokenKind::KEYWORD(kw_token)));
                         } else {
                             /* If NCHAR isn't a keyword, just return "n" */
                             self.yylval = Yylval::Str("n".to_string());
                             self.set_yyllocend();
-                            return Some(TokenKind::IDENT);
+                            return Ok(Some(TokenKind::IDENT));
                         }
                     }
                 }
@@ -280,6 +347,8 @@ impl Lexer {
                         // 	BEGIN(xe);
                         // startlit();
 
+                        self.warn_on_first_escape = true;
+                        self.saw_non_ascii = false;
                         self.set_yylloc();
                         if STANDARD_CONFORMING_STRINGS {
                             self.begin(State::xq);
@@ -297,6 +366,8 @@ impl Lexer {
                         // BEGIN(xe);
                         // startlit();
 
+                        self.warn_on_first_escape = false;
+                        self.saw_non_ascii = false;
                         self.set_yylloc();
                         self.begin(State::xe);
                         self.literal.clear();
@@ -316,11 +387,11 @@ impl Lexer {
 
                         self.set_yylloc();
                         if !STANDARD_CONFORMING_STRINGS {
-                            // ereport(ERROR,
-                            // 		(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-                            // 		 errmsg("unsafe use of string constant with Unicode escapes"),
-                            // 		 errdetail("String constants with Unicode escapes cannot be used when standard_conforming_strings is off."),
-                            // 		 lexer_errposition()));
+                            ereport!(self, ERROR,
+								(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+								 errmsg("unsafe use of string constant with Unicode escapes"),
+								 errdetail("String constants with Unicode escapes cannot be used when standard_conforming_strings is off."),
+								 self.lexer_errposition()));
                         }
                         self.begin(State::xus);
                         self.literal.clear();
@@ -328,6 +399,17 @@ impl Lexer {
                 }
                 RuleKind::xb3 => {
                     {
+                        // /*
+                        //  * When we are scanning a quoted string and see an end
+                        //  * quote, we must look ahead for a possible continuation.
+                        //  * If we don't see one, we know the end quote was in fact
+                        //  * the end of the string.  To reduce the lexer table size,
+                        //  * we use a single "xqs" state to do the lookahead for all
+                        //  * types of strings.
+                        //  */
+                        // yyextra->state_before_str_stop = YYSTATE;
+                        // BEGIN(xqs);
+
                         /*
                          * When we are scanning a quoted string and see an end
                          * quote, we must look ahead for a possible continuation.
@@ -342,6 +424,17 @@ impl Lexer {
                 }
                 RuleKind::xh3 => {
                     {
+                        // /*
+                        //  * When we are scanning a quoted string and see an end
+                        //  * quote, we must look ahead for a possible continuation.
+                        //  * If we don't see one, we know the end quote was in fact
+                        //  * the end of the string.  To reduce the lexer table size,
+                        //  * we use a single "xqs" state to do the lookahead for all
+                        //  * types of strings.
+                        //  */
+                        // yyextra->state_before_str_stop = YYSTATE;
+                        // BEGIN(xqs);
+
                         /*
                          * When we are scanning a quoted string and see an end
                          * quote, we must look ahead for a possible continuation.
@@ -356,6 +449,17 @@ impl Lexer {
                 }
                 RuleKind::xq1 => {
                     {
+                        // /*
+                        //  * When we are scanning a quoted string and see an end
+                        //  * quote, we must look ahead for a possible continuation.
+                        //  * If we don't see one, we know the end quote was in fact
+                        //  * the end of the string.  To reduce the lexer table size,
+                        //  * we use a single "xqs" state to do the lookahead for all
+                        //  * types of strings.
+                        //  */
+                        // yyextra->state_before_str_stop = YYSTATE;
+                        // BEGIN(xqs);
+
                         /*
                          * When we are scanning a quoted string and see an end
                          * quote, we must look ahead for a possible continuation.
@@ -370,6 +474,17 @@ impl Lexer {
                 }
                 RuleKind::xe1 => {
                     {
+                        // /*
+                        //  * When we are scanning a quoted string and see an end
+                        //  * quote, we must look ahead for a possible continuation.
+                        //  * If we don't see one, we know the end quote was in fact
+                        //  * the end of the string.  To reduce the lexer table size,
+                        //  * we use a single "xqs" state to do the lookahead for all
+                        //  * types of strings.
+                        //  */
+                        // yyextra->state_before_str_stop = YYSTATE;
+                        // BEGIN(xqs);
+
                         /*
                          * When we are scanning a quoted string and see an end
                          * quote, we must look ahead for a possible continuation.
@@ -384,6 +499,17 @@ impl Lexer {
                 }
                 RuleKind::xus1 => {
                     {
+                        // /*
+                        //  * When we are scanning a quoted string and see an end
+                        //  * quote, we must look ahead for a possible continuation.
+                        //  * If we don't see one, we know the end quote was in fact
+                        //  * the end of the string.  To reduce the lexer table size,
+                        //  * we use a single "xqs" state to do the lookahead for all
+                        //  * types of strings.
+                        //  */
+                        // yyextra->state_before_str_stop = YYSTATE;
+                        // BEGIN(xqs);
+
                         /*
                          * When we are scanning a quoted string and see an end
                          * quote, we must look ahead for a possible continuation.
@@ -398,6 +524,13 @@ impl Lexer {
                 }
                 RuleKind::xqs1 => {
                     {
+                        // /*
+                        //  * Found a quote continuation, so return to the in-quote
+                        //  * state and continue scanning the literal.  Nothing is
+                        //  * added to the literal's contents.
+                        //  */
+                        // BEGIN(yyextra->state_before_str_stop);
+
                         /*
                          * Found a quote continuation, so return to the in-quote
                          * state and continue scanning the literal.  Nothing is
@@ -408,14 +541,14 @@ impl Lexer {
                 }
                 RuleKind::xqs2 | RuleKind::xqs3 | RuleKind::xqs4 => {
                     {
-                        /*
-                         * Failed to see a quote continuation.  Throw back
-                         * everything after the end quote, and handle the string
-                         * according to the state we were in previously.
-                         */
-                        self.yyless(0);
-                        self.begin(State::INITIAL);
-
+                        // /*
+                        //  * Failed to see a quote continuation.  Throw back
+                        //  * everything after the end quote, and handle the string
+                        //  * according to the state we were in previously.
+                        //  */
+                        // yyless(0);
+                        // BEGIN(INITIAL);
+                        //
                         // switch (yyextra->state_before_str_stop)
                         // {
                         // 	case xb:
@@ -447,198 +580,204 @@ impl Lexer {
                         // 		yyerror("unhandled previous state in xqs");
                         // }
 
+                        /*
+                         * Failed to see a quote continuation.  Throw back
+                         * everything after the end quote, and handle the string
+                         * according to the state we were in previously.
+                         */
+                        self.yyless(0);
+                        self.begin(State::INITIAL);
+
                         match self.state_before_str_stop {
                             State::xb => {
                                 self.yylval = Yylval::Str(self.literal.clone());
                                 self.set_yyllocend();
-                                return Some(TokenKind::BCONST);
+                                return Ok(Some(TokenKind::BCONST));
                             }
                             State::xh => {
                                 self.yylval = Yylval::Str(self.literal.clone());
                                 self.set_yyllocend();
-                                return Some(TokenKind::XCONST);
+                                return Ok(Some(TokenKind::XCONST));
                             }
                             State::xq | State::xe => {
                                 /*
                                  * Check that the data remains valid, if it might
                                  * have been made invalid by unescaping any chars.
                                  */
+                                // TODO verify
                                 // if (yyextra->saw_non_ascii)
                                 // 	pg_verifymbstr(yyextra->literalbuf,
                                 // 				   yyextra->literallen,
                                 // 				   false);
                                 self.yylval = Yylval::Str(self.literal.clone());
                                 self.set_yyllocend();
-                                return Some(TokenKind::SCONST);
+                                return Ok(Some(TokenKind::SCONST));
                             }
                             State::xus => {
                                 self.yylval = Yylval::Str(self.literal.clone());
                                 self.set_yyllocend();
-                                return Some(TokenKind::USCONST);
+                                return Ok(Some(TokenKind::USCONST));
                             }
-                            _ => yyerror("unhandled previous state in xqs"),
+                            _ => yyerror!("unhandled previous state in xqs"),
                         }
                     }
                 }
                 RuleKind::xq2 => {
                     {
                         // self.literal += '\'';
+
                         self.addlitchar('\'');
                     }
                 }
                 RuleKind::xe2 => {
                     {
                         // self.literal += '\'';
+
                         self.addlitchar('\'');
                     }
                 }
                 RuleKind::xus2 => {
                     {
                         // self.literal += '\'';
+
                         self.addlitchar('\'');
                     }
                 }
                 RuleKind::xq3 => {
                     {
                         // addlit(yytext, yyleng, yyscanner);
-                        // self.literal += self.input[self.index_bytes..self.index_bytes + self.yyleng];
+
                         self.addlit(self.yyleng);
                     }
                 }
                 RuleKind::xus3 => {
                     {
                         // addlit(yytext, yyleng, yyscanner);
-                        // self.literal += self.input[self.index_bytes..self.index_bytes + self.yyleng];
+
                         self.addlit(self.yyleng);
                     }
                 }
                 RuleKind::xe3 => {
                     {
                         // addlit(yytext, yyleng, yyscanner);
-                        // self.literal += self.input[self.index_bytes..self.index_bytes + self.yyleng];
+
                         self.addlit(self.yyleng);
                     }
                 }
                 RuleKind::xe4 => {
                     {
                         // pg_wchar	c = strtoul(yytext + 2, NULL, 16);
-                        // let c = u32::from_str_radix(&self.input[self.index_bytes+2..self.index_bytes + self.yyleng], 16).unwrap();
-                        // let c = char::from_u32(c).unwrap();
-
-                        /*
-                         * For consistency with other productions, issue any
-                         * escape warning with cursor pointing to start of string.
-                         * We might want to change that, someday.
-                         */
+                        //
+                        // /*
+                        //  * For consistency with other productions, issue any
+                        //  * escape warning with cursor pointing to start of string.
+                        //  * We might want to change that, someday.
+                        //  */
                         // check_escape_warning(yyscanner);
-
-                        /* Remember start of overall string token ... */
+                        //
+                        // /* Remember start of overall string token ... */
                         // PUSH_YYLLOC();
-                        // self.push_yylloc();
-                        /* ... and set the error cursor to point at this esc seq */
+                        // /* ... and set the error cursor to point at this esc seq */
                         // SET_YYLLOC();
-                        // self.set_yylloc();
-
-                        // if is_utf16_surrogate_first(c) {
-                        // 	// yyextra->utf16_first_part = c;
-                        // 	self.utf16_first_part = c;
-                        // 	self.begin(State::xeu);
-                        // } else if (is_utf16_surrogate_second(c)) {
-                        // 	yyerror("invalid Unicode surrogate pair");
-                        // } else {
-                        // 	// addunicode(c, yyscanner);
-                        // 	self.addunicode(c);
+                        //
+                        // if (is_utf16_surrogate_first(c))
+                        // {
+                        // 	yyextra->utf16_first_part = c;
+                        // 	BEGIN(xeu);
                         // }
-                        panic!();
-
-                        /* Restore yylloc to be start of string token */
+                        // else if (is_utf16_surrogate_second(c))
+                        // 	yyerror("invalid Unicode surrogate pair");
+                        // else
+                        // 	addunicode(c, yyscanner);
+                        //
+                        // /* Restore yylloc to be start of string token */
                         // POP_YYLLOC();
-                        // self.pop_yylloc();
+
+                        // TODO
+                        panic!();
                     }
                 }
                 RuleKind::xeu1 => {
                     {
                         // pg_wchar	c = strtoul(yytext + 2, NULL, 16);
-                        // let c = u32::from_str_radix(&self.input[self.index_bytes+2..self.index_bytes + self.yyleng], 16).unwrap();
-                        // let c = char::from_u32(c).unwrap();
-
-                        /* Remember start of overall string token ... */
+                        //
+                        // /* Remember start of overall string token ... */
                         // PUSH_YYLLOC();
-                        // self.push_yylloc();
-                        /* ... and set the error cursor to point at this esc seq */
-                        // self.set_yylloc();
-
-                        // if !is_utf16_surrogate_second(c) {
+                        // /* ... and set the error cursor to point at this esc seq */
+                        // SET_YYLLOC();
+                        //
+                        // if (!is_utf16_surrogate_second(c))
                         // 	yyerror("invalid Unicode surrogate pair");
-                        // }
-
-                        // // c = surrogate_pair_to_codepoint(yyextra->utf16_first_part, c);
-                        // let c = surrogate_pair_to_codepoint(self.utf16_first_part, c);
-
-                        // // addunicode(c, yyscanner);
-                        // self.addunicode(c);
-                        panic!();
-
-                        /* Restore yylloc to be start of string token */
+                        //
+                        // c = surrogate_pair_to_codepoint(yyextra->utf16_first_part, c);
+                        //
+                        // addunicode(c, yyscanner);
+                        //
+                        // /* Restore yylloc to be start of string token */
                         // POP_YYLLOC();
-                        // self.pop_yylloc();
+                        //
+                        // BEGIN(xe);
 
-                        // self.begin(State::xe);
+                        // TODO
+                        panic!();
                     }
                 }
                 RuleKind::xeu2 | RuleKind::xeu3 | RuleKind::xeu4 => {
                     {
+                        // /* Set the error cursor to point at missing esc seq */
+                        // SET_YYLLOC();
+                        // yyerror("invalid Unicode surrogate pair");
+
                         /* Set the error cursor to point at missing esc seq */
                         self.set_yylloc();
-                        yyerror("invalid Unicode surrogate pair");
+                        yyerror!("invalid Unicode surrogate pair");
                     }
                 }
                 RuleKind::xe5 => {
                     {
-                        /* Set the error cursor to point at malformed esc seq */
-                        self.set_yylloc();
-
+                        // /* Set the error cursor to point at malformed esc seq */
+                        // SET_YYLLOC();
                         // ereport(ERROR,
                         // 		(errcode(ERRCODE_INVALID_ESCAPE_SEQUENCE),
                         // 		 errmsg("invalid Unicode escape"),
                         // 		 errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
                         // 		 lexer_errposition()));
+
+                        // TODO
                         panic!();
                     }
                 }
                 RuleKind::xeu5 => {
                     {
-                        /* Set the error cursor to point at malformed esc seq */
-                        self.set_yylloc();
-
+                        // /* Set the error cursor to point at malformed esc seq */
+                        // SET_YYLLOC();
                         // ereport(ERROR,
                         // 		(errcode(ERRCODE_INVALID_ESCAPE_SEQUENCE),
                         // 		 errmsg("invalid Unicode escape"),
                         // 		 errhint("Unicode escapes must be \\uXXXX or \\UXXXXXXXX."),
                         // 		 lexer_errposition()));
+
+                        // TODO
                         panic!();
                     }
                 }
                 RuleKind::xe6 => {
                     {
-                        /*
-                        if (yytext[1] == '\'')
-                        {
-                            if (self.backslash_quote == BACKSLASH_QUOTE_OFF ||
-                                (self.backslash_quote == BACKSLASH_QUOTE_SAFE_ENCODING &&
-                                 PG_ENCODING_IS_CLIENT_ONLY(pg_get_client_encoding())))
-                                // ereport(ERROR,
-                                // 		(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
-                                // 		 errmsg("unsafe use of \\' in a string literal"),
-                                // 		 errhint("Use '' to write quotes in strings. \\' is insecure in client-only encodings."),
-                                // 		 lexer_errposition()));
-                        }
-                        check_string_escape_warning(yytext[1], yyscanner);
-                        */
+                        // if (yytext[1] == '\'')
+                        // {
+                        // 	if (yyextra->backslash_quote == BACKSLASH_QUOTE_OFF ||
+                        // 		(yyextra->backslash_quote == BACKSLASH_QUOTE_SAFE_ENCODING &&
+                        // 		 PG_ENCODING_IS_CLIENT_ONLY(pg_get_client_encoding())))
+                        // 		ereport(ERROR,
+                        // 				(errcode(ERRCODE_NONSTANDARD_USE_OF_ESCAPE_CHARACTER),
+                        // 				 errmsg("unsafe use of \\' in a string literal"),
+                        // 				 errhint("Use '' to write quotes in strings. \\' is insecure in client-only encodings."),
+                        // 				 lexer_errposition()));
+                        // }
+                        // check_string_escape_warning(yytext[1], yyscanner);
                         // addlitchar(unescape_single_char(yytext[1], yyscanner),
                         // 		   yyscanner);
-                        // let c = unescape_single_char(self.input[self.index_bytes + 1]);
-                        // self.addlitchar(unescape_single_char(c));
+
                         // TODO
                         panic!();
                     }
@@ -646,16 +785,25 @@ impl Lexer {
                 RuleKind::xe7 => {
                     {
                         // unsigned char c = strtoul(yytext + 1, NULL, 8);
+                        //
+                        // check_escape_warning(yyscanner);
+                        // addlitchar(c, yyscanner);
+                        // if (c == '\0' || IS_HIGHBIT_SET(c))
+                        // 	yyextra->saw_non_ascii = true;
+
                         let c = u32::from_str_radix(
                             &self.input[self.index_bytes + 1..self.index_bytes + self.yyleng],
                             8,
                         )
                         .unwrap();
+
+                        // TODO correct?
                         let c = char::from_u32(c).unwrap();
 
+                        // TODO
                         // check_escape_warning(yyscanner);
-                        // addlitchar(c, yyscanner);
                         self.addlitchar(c);
+                        // TODO
                         // if (c == '\0' || IS_HIGHBIT_SET(c))
                         // 	yyextra->saw_non_ascii = true;
                     }
@@ -663,6 +811,12 @@ impl Lexer {
                 RuleKind::xe8 => {
                     {
                         // unsigned char c = strtoul(yytext + 2, NULL, 16);
+                        //
+                        // check_escape_warning(yyscanner);
+                        // addlitchar(c, yyscanner);
+                        // if (c == '\0' || IS_HIGHBIT_SET(c))
+                        // 	yyextra->saw_non_ascii = true;
+
                         let c = u32::from_str_radix(
                             &self.input[self.index_bytes + 1..self.index_bytes + self.yyleng],
                             16,
@@ -670,68 +824,95 @@ impl Lexer {
                         .unwrap();
                         let c = char::from_u32(c).unwrap();
 
+                        // TODO
                         // check_escape_warning(yyscanner);
-                        // addlitchar(c, yyscanner);
                         self.addlitchar(c);
+                        // TODO
                         // if (c == '\0' || IS_HIGHBIT_SET(c))
                         // 	yyextra->saw_non_ascii = true;
                     }
                 }
                 RuleKind::xe9 => {
                     {
-                        /* This is only needed for \ just before EOF */
+                        // /* This is only needed for \ just before EOF */
                         // addlitchar(yytext[0], yyscanner);
+
+                        /* This is only needed for \ just before EOF */
                         let c = self.input[self.index_bytes..].chars().next().unwrap();
                         self.addlitchar(c);
                     }
                 }
                 RuleKind::xq4 => {
-                    yyerror("unterminated quoted string");
+                    yyerror!("unterminated quoted string");
                 }
                 RuleKind::xe10 => {
-                    yyerror("unterminated quoted string");
+                    yyerror!("unterminated quoted string");
                 }
                 RuleKind::xus4 => {
-                    yyerror("unterminated quoted string");
+                    yyerror!("unterminated quoted string");
                 }
                 RuleKind::INITIAL10 => {
                     {
+                        // SET_YYLLOC();
+                        // yyextra->dolqstart = pstrdup(yytext);
+                        // BEGIN(xdolq);
+                        // startlit();
+
                         self.set_yylloc();
                         self.dolqstart = self.yytext();
-                        // yyextra->dolqstart = pstrdup(yytext);
                         self.begin(State::xdolq);
                         self.literal.clear();
                     }
                 }
                 RuleKind::INITIAL11 => {
                     {
+                        // SET_YYLLOC();
+                        // /* throw back all but the initial "$" */
+                        // yyless(1);
+                        // /* and treat it as {other} */
+                        // return yytext[0];
+
                         self.set_yylloc();
                         /* throw back all but the initial "$" */
                         self.yyless(1);
                         /* and treat it as {other} */
-                        return Some(TokenKind::RAW(self.yytext()));
+                        return Ok(Some(TokenKind::RAW(self.yytext())));
                     }
                 }
                 RuleKind::xdolq1 => {
                     {
                         // if (strcmp(yytext, yyextra->dolqstart) == 0)
+                        // {
+                        // 	pfree(yyextra->dolqstart);
+                        // 	yyextra->dolqstart = NULL;
+                        // 	BEGIN(INITIAL);
+                        // 	yylval->str = litbufdup(yyscanner);
+                        // 	yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+                        // 	return SCONST;
+                        // }
+                        // else
+                        // {
+                        // 	/*
+                        // 	 * When we fail to match $...$ to dolqstart, transfer
+                        // 	 * the $... part to the output, but put back the final
+                        // 	 * $ for rescanning.  Consider $delim$...$junk$delim$
+                        // 	 */
+                        // 	addlit(yytext, yyleng - 1, yyscanner);
+                        // 	yyless(yyleng - 1);
+                        // }
+
                         if self.yytext() == self.dolqstart {
-                            // pfree(yyextra->dolqstart);
-                            // yyextra->dolqstart = NULL;
                             self.dolqstart = "".to_string();
                             self.begin(State::INITIAL);
-                            // yylval->str = litbufdup(yyscanner);
                             self.yylval = Yylval::Str(self.literal.clone());
-                            // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
                             self.set_yyllocend();
-                            return Some(TokenKind::SCONST);
+                            return Ok(Some(TokenKind::SCONST));
                         } else {
                             /*
                              * When we fail to match $...$ to dolqstart, transfer
                              * the $... part to the output, but put back the final
                              * $ for rescanning.  Consider $delim$...$junk$delim$
                              */
-                            // addlit(yytext, yyleng - 1, yyscanner);
                             self.addlit(self.yyleng - 1);
                             self.yyless(self.yyleng - 1);
                         }
@@ -740,180 +921,247 @@ impl Lexer {
                 RuleKind::xdolq2 => {
                     {
                         // addlit(yytext, yyleng, yyscanner);
+
                         self.addlit(self.yyleng);
                     }
                 }
                 RuleKind::xdolq3 => {
                     {
                         // addlit(yytext, yyleng, yyscanner);
+
                         self.addlit(self.yyleng);
                     }
                 }
                 RuleKind::xdolq4 => {
                     {
-                        /* This is only needed for $ inside the quoted text */
+                        // /* This is only needed for $ inside the quoted text */
                         // addlitchar(yytext[0], yyscanner);
+
                         let c = self.yytext().chars().next().unwrap();
                         self.addlitchar(c);
                     }
                 }
                 RuleKind::xdolq5 => {
-                    yyerror("unterminated dollar-quoted string");
+                    yyerror!("unterminated dollar-quoted string");
                 }
                 RuleKind::INITIAL12 => {
-                    self.set_yylloc();
-                    self.begin(State::xd);
-                    self.literal.clear();
+                    {
+                        // SET_YYLLOC();
+                        // BEGIN(xd);
+                        // startlit();
+
+                        self.set_yylloc();
+                        self.begin(State::xd);
+                        self.literal.clear();
+                    }
                 }
                 RuleKind::INITIAL13 => {
-                    self.set_yylloc();
-                    self.begin(State::xui);
-                    self.literal.clear();
+                    {
+                        // SET_YYLLOC();
+                        // BEGIN(xui);
+                        // startlit();
+
+                        self.set_yylloc();
+                        self.begin(State::xui);
+                        self.literal.clear();
+                    }
                 }
                 RuleKind::xd1 => {
                     {
                         // char	   *ident;
+                        //
+                        // BEGIN(INITIAL);
+                        // if (yyextra->literallen == 0)
+                        // 	yyerror("zero-length delimited identifier");
+                        // ident = litbufdup(yyscanner);
+                        // if (yyextra->literallen >= NAMEDATALEN)
+                        // 	truncate_identifier(ident, yyextra->literallen, true);
+                        // yylval->str = ident;
+                        // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+                        // return IDENT;
 
                         self.begin(State::INITIAL);
-                        // if (yyextra->literallen == 0)
                         if self.literal.len() == 0 {
-                            yyerror("zero-length delimited identifier");
+                            yyerror!("zero-length delimited identifier");
                         }
-                        // ident = litbufdup(yyscanner);
                         let ident = self.literal.clone();
-                        // if (yyextra->literallen >= NAMEDATALEN)
                         if self.literal.len() >= NAMEDATALEN {
-                            // truncate_identifier(ident, yyextra->literallen, true);
-                            // truncate_identifier(&mut ident, self.literal.len(), true);
+                            // TODO
                             panic!();
                         }
-                        // yylval->str = ident;
                         self.yylval = Yylval::Str(ident);
-                        // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
                         self.set_yyllocend();
-                        return Some(TokenKind::IDENT);
+                        return Ok(Some(TokenKind::IDENT));
                     }
                 }
                 RuleKind::xui1 => {
                     {
+                        // BEGIN(INITIAL);
+                        // if (yyextra->literallen == 0)
+                        // 	yyerror("zero-length delimited identifier");
+                        // /* can't truncate till after we de-escape the ident */
+                        // yylval->str = litbufdup(yyscanner);
+                        // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+                        // return UIDENT;
+
                         self.begin(State::INITIAL);
                         if self.literal.len() == 0 {
-                            yyerror("zero-length delimited identifier");
+                            yyerror!("zero-length delimited identifier");
                         }
                         /* can't truncate till after we de-escape the ident */
-                        // yylval->str = litbufdup(yyscanner);
                         self.yylval = Yylval::Str(self.yytext());
-                        // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
                         self.set_yyllocend();
-                        return Some(TokenKind::UIDENT);
+                        return Ok(Some(TokenKind::UIDENT));
                     }
                 }
                 RuleKind::xd2 => {
                     {
                         // addlitchar('"', yyscanner);
+
                         self.addlitchar('"');
                     }
                 }
                 RuleKind::xui2 => {
                     {
                         // addlitchar('"', yyscanner);
+
                         self.addlitchar('"');
                     }
                 }
                 RuleKind::xd3 => {
                     {
                         // addlit(yytext, yyleng, yyscanner);
+
                         self.addlit(self.yyleng);
                     }
                 }
                 RuleKind::xui3 => {
                     {
                         // addlit(yytext, yyleng, yyscanner);
+
                         self.addlit(self.yyleng);
                     }
                 }
                 RuleKind::xd4 => {
-                    yyerror("unterminated quoted identifier");
+                    yyerror!("unterminated quoted identifier");
                 }
                 RuleKind::xui4 => {
-                    yyerror("unterminated quoted identifier");
+                    yyerror!("unterminated quoted identifier");
                 }
                 RuleKind::INITIAL14 => {
                     {
                         // char	   *ident;
-
-                        self.set_yylloc();
-                        /* throw back all but the initial u/U */
-                        self.yyless(1);
-                        /* and treat it as {identifier} */
+                        //
+                        // SET_YYLLOC();
+                        // /* throw back all but the initial u/U */
+                        // yyless(1);
+                        // /* and treat it as {identifier} */
                         // ident = downcase_truncate_identifier(yytext, yyleng, true);
-                        // let ident = self.downcase_truncate_identifier(self.yyleng, true);
-                        // // yylval->str = ident;
-                        // self.yylval = Yylval::Str(ident);
-                        // // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
-                        // self.set_yyllocend();
-                        // return Some(TokenKind::IDENT);
+                        // yylval->str = ident;
+                        // yyextra->yyllocend = yytext - yyextra->scanbuf + yyleng;
+                        // return IDENT;
+
+                        // TODO
                         panic!();
                     }
                 }
                 RuleKind::INITIAL15 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::TYPECAST);
+                    {
+                        // SET_YYLLOC();
+                        // return TYPECAST;
+
+                        self.set_yylloc();
+                        return Ok(Some(TokenKind::TYPECAST));
+                    }
                 }
                 RuleKind::INITIAL16 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::DOT_DOT);
+                    {
+                        // SET_YYLLOC();
+                        // return DOT_DOT;
+
+                        self.set_yylloc();
+                        return Ok(Some(TokenKind::DOT_DOT));
+                    }
                 }
                 RuleKind::INITIAL17 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::COLON_EQUALS);
+                    {
+                        // SET_YYLLOC();
+                        // return COLON_EQUALS;
+
+                        self.set_yylloc();
+                        return Ok(Some(TokenKind::COLON_EQUALS));
+                    }
                 }
                 RuleKind::INITIAL18 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::EQUALS_GREATER);
+                    {
+                        // SET_YYLLOC();
+                        // return EQUALS_GREATER;
+
+                        self.set_yylloc();
+                        return Ok(Some(TokenKind::EQUALS_GREATER));
+                    }
                 }
                 RuleKind::INITIAL19 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::LESS_EQUALS);
+                    {
+                        // SET_YYLLOC();
+                        // return LESS_EQUALS;
+
+                        self.set_yylloc();
+                        return Ok(Some(TokenKind::LESS_EQUALS));
+                    }
                 }
                 RuleKind::INITIAL20 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::GREATER_EQUALS);
+                    {
+                        // SET_YYLLOC();
+                        // return GREATER_EQUALS;
+
+                        self.set_yylloc();
+                        return Ok(Some(TokenKind::GREATER_EQUALS));
+                    }
                 }
                 RuleKind::INITIAL21 => {
                     {
+                        // /* We accept both "<>" and "!=" as meaning NOT_EQUALS */
+                        // SET_YYLLOC();
+                        // return NOT_EQUALS;
+
                         /* We accept both "<>" and "!=" as meaning NOT_EQUALS */
                         self.set_yylloc();
-                        return Some(TokenKind::NOT_EQUALS);
+                        return Ok(Some(TokenKind::NOT_EQUALS));
                     }
                 }
                 RuleKind::INITIAL22 => {
                     {
+                        // /* We accept both "<>" and "!=" as meaning NOT_EQUALS */
+                        // SET_YYLLOC();
+                        // return NOT_EQUALS;
+
                         /* We accept both "<>" and "!=" as meaning NOT_EQUALS */
                         self.set_yylloc();
-                        return Some(TokenKind::NOT_EQUALS);
+                        return Ok(Some(TokenKind::NOT_EQUALS));
                     }
                 }
                 RuleKind::INITIAL23 => {
-                    self.set_yylloc();
-                    return Some(TokenKind::RAW(self.yytext()[0..1].to_string()));
+                    {
+                        // SET_YYLLOC();
+                        // return yytext[0];
+
+                        self.set_yylloc();
+                        return Ok(Some(TokenKind::RAW(self.yytext()[0..1].to_string())));
+                    }
                 }
                 RuleKind::INITIAL24 => {
                     {
-                        /*
-                         * Check for embedded slash-star or dash-dash; those
-                         * are comment starts, so operator must stop there.
-                         * Note that slash-star or dash-dash at the first
-                         * character will match a prior rule, not this one.
-                         */
+                        // /*
+                        //  * Check for embedded slash-star or dash-dash; those
+                        //  * are comment starts, so operator must stop there.
+                        //  * Note that slash-star or dash-dash at the first
+                        //  * character will match a prior rule, not this one.
+                        //  */
                         // int			nchars = yyleng;
-                        let mut nchars = self.yyleng;
                         // char	   *slashstar = strstr(yytext, "/*");
                         // char	   *dashdash = strstr(yytext, "--");
-                        let yytext = self.yytext();
-                        let mut slashstar = yytext.find("/*");
-                        let dashdash = yytext.find("--");
-
+                        //
                         // if (slashstar && dashdash)
                         // {
                         // 	/* if both appear, take the first one */
@@ -924,88 +1172,46 @@ impl Lexer {
                         // 	slashstar = dashdash;
                         // if (slashstar)
                         // 	nchars = slashstar - yytext;
-
-                        let dashdash_first = match (&slashstar, &dashdash) {
-                            (Some(slashstar_index), Some(dashdash_index))
-                                if slashstar_index > dashdash_index =>
-                            {
-                                true
-                            }
-                            (None, Some(_)) => true,
-                            _ => false,
-                        };
-
-                        if dashdash_first {
-                            slashstar = dashdash;
-                        }
-
-                        if let Some(i) = slashstar {
-                            nchars = i;
-                        }
-
-                        /*
-                         * For SQL compatibility, '+' and '-' cannot be the
-                         * last char of a multi-char operator unless the operator
-                         * contains chars that are not in SQL operators.
-                         * The idea is to lex '=-' as two operators, but not
-                         * to forbid operator names like '?-' that could not be
-                         * sequences of SQL operators.
-                         */
-                        // 	if (nchars > 1 &&
-                        // 		(yytext[nchars - 1] == '+' ||
-                        // 		 yytext[nchars - 1] == '-'))
-                        // 	{
-                        // 		int			ic;
                         //
-                        // 		for (ic = nchars - 2; ic >= 0; ic--)
-                        // 		{
-                        // 			char c = yytext[ic];
-                        // 			if (c == '~' || c == '!' || c == '@' ||
-                        // 				c == '#' || c == '^' || c == '&' ||
-                        // 				c == '|' || c == '`' || c == '?' ||
-                        // 				c == '%')
-                        // 				break;
-                        // 		}
-                        // 		if (ic < 0)
-                        // 		{
-                        // 			/*
-                        // 			 * didn't find a qualifying character, so remove
-                        // 			 * all trailing [+-]
-                        // 			 */
-                        // 			do {
-                        // 				nchars--;
-                        // 			} while (nchars > 1 &&
-                        // 				 (yytext[nchars - 1] == '+' ||
-                        // 				  yytext[nchars - 1] == '-'));
-                        // 		}
+                        // /*
+                        //  * For SQL compatibility, '+' and '-' cannot be the
+                        //  * last char of a multi-char operator unless the operator
+                        //  * contains chars that are not in SQL operators.
+                        //  * The idea is to lex '=-' as two operators, but not
+                        //  * to forbid operator names like '?-' that could not be
+                        //  * sequences of SQL operators.
+                        //  */
+                        // if (nchars > 1 &&
+                        // 	(yytext[nchars - 1] == '+' ||
+                        // 	 yytext[nchars - 1] == '-'))
+                        // {
+                        // 	int			ic;
+                        //
+                        // 	for (ic = nchars - 2; ic >= 0; ic--)
+                        // 	{
+                        // 		char c = yytext[ic];
+                        // 		if (c == '~' || c == '!' || c == '@' ||
+                        // 			c == '#' || c == '^' || c == '&' ||
+                        // 			c == '|' || c == '`' || c == '?' ||
+                        // 			c == '%')
+                        // 			break;
                         // 	}
-
-                        if nchars > 1
-                            && (get_char_by_byte_pos(&yytext, nchars - 1) == '+'
-                                || get_char_by_byte_pos(&yytext, nchars - 1) == '-')
-                        {
-                            let b = (0..nchars - 1).any(|ic| {
-                                matches!(
-                                    get_char_by_byte_pos(&yytext, ic),
-                                    '~' | '!' | '@' | '#' | '^' | '&' | '|' | '`' | '?' | '%'
-                                )
-                            });
-                            if !b {
-                                loop {
-                                    nchars -= 1;
-
-                                    if !(nchars > 1
-                                        && (get_char_by_byte_pos(&yytext, nchars - 1) == '+'
-                                            || get_char_by_byte_pos(&yytext, nchars - 1) == '-'))
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        self.set_yylloc();
-
+                        // 	if (ic < 0)
+                        // 	{
+                        // 		/*
+                        // 		 * didn't find a qualifying character, so remove
+                        // 		 * all trailing [+-]
+                        // 		 */
+                        // 		do {
+                        // 			nchars--;
+                        // 		} while (nchars > 1 &&
+                        // 			 (yytext[nchars - 1] == '+' ||
+                        // 			  yytext[nchars - 1] == '-'));
+                        // 	}
+                        // }
+                        //
+                        // SET_YYLLOC();
+                        //
                         // if (nchars < yyleng)
                         // {
                         // 	/* Strip the unwanted chars from the token */
@@ -1039,6 +1245,81 @@ impl Lexer {
                         // 			return NOT_EQUALS;
                         // 	}
                         // }
+                        //
+                        // /*
+                        //  * Complain if operator is too long.  Unlike the case
+                        //  * for identifiers, we make this an error not a notice-
+                        //  * and-truncate, because the odds are we are looking at
+                        //  * a syntactic mistake anyway.
+                        //  */
+                        // if (nchars >= NAMEDATALEN)
+                        // 	yyerror("operator too long");
+                        //
+                        // yylval->str = pstrdup(yytext);
+                        // return Op;
+
+                        /*
+                         * Check for embedded slash-star or dash-dash; those
+                         * are comment starts, so operator must stop there.
+                         * Note that slash-star or dash-dash at the first
+                         * character will match a prior rule, not this one.
+                         */
+                        let mut nchars = self.yyleng;
+                        let yytext = self.yytext();
+                        let mut slashstar = yytext.find("/*");
+                        let dashdash = yytext.find("--");
+
+                        let dashdash_first = match (&slashstar, &dashdash) {
+                            (Some(slashstar_index), Some(dashdash_index))
+                                if slashstar_index > dashdash_index =>
+                            {
+                                true
+                            }
+                            (None, Some(_)) => true,
+                            _ => false,
+                        };
+
+                        if dashdash_first {
+                            slashstar = dashdash;
+                        }
+
+                        if let Some(i) = slashstar {
+                            nchars = i;
+                        }
+
+                        /*
+                         * For SQL compatibility, '+' and '-' cannot be the
+                         * last char of a multi-char operator unless the operator
+                         * contains chars that are not in SQL operators.
+                         * The idea is to lex '=-' as two operators, but not
+                         * to forbid operator names like '?-' that could not be
+                         * sequences of SQL operators.
+                         */
+                        if nchars > 1
+                            && (get_char_by_byte_pos(&yytext, nchars - 1) == '+'
+                                || get_char_by_byte_pos(&yytext, nchars - 1) == '-')
+                        {
+                            let b = (0..nchars - 1).any(|ic| {
+                                matches!(
+                                    get_char_by_byte_pos(&yytext, ic),
+                                    '~' | '!' | '@' | '#' | '^' | '&' | '|' | '`' | '?' | '%'
+                                )
+                            });
+                            if !b {
+                                loop {
+                                    nchars -= 1;
+
+                                    if !(nchars > 1
+                                        && (get_char_by_byte_pos(&yytext, nchars - 1) == '+'
+                                            || get_char_by_byte_pos(&yytext, nchars - 1) == '-'))
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        self.set_yylloc();
 
                         if nchars < self.yyleng {
                             /* Strip the unwanted chars from the token */
@@ -1054,7 +1335,7 @@ impl Lexer {
                                     .find(get_char_by_byte_pos(&yytext, 0))
                                     .is_some()
                             {
-                                return Some(TokenKind::RAW(yytext[0..1].to_string()));
+                                return Ok(Some(TokenKind::RAW(yytext[0..1].to_string())));
                             }
                             /*
                              * Likewise, if what we have left is two chars, and
@@ -1064,19 +1345,19 @@ impl Lexer {
                              */
                             if nchars == 2 {
                                 if &yytext[0..2] == "=>" {
-                                    return Some(TokenKind::EQUALS_GREATER);
+                                    return Ok(Some(TokenKind::EQUALS_GREATER));
                                 }
                                 if &yytext[0..2] == ">=" {
-                                    return Some(TokenKind::GREATER_EQUALS);
+                                    return Ok(Some(TokenKind::GREATER_EQUALS));
                                 }
                                 if &yytext[0..2] == "<=" {
-                                    return Some(TokenKind::LESS_EQUALS);
+                                    return Ok(Some(TokenKind::LESS_EQUALS));
                                 }
                                 if &yytext[0..2] == "<>" {
-                                    return Some(TokenKind::NOT_EQUALS);
+                                    return Ok(Some(TokenKind::NOT_EQUALS));
                                 }
                                 if &yytext[0..2] == "!=" {
-                                    return Some(TokenKind::NOT_EQUALS);
+                                    return Ok(Some(TokenKind::NOT_EQUALS));
                                 }
                             }
                         }
@@ -1087,20 +1368,12 @@ impl Lexer {
                          * and-truncate, because the odds are we are looking at
                          * a syntactic mistake anyway.
                          */
-                        // if (nchars >= NAMEDATALEN)
-                        // 	yyerror("operator too long");
-                        //
-                        // yylval->str = pstrdup(yytext);
-                        // return Op;
-
                         if nchars >= NAMEDATALEN {
-                            yyerror("operator too long");
+                            yyerror!("operator too long");
                         }
 
-                        // yylval->str = pstrdup(yytext);
-                        // return Op;
                         self.yylval = Yylval::Str(yytext);
-                        return Some(TokenKind::Op);
+                        return Ok(Some(TokenKind::Op));
                     }
                 }
                 RuleKind::INITIAL25 => {
@@ -1112,7 +1385,7 @@ impl Lexer {
                         self.set_yylloc();
                         self.yylval =
                             Yylval::I(i32::from_str_radix(&self.yytext()[1..], 10).unwrap());
-                        return Some(TokenKind::PARAM);
+                        return Ok(Some(TokenKind::PARAM));
                     }
                 }
                 RuleKind::INITIAL26 => {
@@ -1121,7 +1394,7 @@ impl Lexer {
                         // return process_integer_literal(yytext, yylval, 10);
 
                         self.set_yylloc();
-                        return self.process_integer_literal(10);
+                        return Ok(self.process_integer_literal(10));
                     }
                 }
                 RuleKind::INITIAL27 => {
@@ -1130,7 +1403,7 @@ impl Lexer {
                         // return process_integer_literal(yytext, yylval, 16);
 
                         self.set_yylloc();
-                        return self.process_integer_literal(16);
+                        return Ok(self.process_integer_literal(16));
                     }
                 }
                 RuleKind::INITIAL28 => {
@@ -1139,7 +1412,7 @@ impl Lexer {
                         // return process_integer_literal(yytext, yylval, 8);
 
                         self.set_yylloc();
-                        return self.process_integer_literal(8);
+                        return Ok(self.process_integer_literal(8));
                     }
                 }
                 RuleKind::INITIAL29 => {
@@ -1148,7 +1421,7 @@ impl Lexer {
                         // return process_integer_literal(yytext, yylval, 2);
 
                         self.set_yylloc();
-                        return self.process_integer_literal(2);
+                        return Ok(self.process_integer_literal(2));
                     }
                 }
                 RuleKind::INITIAL30 => {
@@ -1157,7 +1430,7 @@ impl Lexer {
                         // yyerror("invalid hexadecimal integer");
 
                         self.set_yylloc();
-                        yyerror("invalid hexadecimal integer");
+                        yyerror!("invalid hexadecimal integer");
                     }
                 }
                 RuleKind::INITIAL31 => {
@@ -1166,7 +1439,7 @@ impl Lexer {
                         // yyerror("invalid octal integer");
 
                         self.set_yylloc();
-                        yyerror("invalid octal integer");
+                        yyerror!("invalid octal integer");
                     }
                 }
                 RuleKind::INITIAL32 => {
@@ -1175,7 +1448,7 @@ impl Lexer {
                         // yyerror("invalid binary integer");
 
                         self.set_yylloc();
-                        yyerror("invalid binary integer");
+                        yyerror!("invalid binary integer");
                     }
                 }
                 RuleKind::INITIAL33 => {
@@ -1186,12 +1459,12 @@ impl Lexer {
 
                         self.set_yylloc();
                         self.yylval = Yylval::Str(self.yytext());
-                        return Some(TokenKind::FCONST);
+                        return Ok(Some(TokenKind::FCONST));
                     }
                 }
                 RuleKind::INITIAL34 => {
                     {
-                        /* throw back the .., and treat as integer */
+                        // /* throw back the .., and treat as integer */
                         // yyless(yyleng - 2);
                         // SET_YYLLOC();
                         // return process_integer_literal(yytext, yylval, 10);
@@ -1199,7 +1472,7 @@ impl Lexer {
                         /* throw back the .., and treat as integer */
                         self.yyless(self.yyleng - 2);
                         self.set_yylloc();
-                        return self.process_integer_literal(10);
+                        return Ok(self.process_integer_literal(10));
                     }
                 }
                 RuleKind::INITIAL35 => {
@@ -1210,7 +1483,7 @@ impl Lexer {
 
                         self.set_yylloc();
                         self.yylval = Yylval::Str(self.yytext());
-                        return Some(TokenKind::FCONST);
+                        return Ok(Some(TokenKind::FCONST));
                     }
                 }
                 RuleKind::INITIAL36 => {
@@ -1219,7 +1492,7 @@ impl Lexer {
                         // yyerror("trailing junk after numeric literal");
 
                         self.set_yylloc();
-                        yyerror("trailing junk after numeric literal");
+                        yyerror!("trailing junk after numeric literal");
                     }
                 }
                 RuleKind::INITIAL37 => {
@@ -1228,7 +1501,7 @@ impl Lexer {
                         // yyerror("trailing junk after numeric literal");
 
                         self.set_yylloc();
-                        yyerror("trailing junk after numeric literal");
+                        yyerror!("trailing junk after numeric literal");
                     }
                 }
                 RuleKind::INITIAL38 => {
@@ -1237,7 +1510,7 @@ impl Lexer {
                         // yyerror("trailing junk after numeric literal");
 
                         self.set_yylloc();
-                        yyerror("trailing junk after numeric literal");
+                        yyerror!("trailing junk after numeric literal");
                     }
                 }
                 RuleKind::INITIAL39 => {
@@ -1246,7 +1519,7 @@ impl Lexer {
                         // yyerror("trailing junk after numeric literal");
 
                         self.set_yylloc();
-                        yyerror("trailing junk after numeric literal");
+                        yyerror!("trailing junk after numeric literal");
                     }
                 }
                 RuleKind::INITIAL40 => {
@@ -1281,7 +1554,7 @@ impl Lexer {
                         let yytext = self.yytext();
                         if let Some((kw, kw_token)) = self.get_keyword(&yytext) {
                             self.yylval = Yylval::Keyword(kw);
-                            return Some(TokenKind::KEYWORD(kw_token));
+                            return Ok(Some(TokenKind::KEYWORD(kw_token)));
                         }
 
                         /*
@@ -1291,7 +1564,7 @@ impl Lexer {
                         let ident = self.downcase_truncate_identifier(self.yyleng, true);
                         self.yylval = Yylval::Str(ident);
                         self.set_yyllocend();
-                        return Some(TokenKind::IDENT);
+                        return Ok(Some(TokenKind::IDENT));
                     }
                 }
                 RuleKind::INITIAL41 => {
@@ -1300,7 +1573,7 @@ impl Lexer {
                         // return yytext[0];
 
                         self.set_yylloc();
-                        return Some(TokenKind::RAW(yytext[0..1].to_string()));
+                        return Ok(Some(TokenKind::RAW(yytext[0..1].to_string())));
                     }
                 }
                 RuleKind::INITIAL42 => {

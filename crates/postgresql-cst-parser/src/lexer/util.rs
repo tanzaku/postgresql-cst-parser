@@ -3,21 +3,19 @@
 use regex::bytes::Match;
 
 use super::{
-    generated::{get_keyword_map, RuleKind, State},
-    {Lexer, Rule, TokenKind, Yylval},
+    generated::{get_keyword_map, get_rules, RuleKind, State},
+    Lexer, ScanReport, TokenKind, Yylval,
 };
 
-pub fn yyerror(msg: &str) {
-    eprintln!("{msg}");
-    panic!();
-}
-
 pub fn get_char_by_byte_pos(s: &str, byte_pos: usize) -> char {
+    // s.bytes().nth(byte_pos).unwrap() as char
     s.as_bytes()[byte_pos] as char
 }
 
 impl Lexer {
-    pub fn new(input: &str, rules: Vec<Rule>) -> Self {
+    pub fn new(input: &str) -> Self {
+        let rules = get_rules();
+
         Self {
             input: input.to_string(),
             index_bytes: 0,
@@ -30,12 +28,15 @@ impl Lexer {
             yylloc_stack: vec![],
             literal: String::new(),
             dolqstart: "".to_string(),
+            warn_on_first_escape: false,
+            saw_non_ascii: false,
 
             yylloc_bytes: 0,
             yylval: Yylval::Uninitialized,
 
             rules,
             keyword_map: get_keyword_map(),
+            reports: Vec::new(),
         }
     }
 
@@ -165,5 +166,13 @@ impl Lexer {
         }
 
         (longest_match.unwrap(), kind)
+    }
+
+    pub fn add_warning(&mut self, report: ScanReport) {
+        self.reports.push(report);
+    }
+
+    pub fn lexer_errposition(&self) -> usize {
+        self.index_bytes
     }
 }

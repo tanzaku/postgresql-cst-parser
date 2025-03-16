@@ -5,8 +5,9 @@ mod bison;
 mod id_mapper;
 mod lalr;
 mod lexer;
+mod parser_error;
 
-use std::{io::BufReader, process::Command};
+use std::process::Command;
 
 use bison::Bison;
 use miniz_oxide::deflate::compress_to_vec;
@@ -231,6 +232,24 @@ fn write_file(bison: &Bison, lalr: &Lalr) {
     );
 
     write_syntax_file(&terminal_symbols, &non_terminal_symbols, &comments);
+
+    std::fs::copy(
+        "./crates/parser-generator/src/parser_generator/lexer/util.rs",
+        "./crates/postgresql-cst-parser/src/lexer/util.rs",
+    )
+    .unwrap();
+
+    std::fs::copy(
+        "./crates/parser-generator/src/parser_generator/lexer.rs",
+        "./crates/postgresql-cst-parser/src/lexer.rs",
+    )
+    .unwrap();
+
+    std::fs::copy(
+        "./crates/parser-generator/src/parser_generator/parser_error.rs",
+        "./crates/postgresql-cst-parser/src/parser_error.rs",
+    )
+    .unwrap();
 }
 
 fn compress(data: Vec<i16>) -> Vec<u8> {
@@ -239,18 +258,27 @@ fn compress(data: Vec<i16>) -> Vec<u8> {
 }
 
 pub fn generate() {
-    let (bison, lalr) = match std::fs::File::open("bison.cache") {
-        Ok(f) => bincode::deserialize_from(BufReader::new(f)).unwrap(),
-        Err(_) => {
-            let bison = parse_bison(include_str!("../resources/gram.y"));
-            let mut lalr = Lalr::new(&bison);
-            lalr.build_lalr1_parse_table();
+    // generate cache
+    // let (bison, lalr) = match std::fs::File::open("bison.cache") {
+    //     Ok(f) => bincode::deserialize_from(BufReader::new(f)).unwrap(),
+    //     Err(_) => {
+    //         let bison = parse_bison(include_str!("../resources/gram.y"));
+    //         let mut lalr = Lalr::new(&bison);
+    //         lalr.build_lalr1_parse_table();
 
-            let f = std::fs::File::create("bison.cache").unwrap();
-            let w = std::io::BufWriter::new(f);
-            bincode::serialize_into(w, &(&bison, &lalr)).unwrap();
-            (bison, lalr)
-        }
+    //         let f = std::fs::File::create("bison.cache").unwrap();
+    //         let w = std::io::BufWriter::new(f);
+    //         bincode::serialize_into(w, &(&bison, &lalr)).unwrap();
+    //         (bison, lalr)
+    //     }
+    // };
+
+    let (bison, lalr) = {
+        let bison = parse_bison(include_str!("../resources/gram.y"));
+        let mut lalr = Lalr::new(&bison);
+        lalr.build_lalr1_parse_table();
+
+        (bison, lalr)
     };
 
     write_file(&bison, &lalr);

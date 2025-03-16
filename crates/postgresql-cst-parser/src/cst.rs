@@ -10,6 +10,7 @@ use crate::{
         rule_name_to_component_id, token_kind_to_component_id, Action, ACTION_TABLE, GOTO_TABLE,
         RULES,
     },
+    ParserError,
 };
 
 use super::{lexer::Token, syntax_kind::SyntaxKind};
@@ -42,13 +43,6 @@ pub type NodeOrToken<'a> = cstree::util::NodeOrToken<&'a ResolvedNode, &'a Resol
 
 struct Parser {
     builder: GreenNodeBuilder<'static, 'static, PostgreSQLSyntax>,
-}
-
-#[derive(Debug)]
-pub struct ParseError {
-    pub message: String,
-    pub start_byte_pos: usize,
-    pub end_byte_pos: usize,
 }
 
 impl Parser {
@@ -183,8 +177,8 @@ fn init_tokens(tokens: &mut [Token]) {
 }
 
 /// Parsing a string as PostgreSQL syntax and converting it into a ResolvedNode
-pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
-    let mut tokens = lex(input);
+pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
+    let mut tokens = lex(input)?;
 
     if !tokens.is_empty() {
         init_tokens(&mut tokens);
@@ -224,7 +218,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
         let token = match tokens.peek() {
             Some(token) => token,
             None => {
-                return Err(ParseError {
+                return Err(ParserError::ParseError {
                     message: "unexpected end of input".to_string(),
                     start_byte_pos: input.len(),
                     end_byte_pos: input.len(),
@@ -335,7 +329,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                         stack.push((next_state as u32, node));
                     }
                     _ => {
-                        return Err(ParseError {
+                        return Err(ParserError::ParseError {
                             message: format!(
                                 "syntax error at byte position {}",
                                 token.start_byte_pos
@@ -350,7 +344,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                 break;
             }
             Action::Error => {
-                return Err(ParseError {
+                return Err(ParserError::ParseError {
                     message: format!(
                         "Action::Error: syntax error at byte position {}",
                         token.start_byte_pos

@@ -6,13 +6,28 @@ use std::collections::HashMap;
 use regex::bytes::Regex;
 
 use super::{
-    util::{get_char_by_byte_pos, yyerror},
-    {Lexer, Rule, TokenKind, Yylval, NAMEDATALEN},
+    util::get_char_by_byte_pos,
+    {Lexer, Rule, ParserError, TokenKind, Yylval, NAMEDATALEN},
 };
+
+macro_rules! ereport {
+    ($lexer:expr, ERROR, (errcode($err_code:expr), errmsg($err_msg:expr), errdetail($err_detail:expr), $err_position:expr)) => {
+        return Err(ParserError::new_report($err_msg, $err_detail, $err_position));
+    };
+    ($lexer:expr, WARNING, (errcode($err_code:expr), errmsg($err_msg:expr), errdetail($err_detail:expr), $err_position:expr)) => {
+        $lexer.add_warning(ScanReport::new($err_msg, $err_detail, $err_position));
+    };
+}
+
+macro_rules! yyerror {
+    ($msg:expr) => {
+        return Err(ParserError::new_error($msg))
+    };
+}
 
 macro_rules! yyterminate {
     () => {
-        return None;
+        return Ok(None);
     };
 }
 
@@ -25,7 +40,7 @@ pub enum State {{states}}
 const STANDARD_CONFORMING_STRINGS: bool = true;
 
 impl Lexer {
-    pub fn parse_token(&mut self) -> Option<TokenKind> {
+    pub fn parse_token(&mut self) -> Result<Option<TokenKind>, ParserError> {
         loop {
             let (m, kind) = self.find_match();
 

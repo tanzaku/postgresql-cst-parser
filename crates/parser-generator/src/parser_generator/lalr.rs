@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize};
 
 use crate::parser_generator::{
     bison::{Action, AssocDirective, Component},
@@ -12,14 +12,16 @@ use super::{
     id_mapper::IdMapper,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+// #[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct LalrRule {
     pub name_id: ComponentId,
     pub components: Vec<ComponentId>,
     pub reduce_priority: Option<Assoc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+// #[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Lalr {
     pub id_mapper: IdMapper,
 
@@ -42,7 +44,8 @@ pub struct Lalr {
     pub all_terminal: Vec<ComponentId>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+// #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Item {
     pub rule_index: usize,
     pub dot_pos: usize,
@@ -81,7 +84,8 @@ impl Item {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+// #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct State {
     pub items: Vec<Item>,
     pub edge: BTreeSet<(ComponentId, usize)>,
@@ -120,7 +124,8 @@ impl State {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+// #[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct StateSet {
     pub states: Vec<State>,
     pub need_update: HashSet<usize>,
