@@ -21,10 +21,12 @@ pub fn is_valid_unicode_codepoint(c: char) -> bool {
     c > 0 && c <= 0x10FFFF
 }
 
+#[allow(clippy::manual_range_contains)]
 pub fn is_utf16_surrogate_first(c: u32) -> bool {
     c >= 0xD800 && c <= 0xDBFF
 }
 
+#[allow(clippy::manual_range_contains)]
 pub fn is_utf16_surrogate_second(c: u32) -> bool {
     c >= 0xDC00 && c <= 0xDFFF
 }
@@ -147,7 +149,7 @@ impl Lexer {
                     self.saw_non_ascii = true;
                 }
 
-                return c;
+                c
             }
         }
     }

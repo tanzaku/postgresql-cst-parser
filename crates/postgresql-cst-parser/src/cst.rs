@@ -50,10 +50,8 @@ impl Parser {
         node: &Node,
         peekable: &mut std::iter::Peekable<std::vec::IntoIter<(SyntaxKind, usize, usize, &str)>>,
     ) {
-        if cfg!(feature = "remove-empty-node") {
-            if node.start_byte_pos == node.end_byte_pos {
-                return;
-            }
+        if cfg!(feature = "remove-empty-node") && node.start_byte_pos == node.end_byte_pos {
+            return;
         }
 
         while let Some((kind, start, _, text)) = peekable.peek() {
