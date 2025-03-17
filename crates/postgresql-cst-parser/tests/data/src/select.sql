@@ -110,5 +110,5 @@ b b -- f
 ; -- h
 select +-1;
 select カラム;
-select E'\\U0001F600';
-SELECT e'\uD83D\uDC31'
+select E'\U0001F600';
+SELECT e'\uD83D\uDC31';
