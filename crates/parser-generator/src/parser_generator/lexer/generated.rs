@@ -1,12 +1,13 @@
 #![allow(clippy::all)]
 #![allow(unreachable_code)]
 
+/// This file contains ported sources from PostgreSQL
 use std::collections::HashMap;
 
 use regex::bytes::Regex;
 
 use super::{
-    util::{
+    lexer_ported::{
         get_char_by_byte_pos, is_highbit_set, is_utf16_surrogate_first, is_utf16_surrogate_second,
         surrogate_pair_to_codepoint,
     },

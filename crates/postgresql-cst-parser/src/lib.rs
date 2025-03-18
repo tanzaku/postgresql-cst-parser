@@ -29,7 +29,7 @@ mod tests {
 
     #[test]
     fn test_unterminated_hexadecimal_string_literal() {
-        let input = "select x'CC";
+        let input = r#"select x'CC"#;
         let actual = parse(input);
 
         let expected = Err(ParserError::ScanError {
@@ -41,7 +41,7 @@ mod tests {
 
     #[test]
     fn test_unterminated_unterminated_bit_string_literal() {
-        let input = "select b'10";
+        let input = r#"select b'10"#;
         let actual = parse(input);
 
         let expected = Err(ParserError::ScanError {
@@ -53,7 +53,7 @@ mod tests {
 
     #[test]
     fn test_xeunicodefail() {
-        let input = "select e'\\uD80";
+        let input = r#"select e'\uD80"#;
         let actual = parse(input);
 
         let expected = Err(ParserError::ScanReport(ScanReport {
@@ -67,7 +67,7 @@ mod tests {
 
     #[test]
     fn test_invalid_unicode_surrogate_pair() {
-        let input = "select e'\\uD800";
+        let input = r#"select e'\uD800"#;
         let actual = parse(input);
 
         let expected = Err(ParserError::ScanError {
@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_invalid_unicode_surrogate_first() {
-        let input = "select e'\\u0000";
+        let input = r#"select e'\u0000"#;
         let actual = parse(input);
 
         let expected = Err(ParserError::ScanError {
@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_invalid_unicode_surrogate_second() {
-        let input = "select e'\\uD800\\uD000'";
+        let input = r#"select e'\uD800\uD000'"#;
         let actual = parse(input);
 
         let expected = Err(ParserError::ScanError {
