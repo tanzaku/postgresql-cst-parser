@@ -6,7 +6,6 @@
 
 ## 主な特徴
 
-- **自動生成されたCSTパーサー**: PostgreSQLの文法から自動生成され、幅広い構文をサポートします。
 - **PostgreSQL 17対応**: 最新のPostgreSQL 17の構文をサポートしています。
 - **構造化されたCST出力**: 生成されるCSTは、PostgreSQLの[gram.y](https://github.com/postgres/postgres/blob/REL_17_0/src/backend/parser/gram.y)ファイルで定義された構造に厳密に従います。
 - **`cstree`の利用**: 構文木の構築に`cstree`クレートを使用しています。

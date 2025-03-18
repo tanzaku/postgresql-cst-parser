@@ -6,7 +6,6 @@
 
 ## Key Features
 
-- **Automatically Generated CST Parser**: Automatically generated from PostgreSQL grammar, supporting a wide range of syntax.
 - **PostgreSQL 17 Support**: Supports the latest PostgreSQL 17 syntax.
 - **Structured CST Output**: The generated CST strictly follows the structure defined in PostgreSQL's [gram.y](https://github.com/postgres/postgres/blob/REL_17_0/src/backend/parser/gram.y) file.
 - **Utilizing `cstree`**: Uses the `cstree` crate for building syntax trees.
