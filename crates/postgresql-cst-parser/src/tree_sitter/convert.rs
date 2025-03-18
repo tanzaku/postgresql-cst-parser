@@ -142,7 +142,8 @@ fn walk_and_build(
                     | SyntaxKind::from_list
                     | SyntaxKind::indirection
                     | SyntaxKind::expr_list
-                    | SyntaxKind::func_arg_list) => {
+                    | SyntaxKind::func_arg_list
+                    | SyntaxKind::when_clause_list) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -342,6 +343,15 @@ FROM
             let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::func_arg_list);
+        }
+
+        #[test]
+        fn no_nested_when_clause_list() {
+            let input = "select case when a then b when c then d when e then f else g end;";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::when_clause_list);
         }
     }
 }
