@@ -233,6 +233,12 @@ fn write_file(bison: &Bison, lalr: &Lalr) {
     write_syntax_file(&terminal_symbols, &non_terminal_symbols, &comments);
 
     std::fs::copy(
+        "./crates/parser-generator/src/parser_generator/lexer/lexer_ported.rs",
+        "./crates/postgresql-cst-parser/src/lexer/lexer_ported.rs",
+    )
+    .unwrap();
+
+    std::fs::copy(
         "./crates/parser-generator/src/parser_generator/lexer/util.rs",
         "./crates/postgresql-cst-parser/src/lexer/util.rs",
     )

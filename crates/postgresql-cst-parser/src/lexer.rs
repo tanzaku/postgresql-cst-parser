@@ -1,5 +1,6 @@
 #[macro_use]
 mod generated;
+mod lexer_ported;
 pub mod parser_error;
 mod util;
 
