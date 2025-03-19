@@ -4,7 +4,7 @@ use cstree::{
 use miniz_oxide::inflate::decompress_to_vec;
 
 use crate::{
-    lexer::{lex, parser_error::ParserError, TokenKind},
+    lexer::{lex, lexer_ported::init_tokens, parser_error::ParserError, TokenKind},
     parser::{
         end_rule_id, end_rule_kind, num_non_terminal_symbol, num_terminal_symbol,
         rule_name_to_component_id, token_kind_to_component_id, Action, ACTION_TABLE, GOTO_TABLE,
@@ -98,78 +98,6 @@ impl Parser {
 
         let (tree, cache) = self.builder.finish();
         (tree, cache.unwrap().into_interner().unwrap())
-    }
-}
-
-/// The logic for converting tokens in PostgreSQL's parser.c
-/// ref: https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/parser/parser.c#L195
-fn init_tokens(tokens: &mut [Token]) {
-    fn next_token_index(tokens: &[Token], i: usize) -> Option<usize> {
-        for (j, token) in tokens.iter().enumerate().skip(i + 1) {
-            match token.kind {
-                TokenKind::C_COMMENT | TokenKind::SQL_COMMENT => continue,
-                _ => return Some(j),
-            }
-        }
-        None
-    }
-
-    for i in 0..tokens.len() - 1 {
-        match &tokens[i].kind {
-            TokenKind::KEYWORD(k) if k == "FORMAT" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    if tokens[j].kind == TokenKind::KEYWORD("JSON".to_string()) {
-                        tokens[i].kind = TokenKind::KEYWORD("FORMAT_LA".to_string());
-                    }
-                }
-            }
-            TokenKind::KEYWORD(k) if k == "NOT" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    match &tokens[j].kind {
-                        TokenKind::KEYWORD(k)
-                            if matches!(
-                                k.as_str(),
-                                "BETWEEN" | "IN_P" | "LIKE" | "ILIKE" | "SIMILAR"
-                            ) =>
-                        {
-                            tokens[i].kind = TokenKind::KEYWORD("NOT_LA".to_string());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            TokenKind::KEYWORD(k) if k == "NULLS_P" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    match &tokens[j].kind {
-                        TokenKind::KEYWORD(k) if matches!(k.as_str(), "FIRST_P" | "LAST_P") => {
-                            tokens[i].kind = TokenKind::KEYWORD("NULLS_LA".to_string());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            TokenKind::KEYWORD(k) if k == "WITH" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    match &tokens[j].kind {
-                        TokenKind::KEYWORD(k) if matches!(k.as_str(), "TIME" | "ORDINALITY") => {
-                            tokens[i].kind = TokenKind::KEYWORD("WITH_LA".to_string());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            TokenKind::KEYWORD(k) if k == "WITHOUT" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    match &tokens[j].kind {
-                        TokenKind::KEYWORD(k) if matches!(k.as_str(), "TIME") => {
-                            tokens[i].kind = TokenKind::KEYWORD("WITHOUT_LA".to_string());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            _ => (),
-        }
     }
 }
 
