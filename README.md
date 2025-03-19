@@ -1,5 +1,7 @@
 # postgresql-cst-parser
 
+**Note: This parser is not an official PostgreSQL project but an independent, unofficial tool.**
+
 ## Overview
 
 `postgresql-cst-parser` is a PostgreSQL-specific Concrete Syntax Tree (CST) parser developed in Pure Rust. This document describes the parser's features, development motivation, usage, and implementation details.

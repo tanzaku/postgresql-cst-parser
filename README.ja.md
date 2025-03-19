@@ -1,5 +1,7 @@
 # postgresql-cst-parser
 
+**注意：このパーサーはPostgreSQLの公式プロジェクトではなく、独立した非公式ツールです。**
+
 ## 概要
 
 `postgresql-cst-parser`は、Pure Rustで開発されたPostgreSQL専用の具象構文木（CST）パーサーです。このドキュメントでは、パーサーの機能、開発のモチベーション、使用方法、および実装の詳細について説明します。
