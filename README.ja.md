@@ -143,8 +143,6 @@ Root@0..31
 
 この実装は、PostgreSQLの[scan.l](https://github.com/postgres/postgres/blob/REL_17_0/src/backend/parser/scan.l)と[gram.y](https://github.com/postgres/postgres/blob/REL_17_0/src/backend/parser/gram.y)に対して[libpg_query](https://github.com/pganalyze/libpg_query/tree/17-6.0.0/patches)のパッチを適用したファイルを使用しています。`scan.l`はさらに Rust 用に書き直したうえで、`scan.l`と`gram.y`に基づいて構文解析テーブルを作成し、パーサーを構築しています。
 
-パーサーによって生成されるCST構造は、PostgreSQLのgram.yファイルで定義された文法構造に密接に従い、SQLステートメントの包括的な表現を確保しています。
-
 ## ライセンス
 
 - `kwlist.h`、`parser.c`、`scan.l`、`gram.y`はPostgreSQLライセンスの下にあります。
