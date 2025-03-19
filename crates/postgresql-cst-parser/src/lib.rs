@@ -15,9 +15,10 @@ pub use cst::SyntaxElement;
 pub use cst::SyntaxElementRef;
 pub use cst::SyntaxNode;
 pub use cst::SyntaxToken;
-use lexer::parser_error::ParserError;
+pub use lexer::parser_error::ParserError;
+pub use lexer::parser_error::ScanReport;
 
-/// "Parse SQL and construct a Complete Syntax Tree (CST) to return.
+/// Parse SQL and construct a Complete Syntax Tree (CST).
 ///
 /// # Examples
 ///

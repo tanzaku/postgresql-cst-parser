@@ -15,7 +15,6 @@ use super::{
     Lexer, ParserError, Rule, TokenKind, Yylval, NAMEDATALEN,
 };
 
-#[macro_export]
 macro_rules! ereport {
     ($lexer:expr, ERROR, (errcode($err_code:expr), errmsg($err_msg:expr), errdetail($err_detail:expr), $err_position:expr)) => {
         return Err(ParserError::new_report($err_msg, $err_detail, $err_position));
@@ -28,14 +27,12 @@ macro_rules! ereport {
     };
 }
 
-#[macro_export]
 macro_rules! yyerror {
     ($msg:expr) => {
         return Err(ParserError::new_error($msg))
     };
 }
 
-#[macro_export]
 macro_rules! yyterminate {
     () => {
         return Ok(None);

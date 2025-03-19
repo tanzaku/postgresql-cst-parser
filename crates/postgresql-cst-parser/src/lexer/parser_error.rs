@@ -1,14 +1,15 @@
 #[derive(Debug, PartialEq)]
 pub enum ParserError {
+    /// SQL syntax error
     ParseError {
         message: String,
         start_byte_pos: usize,
         end_byte_pos: usize,
     },
+    /// Error raised by ereport
     ScanReport(ScanReport),
-    ScanError {
-        message: String,
-    },
+    /// Error raised by yyerror
+    ScanError { message: String },
 }
 
 impl ParserError {
