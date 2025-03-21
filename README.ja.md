@@ -1,5 +1,7 @@
 # postgresql-cst-parser
 
+[![Crates.io](https://img.shields.io/crates/v/postgresql-cst-parser.svg)](https://crates.io/crates/postgresql-cst-parser)
+
 **注意：このパーサーはPostgreSQLの公式プロジェクトではなく、独立した非公式ツールです。**
 
 ## 概要
