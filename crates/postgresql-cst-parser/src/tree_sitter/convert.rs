@@ -143,7 +143,8 @@ fn walk_and_build(
                     | SyntaxKind::indirection
                     | SyntaxKind::expr_list
                     | SyntaxKind::func_arg_list
-                    | SyntaxKind::when_clause_list) => {
+                    | SyntaxKind::when_clause_list
+                    | SyntaxKind::sortby_list) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -352,6 +353,15 @@ FROM
             let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::when_clause_list);
+        }
+
+        #[test]
+        fn no_nested_sortby_list() {
+            let input = "select * from t order by a, b, c;";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::sortby_list);
         }
     }
 }
