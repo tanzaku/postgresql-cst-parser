@@ -1,0 +1,8 @@
+[package]
+name = "automata"
+version = "0.1.0"
+edition = "2024"
+exclude.workspace = true
+
+[dependencies]
+typed-arena = "2.0.2"
