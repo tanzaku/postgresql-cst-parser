@@ -9,13 +9,13 @@ pub mod nfa;
 pub mod regexp;
 
 pub struct NameDefinition {
-    name: String,
-    definition: String,
+    pub name: String,
+    pub definition: String,
 }
 
 pub struct FlexPatternDef {
-    state_set: HashSet<usize>,
-    pattern: String,
+    pub state_set: Vec<usize>,
+    pub pattern: String,
 }
 
 pub struct RegexpNFA<'a> {
@@ -266,6 +266,7 @@ pub fn to_flex_pattern_dfa(
 
         regex_nfa.accept_state.set_accept(i as u32);
         construct_nfa_from_regex(&nfa, &regex_nfa, &node, &regex_node_map);
+        // dbg!(&node);
 
         // そのパターンの状態を持つNFAを作成
         for &state_id in &pattern_def.state_set {
@@ -286,7 +287,9 @@ pub fn to_flex_pattern_dfa(
     // }
 
     // dbg!(nfa.accept(global_start_state, "abd"));
-    // dbg!(nfa.accept(state_root_nfa[0], "abd"));
+    // dbg!(nfa.accept(global_start_state, "abd"));
+    // dbg!(nfa.accept(state_root_nfa[0], ""));
+    // dbg!(nfa.accept(state_root_nfa[0], "*"));
     // dbg!(nfa.accept(state_root_nfa[1], "abd"));
 
     // let mut dfa_to_nfa = Vec::new();
@@ -346,19 +349,19 @@ mod tests {
     fn test_simple1() {
         let pattern_defs = vec![
             FlexPatternDef {
-                state_set: HashSet::from([0]),
+                state_set: vec![0],
                 pattern: "ad".to_string(),
             },
             FlexPatternDef {
-                state_set: HashSet::from([1]),
+                state_set: vec![1],
                 pattern: "a(b|c)*d".to_string(),
             },
             FlexPatternDef {
-                state_set: HashSet::from([0, 1]),
+                state_set: vec![0, 1],
                 pattern: "w{name1}[0-9]z+".to_string(),
             },
             FlexPatternDef {
-                state_set: HashSet::from([0, 1]),
+                state_set: vec![0, 1],
                 pattern: "[^0-9A-Za-z]".to_string(),
             },
         ];
@@ -383,5 +386,34 @@ mod tests {
         assert_eq!(dfa[0].accept("a"), None);
         assert_eq!(dfa[0].accept("A"), None);
         assert_eq!(dfa[0].accept("@"), Some(3));
+    }
+
+    #[test]
+    fn test_simple2() {
+        let pattern_defs = vec![FlexPatternDef {
+            state_set: vec![0],
+            pattern: "[^']*".to_string(),
+        }];
+        let name_definitions = vec![];
+
+        let dfa = to_flex_pattern_dfa(&pattern_defs, &name_definitions);
+
+        assert_eq!(dfa[0].accept("x"), Some(0));
+        assert_eq!(dfa[0].accept(""), Some(0));
+        assert_eq!(dfa[0].accept("'"), Some(0));
+    }
+
+    #[test]
+    fn test_simple3() {
+        let pattern_defs = vec![FlexPatternDef {
+            state_set: vec![0],
+            pattern: r#"[\+\-\*]"#.to_string(),
+            // pattern: r#"[\*]"#.to_string(),
+        }];
+        let name_definitions = vec![];
+
+        let dfa = to_flex_pattern_dfa(&pattern_defs, &name_definitions);
+
+        assert_eq!(dfa[0].accept("*"), Some(0));
     }
 }

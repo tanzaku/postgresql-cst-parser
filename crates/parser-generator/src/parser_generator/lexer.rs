@@ -7,10 +7,8 @@ mod util;
 use std::collections::HashMap;
 
 use parser_error::{ParserError, ScanReport};
-use regex::bytes::Regex;
-// use serde::{Deserialize, Serialize};
 
-use self::generated::{RuleKind, State};
+use self::generated::State;
 
 pub const NAMEDATALEN: usize = 64;
 
@@ -45,16 +43,18 @@ pub struct Lexer {
     pub yylval: Yylval,
     pub yylloc_bytes: usize,
 
+    #[cfg(feature = "regex-match")]
     pub rules: Vec<Rule>,
     pub keyword_map: HashMap<&'static str, &'static str>,
     pub reports: Vec<ScanReport>,
 }
 
+#[cfg(feature = "regex-match")]
 pub struct Rule {
     pub state: State,
-    pub pattern: Regex,
+    pub pattern: regex::bytes::Regex,
     pub eof: bool,
-    pub kind: RuleKind,
+    pub kind: self::generated::RuleKind,
 }
 
 #[allow(clippy::all)]

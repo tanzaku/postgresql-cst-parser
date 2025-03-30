@@ -14,11 +14,11 @@ use miniz_oxide::deflate::compress_to_vec;
 use crate::parser_generator::{bison::Action, lexer::TokenKind};
 
 use self::{
-    bison::{parse_bison, Component},
+    bison::{Component, parse_bison},
     lalr::Lalr,
 };
 
-fn build_action_table(lalr: &Lalr, terminal_symbols: &Vec<Component>) -> Vec<u8> {
+fn build_action_table(lalr: &Lalr, terminal_symbols: &Vec<Component>) -> (Vec<i16>, Vec<u8>) {
     let mut action_table = Vec::new();
 
     for i in 0..lalr.state_set.states.len() {
@@ -38,10 +38,10 @@ fn build_action_table(lalr: &Lalr, terminal_symbols: &Vec<Component>) -> Vec<u8>
         }
     }
 
-    compress(action_table)
+    (action_table.clone(), compress(action_table))
 }
 
-fn build_goto_table(lalr: &Lalr, non_terminal_symbols: &Vec<Component>) -> Vec<u8> {
+fn build_goto_table(lalr: &Lalr, non_terminal_symbols: &Vec<Component>) -> (Vec<i16>, Vec<u8>) {
     let mut goto_table = Vec::new();
 
     for i in 0..lalr.state_set.states.len() {
@@ -54,7 +54,7 @@ fn build_goto_table(lalr: &Lalr, non_terminal_symbols: &Vec<Component>) -> Vec<u
         }
     }
 
-    compress(goto_table)
+    (goto_table.clone(), compress(goto_table))
 }
 
 fn write_parser_file(
@@ -64,14 +64,26 @@ fn write_parser_file(
     non_terminal_symbols: &Vec<Component>,
     comments: &Vec<Component>,
 ) {
-    let action_table = build_action_table(lalr, &terminal_symbols);
-    let goto_table = build_goto_table(lalr, &non_terminal_symbols);
+    let (action_table_raw, action_table) = build_action_table(lalr, &terminal_symbols);
+    let (goto_table_raw, goto_table) = build_goto_table(lalr, &non_terminal_symbols);
 
     let terminal_symbols_with_comment = terminal_symbols
         .iter()
         .chain(comments)
         .cloned()
         .collect::<Vec<_>>();
+
+    let action_table_raw_str = action_table_raw
+        .iter()
+        .map(|b| b.to_string())
+        .collect::<Vec<_>>()
+        .join(",");
+
+    let goto_table_raw_str = goto_table_raw
+        .iter()
+        .map(|b| b.to_string())
+        .collect::<Vec<_>>()
+        .join(",");
 
     let action_table_str = action_table
         .iter()
@@ -152,6 +164,13 @@ fn write_parser_file(
         .replace("{rule_name_to_component_id}", &rule_name_to_component_id)
         .replace("{num_parse_rules}", &bison.rules.len().to_string())
         .replace("{parse_rules}", &parse_rules)
+        .replace("{action_table_raw}", &action_table_raw_str)
+        .replace("{goto_table_raw}", &goto_table_raw_str)
+        .replace(
+            "{action_table_raw_size}",
+            &action_table_raw.len().to_string(),
+        )
+        .replace("{goto_table_raw_size}", &goto_table_raw.len().to_string())
         .replace("{action_table}", &action_table_str)
         .replace("{goto_table}", &goto_table_str)
         .replace("{action_table_size}", &action_table.len().to_string())

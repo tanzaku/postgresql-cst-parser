@@ -1,7 +1,7 @@
 [package]
 name = "postgresql-cst-parser"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 repository = "https://github.com/tanzaku/postgresql-cst-parser"
 description = "An unofficial PostgreSQL CST parser written in Pure Rust."
 authors = ["tanzaku"]
@@ -20,3 +20,12 @@ miniz_oxide = "0.7.1"
 [features]
 default = ["remove-empty-node"]
 remove-empty-node = []
+regex-match = []
+compress-parser-table = []
+
+[[bench]]
+name = "test"
+harness = false
+
+[dev-dependencies]
+criterion = "0.5.1"

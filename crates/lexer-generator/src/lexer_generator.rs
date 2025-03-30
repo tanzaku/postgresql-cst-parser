@@ -1,8 +1,6 @@
 use std::{collections::HashMap, process::Command};
 
-use self::flex_file::{parse_flex_file, FlexFile};
-
-mod flex_file;
+use crate::flex_file::{FlexFile, parse_flex_file};
 
 /// Assign unique names to all rules in each state
 fn construct_rule_kinds(flex_file: &FlexFile) -> String {

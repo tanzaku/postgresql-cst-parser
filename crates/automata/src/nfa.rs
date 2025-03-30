@@ -55,20 +55,34 @@ pub struct NFA<'a> {
     arena: Arena<NFAState<'a>>,
 }
 
-pub fn epsilon_transition<'a>(set: &mut BTreeSet<&'a NFAState<'a>>, s: &'a NFAState<'a>) -> bool {
+pub fn epsilon_transition<'a>(
+    set: &mut BTreeSet<&'a NFAState<'a>>,
+    s: &'a NFAState<'a>,
+) -> Option<u32> {
     if !set.insert(s) {
-        return false;
+        return None;
     }
 
     let mut candidate = vec![s];
-    let mut accepted = false;
+    let mut accepted = None;
+
+    {
+        let new_accept = s.accept.borrow().clone();
+        if accepted.unwrap_or(!0) > new_accept.unwrap_or(!0) {
+            accepted = new_accept;
+        }
+    }
 
     while let Some(s) = candidate.pop() {
         if let Some(new_states) = s.transitions.borrow().get(&Transition::Epsilon) {
             for &new_state in new_states {
                 if set.insert(new_state) {
                     candidate.push(new_state);
-                    accepted |= new_state.accept.borrow().is_some();
+
+                    let new_accept = new_state.accept.borrow().clone();
+                    if accepted.unwrap_or(!0) > new_accept.unwrap_or(!0) {
+                        accepted = new_accept;
+                    }
                 }
             }
         }
@@ -102,7 +116,11 @@ impl<'a> NFA<'a> {
         let mut set: BTreeSet<BTreeSet<&'a NFAState<'a>>> = BTreeSet::new();
 
         let mut first_set = BTreeSet::new();
-        epsilon_transition(&mut first_set, start);
+
+        if epsilon_transition(&mut first_set, start).is_some() {
+            return true;
+        }
+
         set.insert(first_set);
 
         for &b in bs {
@@ -119,11 +137,7 @@ impl<'a> NFA<'a> {
 
                     if let Some(new_states) = state.transitions.borrow().get(&Transition::Char(b)) {
                         for &new_state in new_states {
-                            if new_state.accept.borrow().is_some() {
-                                return true;
-                            }
-
-                            if epsilon_transition(&mut next_state_set, new_state) {
+                            if epsilon_transition(&mut next_state_set, new_state).is_some() {
                                 return true;
                             }
                         }

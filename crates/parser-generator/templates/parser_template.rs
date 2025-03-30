@@ -13,11 +13,21 @@ pub(crate) enum Action {
     Error,
 }
 
+#[cfg(not(feature = "compress-parser-table"))]
 #[rustfmt::skip]
-pub(crate) const ACTION_TABLE: &[u8; {action_table_size}] = &[{action_table}];
+pub(crate) const ACTION_TABLE: &[i16; {action_table_raw_size}] = &[{action_table_raw}];
 
+#[cfg(not(feature = "compress-parser-table"))]
 #[rustfmt::skip]
-pub(crate) const GOTO_TABLE: &[u8; {goto_table_size}] = &[{goto_table}];
+pub(crate) const GOTO_TABLE: &[i16; {goto_table_raw_size}] = &[{goto_table_raw}];
+
+#[cfg(feature = "compress-parser-table")]
+#[rustfmt::skip]
+pub(crate) const ACTION_TABLE_COMPRESSED: &[u8; {action_table_size}] = &[{action_table}];
+
+#[cfg(feature = "compress-parser-table")]
+#[rustfmt::skip]
+pub(crate) const GOTO_TABLE_COMPRESSED: &[u8; {goto_table_size}] = &[{goto_table}];
 
 #[rustfmt::skip]
 pub(crate) const RULES: &[Rule; {num_parse_rules}] = &[{parse_rules}];

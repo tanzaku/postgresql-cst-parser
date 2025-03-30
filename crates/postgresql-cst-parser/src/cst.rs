@@ -1,14 +1,12 @@
 use cstree::{
     build::GreenNodeBuilder, green::GreenNode, interning::Resolver, RawSyntaxKind, Syntax,
 };
-use miniz_oxide::inflate::decompress_to_vec;
 
 use crate::{
     lexer::{lex, lexer_ported::init_tokens, parser_error::ParserError, TokenKind},
     parser::{
         end_rule_id, end_rule_kind, num_non_terminal_symbol, num_terminal_symbol,
-        rule_name_to_component_id, token_kind_to_component_id, Action, ACTION_TABLE, GOTO_TABLE,
-        RULES,
+        rule_name_to_component_id, token_kind_to_component_id, Action, RULES,
     },
 };
 
@@ -116,9 +114,28 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
         end_byte_pos: input.len(),
     });
 
-    let action_table_u8 = decompress_to_vec(ACTION_TABLE.as_ref()).unwrap();
-    let goto_table_u8 = decompress_to_vec(GOTO_TABLE.as_ref()).unwrap();
+    // Not enabled compress-parser-table feature
+    #[cfg(not(feature = "compress-parser-table"))]
+    let action_table = &crate::parser::ACTION_TABLE;
+
+    #[cfg(not(feature = "compress-parser-table"))]
+    let goto_table = &crate::parser::GOTO_TABLE;
+
+    // Enabled compress-parser-table feature
+    #[cfg(feature = "compress-parser-table")]
+    let action_table_u8 =
+        miniz_oxide::inflate::decompress_to_vec(crate::parser::ACTION_TABLE_COMPRESSED.as_ref())
+            .unwrap();
+
+    #[cfg(feature = "compress-parser-table")]
+    let goto_table_u8 =
+        miniz_oxide::inflate::decompress_to_vec(crate::parser::GOTO_TABLE_COMPRESSED.as_ref())
+            .unwrap();
+
+    #[cfg(feature = "compress-parser-table")]
     let action_table = unsafe { action_table_u8.align_to::<i16>().1 };
+
+    #[cfg(feature = "compress-parser-table")]
     let goto_table = unsafe { goto_table_u8.align_to::<i16>().1 };
 
     let mut stack: Vec<(u32, Node)> = Vec::new();

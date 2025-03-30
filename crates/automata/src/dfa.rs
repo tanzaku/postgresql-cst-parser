@@ -15,7 +15,9 @@ pub struct DFA {
 impl<'a> DFA {
     pub fn accept_bytes(&self, bs: &[u8]) -> Option<u32> {
         let mut state = 0;
-        let mut accepted = None;
+
+        // '.*' のように初期状態で受理することがある
+        let mut accepted = self.states[state].accept;
 
         for &b in bs {
             let next_state = self.states[state].transitions[b as usize];
@@ -23,10 +25,17 @@ impl<'a> DFA {
                 break;
             }
 
-            state = next_state;
-            if self.states[state].accept.is_some() {
-                accepted = self.states[state].accept;
+            if self.states[next_state].accept.is_some() {
+                accepted = self.states[next_state].accept;
             }
+            state = next_state;
+        }
+
+        // 最後まで見たらEOFで遷移しないか確認
+        // EOFはnull terminatedな文字列のイメージで簡易的に0にしている
+        let next_state = self.states[state].transitions[0];
+        if next_state != !0 && self.states[next_state].accept.is_some() {
+            accepted = self.states[next_state].accept;
         }
 
         accepted
@@ -44,6 +53,13 @@ impl<'a> From<&'a NFAState<'a>> for DFA {
     }
 }
 
+fn accept(set: &BTreeSet<&NFAState>) -> Option<u32> {
+    set.iter().fold(None, |acc, s| match *s.accept.borrow() {
+        Some(v) if v < acc.unwrap_or(!0) => Some(v),
+        _ => acc,
+    })
+}
+
 /// 部分集合構成法
 pub fn dfa_from_nfa_with_nfa_id<'a>(
     start_state: &'a NFAState<'a>,
@@ -59,13 +75,13 @@ pub fn dfa_from_nfa_with_nfa_id<'a>(
     let mut nfa_map = BTreeMap::new();
     nfa_map.insert(first_set.clone(), 0);
 
-    let mut nfa_states_vec = vec![first_set];
-
     let mut dfa_states = Vec::new();
     dfa_states.push(DFAState {
         transitions: [!0; 256],
-        accept: None,
+        accept: accept(&first_set),
     });
+
+    let mut nfa_states_vec = vec![first_set];
 
     while let Some(nfa_states) = nfa_states_vec.pop() {
         let src_index = *nfa_map.get(&nfa_states).unwrap();
@@ -92,12 +108,7 @@ pub fn dfa_from_nfa_with_nfa_id<'a>(
             } else {
                 let index = nfa_map.len();
 
-                let accept = next_set
-                    .iter()
-                    .fold(None, |acc, s| match *s.accept.borrow() {
-                        Some(v) if v < acc.unwrap_or(!0) => Some(v),
-                        _ => acc,
-                    });
+                let accept = accept(&next_set);
 
                 if let Some(dfa_to_nfa) = dfa_to_nfa.as_mut() {
                     dfa_to_nfa.push(next_set.iter().map(|s| s.index).collect());
