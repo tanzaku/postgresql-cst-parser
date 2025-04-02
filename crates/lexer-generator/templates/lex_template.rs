@@ -5,8 +5,6 @@
 
 use std::collections::HashMap;
 
-// use regex::bytes::Regex;
-
 use super::{
     Lexer, NAMEDATALEN, ParserError, TokenKind, Yylval,
     lexer_ported::{
@@ -50,18 +48,6 @@ pub mod dfa {
 
         match state_id {
             {{state_id_to_dfa_table}}
-            // 0 => (TRANSITION_TABLE_0.as_slice(), ACCEPT_TABLE_0.as_slice()),
-            // 1 => (TRANSITION_TABLE_1.as_slice(), ACCEPT_TABLE_1.as_slice()),
-            // 2 => (TRANSITION_TABLE_2.as_slice(), ACCEPT_TABLE_2.as_slice()),
-            // 3 => (TRANSITION_TABLE_3.as_slice(), ACCEPT_TABLE_3.as_slice()),
-            // 4 => (TRANSITION_TABLE_4.as_slice(), ACCEPT_TABLE_4.as_slice()),
-            // 5 => (TRANSITION_TABLE_5.as_slice(), ACCEPT_TABLE_5.as_slice()),
-            // 6 => (TRANSITION_TABLE_6.as_slice(), ACCEPT_TABLE_6.as_slice()),
-            // 7 => (TRANSITION_TABLE_7.as_slice(), ACCEPT_TABLE_7.as_slice()),
-            // 8 => (TRANSITION_TABLE_8.as_slice(), ACCEPT_TABLE_8.as_slice()),
-            // 9 => (TRANSITION_TABLE_9.as_slice(), ACCEPT_TABLE_9.as_slice()),
-            // 10 => (TRANSITION_TABLE_10.as_slice(), ACCEPT_TABLE_10.as_slice()),
-            // 11 => (TRANSITION_TABLE_11.as_slice(), ACCEPT_TABLE_11.as_slice()),
             _ => unreachable!(),
         }
     }

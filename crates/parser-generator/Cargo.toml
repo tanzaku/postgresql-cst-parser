@@ -11,10 +11,8 @@ release = false
 
 [dependencies]
 regex = "1.10.2"
-#bincode = "1.3.3"
 cstree = { version = "0.12.0", features = ["derive"] }
 #serde = { version = "1.0.195", features = ["derive"] }
-miniz_oxide = "0.7.1"
 
 [features]
 regex-match = []

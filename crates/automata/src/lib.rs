@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use dfa::DFA;
+use dfa::{DFA, INVALID_STATE};
 use nfa::{NFA, NFAState, Transition};
 use regexp::{RegexpNode, RegexpParser};
 
@@ -8,37 +8,46 @@ pub mod dfa;
 pub mod nfa;
 pub mod regexp;
 
+/// A name-to-pattern mapping for use in regex pattern references.
+/// Similar to Flex's %{ name definition %} directive.
 pub struct NameDefinition {
     pub name: String,
     pub definition: String,
 }
 
+/// Definition of a pattern in Flex-compatible lexical analyzer.
+/// Specifies which lexer states this pattern applies to.
 pub struct FlexPatternDef {
     pub state_set: Vec<usize>,
     pub pattern: String,
 }
 
-pub struct RegexpNFA<'a> {
+/// A fragment of NFA with designated start and accept states.
+/// Used to build larger NFAs from regex components.
+pub struct NFAFragment<'a> {
     start_state: &'a NFAState<'a>,
     accept_state: &'a NFAState<'a>,
 }
 
-impl<'a> RegexpNFA<'a> {
+impl<'a> NFAFragment<'a> {
+    /// Creates a new NFA fragment with fresh start and accept states.
+    /// This fragment can be used as a building block for larger NFAs.
     pub fn new(nfa: &'a NFA<'a>) -> Self {
-        RegexpNFA {
+        NFAFragment {
             start_state: nfa.new_state(),
             accept_state: nfa.new_state(),
         }
     }
 }
 
-pub fn construct_nfa_from_regex<'a>(
+/// Builds an NFA structure from a regular expression AST node
+pub fn build_nfa_from_regex_node<'a>(
     nfa: &'a NFA<'a>,
-    regex_nfa: &RegexpNFA<'a>,
+    regex_nfa: &NFAFragment<'a>,
     node: &RegexpNode,
-    regex_node_map: &HashMap<String, RegexpNode>,
+    named_pattern_definitions: &HashMap<String, RegexpNode>,
 ) {
-    let &RegexpNFA {
+    let &NFAFragment {
         start_state: start,
         accept_state: accept,
     } = regex_nfa;
@@ -46,12 +55,12 @@ pub fn construct_nfa_from_regex<'a>(
     match node {
         RegexpNode::Alternative(nodes) => {
             for node in nodes {
-                let node_nfa @ RegexpNFA {
+                let node_nfa @ NFAFragment {
                     start_state: node_start,
                     accept_state: node_accept,
-                } = RegexpNFA::new(nfa);
+                } = NFAFragment::new(nfa);
 
-                construct_nfa_from_regex(nfa, &node_nfa, node, regex_node_map);
+                build_nfa_from_regex_node(nfa, &node_nfa, node, named_pattern_definitions);
 
                 start.add_transition(node_start, Transition::Epsilon);
                 node_accept.add_transition(accept, Transition::Epsilon);
@@ -69,12 +78,12 @@ pub fn construct_nfa_from_regex<'a>(
             let mut state = start;
 
             for node in nodes {
-                let node_nfa @ RegexpNFA {
+                let node_nfa @ NFAFragment {
                     start_state: node_start,
                     accept_state: node_accept,
-                } = RegexpNFA::new(nfa);
+                } = NFAFragment::new(nfa);
 
-                construct_nfa_from_regex(nfa, &node_nfa, node, regex_node_map);
+                build_nfa_from_regex_node(nfa, &node_nfa, node, named_pattern_definitions);
 
                 state.add_transition(node_start, Transition::Epsilon);
                 state = node_accept;
@@ -82,48 +91,50 @@ pub fn construct_nfa_from_regex<'a>(
 
             state.add_transition(accept, Transition::Epsilon);
         }
-        RegexpNode::Kleene0(node) => {
-            let node_nfa @ RegexpNFA {
+        RegexpNode::ZeroOrMore(node) => {
+            let node_nfa @ NFAFragment {
                 start_state: node_start,
                 accept_state: node_accept,
-            } = RegexpNFA::new(nfa);
+            } = NFAFragment::new(nfa);
 
-            construct_nfa_from_regex(nfa, &node_nfa, node, regex_node_map);
+            build_nfa_from_regex_node(nfa, &node_nfa, node, named_pattern_definitions);
 
             start.add_transition(node_start, Transition::Epsilon);
             node_accept.add_transition(accept, Transition::Epsilon);
             node_accept.add_transition(node_start, Transition::Epsilon);
             start.add_transition(accept, Transition::Epsilon);
         }
-        RegexpNode::Kleene1(node) => {
-            let node_nfa @ RegexpNFA {
+        RegexpNode::OneOrMore(node) => {
+            let node_nfa @ NFAFragment {
                 start_state: node_start,
                 accept_state: node_accept,
-            } = RegexpNFA::new(nfa);
+            } = NFAFragment::new(nfa);
 
-            construct_nfa_from_regex(nfa, &node_nfa, node, regex_node_map);
+            build_nfa_from_regex_node(nfa, &node_nfa, node, named_pattern_definitions);
 
             start.add_transition(node_start, Transition::Epsilon);
             node_accept.add_transition(accept, Transition::Epsilon);
             node_accept.add_transition(node_start, Transition::Epsilon);
         }
         RegexpNode::NoneOf(bytes) => {
-            // NULL文字は<<EOF>>のために取っておきたいので除外しておく
+            // Exclude NULL character (0x00) as it's reserved for the <<EOF>> marker
             for byte in 0x01..=0xFF {
                 if !bytes.contains(&byte) {
                     start.add_transition(accept, Transition::Char(byte));
                 }
             }
         }
-        RegexpNode::RefAutomata(name) => {
-            let regexp_node = regex_node_map.get(name).unwrap();
+        RegexpNode::Reference(name) => {
+            let regexp_node = named_pattern_definitions
+                .get(name)
+                .expect(&format!("Referenced pattern '{}' not found", name));
 
-            let node_nfa @ RegexpNFA {
+            let node_nfa @ NFAFragment {
                 start_state: node_start,
                 accept_state: node_accept,
-            } = RegexpNFA::new(nfa);
+            } = NFAFragment::new(nfa);
 
-            construct_nfa_from_regex(nfa, &node_nfa, regexp_node, regex_node_map);
+            build_nfa_from_regex_node(nfa, &node_nfa, regexp_node, named_pattern_definitions);
             start.add_transition(node_start, Transition::Epsilon);
             node_accept.add_transition(accept, Transition::Epsilon);
         }
@@ -134,12 +145,12 @@ pub fn construct_nfa_from_regex<'a>(
                     state.add_transition(accept, Transition::Epsilon);
                 }
 
-                let node_nfa @ RegexpNFA {
+                let node_nfa @ NFAFragment {
                     start_state: node_start,
                     accept_state: node_accept,
-                } = RegexpNFA::new(nfa);
+                } = NFAFragment::new(nfa);
 
-                construct_nfa_from_regex(nfa, &node_nfa, &*node, regex_node_map);
+                build_nfa_from_regex_node(nfa, &node_nfa, &*node, named_pattern_definitions);
 
                 state.add_transition(node_start, Transition::Epsilon);
                 state = node_accept;
@@ -149,106 +160,19 @@ pub fn construct_nfa_from_regex<'a>(
     }
 }
 
-// fn traverse_nfa<'a, F>(nfa_state: &'a NFAState<'a>, mut f: F)
-// where
-//     F: FnMut(&'a NFAState<'a>),
-// {
-//     let mut visited = HashSet::new();
-//     let mut stack = vec![nfa_state];
-//     visited.insert(nfa_state.index);
-//     f(nfa_state);
-
-//     while let Some(state) = stack.pop() {
-//         for transition in state.transitions.borrow().values() {
-//             for &next_state in transition {
-//                 if visited.insert(next_state.index) {
-//                     f(next_state);
-//                     stack.push(next_state);
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// 全体で一つのDFAを作る
-// pub fn to_flex_pattern_dfa(
-//     pattern_defs: &[FlexPatternDef],
-//     name_definitions: &[NameDefinition],
-// ) -> (DFA, Vec<u32>) {
-//     let nfa = NFA::new();
-//     let mut regex_parser = RegexpParser::new();
-//     let mut regex_node_map: HashMap<String, RegexpNode> = HashMap::new();
-
-//     for name_definition in name_definitions {
-//         let regex = regex_parser.parse(&name_definition.definition);
-//         regex_node_map.insert(name_definition.name.clone(), regex);
-//     }
-
-//     let num_state = pattern_defs
-//         .iter()
-//         .flat_map(|p| p.state_set.iter().cloned())
-//         .collect::<HashSet<_>>()
-//         .len();
-
-//     let state_root_nfa = (0..num_state).map(|_| nfa.new_state()).collect::<Vec<_>>();
-
-//     // パターン
-//     for (i, pattern_def) in pattern_defs.iter().enumerate() {
-//         let node = regex_parser.parse(&pattern_def.pattern);
-//         let regex_nfa = RegexpNFA::new(&nfa);
-
-//         regex_nfa.accept_state.set_accept(i as u32);
-//         construct_nfa_from_regex(&nfa, &regex_nfa, &node, &regex_node_map);
-
-//         // そのパターンの状態を持つNFAを作成
-//         for &state_id in &pattern_def.state_set {
-//             state_root_nfa[state_id].add_transition(regex_nfa.start_state, Transition::Epsilon);
-//         }
-//     }
-
-//     let mut nfa_to_state_map = HashMap::new();
-//     for state_id in 0..num_state {
-//         traverse_nfa(state_root_nfa[state_id], |state| {
-//             nfa_to_state_map.insert(state.index, state_id);
-//         });
-//     }
-
-//     let global_start_state = nfa.new_state();
-//     for i in 0..num_state {
-//         global_start_state.add_transition(state_root_nfa[i], Transition::Epsilon);
-//     }
-
-//     // dbg!(nfa.accept(global_start_state, "abd"));
-//     // dbg!(nfa.accept(state_root_nfa[0], "abd"));
-//     // dbg!(nfa.accept(state_root_nfa[1], "abd"));
-
-//     let mut dfa_to_nfa = Vec::new();
-//     let dfa = dfa_from_nfa_with_nfa_id(global_start_state, Some(&mut dfa_to_nfa));
-
-//     // dbg!(dfa.accept("abd"));
-
-//     let mut dfa_to_state = vec![0_u32; dfa.states.len()];
-//     for i in 0..dfa.states.len() {
-//         dfa_to_state[i] = dfa_to_nfa[i]
-//             .iter()
-//             .map(|s| nfa_to_state_map.get(s).map(|&i| 1 << i).unwrap_or(0))
-//             .fold(0, |a, b| a | b);
-//     }
-
-//     (dfa, dfa_to_state)
-// }
-
+/// Compiles a set of Flex-compatible pattern definitions into DFA.
+/// Creates one DFA per lexer state.
 pub fn to_flex_pattern_dfa(
     pattern_defs: &[FlexPatternDef],
     name_definitions: &[NameDefinition],
 ) -> Vec<DFA> {
     let nfa = NFA::new();
     let mut regex_parser = RegexpParser::new();
-    let mut regex_node_map: HashMap<String, RegexpNode> = HashMap::new();
+    let mut named_pattern_definitions = HashMap::new();
 
     for name_definition in name_definitions {
         let regex = regex_parser.parse(&name_definition.definition);
-        regex_node_map.insert(name_definition.name.clone(), regex);
+        named_pattern_definitions.insert(name_definition.name.clone(), regex);
     }
 
     let num_state = pattern_defs
@@ -257,60 +181,26 @@ pub fn to_flex_pattern_dfa(
         .collect::<HashSet<_>>()
         .len();
 
-    let state_root_nfa = (0..num_state).map(|_| nfa.new_state()).collect::<Vec<_>>();
+    let state_start_node = (0..num_state).map(|_| nfa.new_state()).collect::<Vec<_>>();
 
     // パターン
     for (i, pattern_def) in pattern_defs.iter().enumerate() {
         let node = regex_parser.parse(&pattern_def.pattern);
-        let regex_nfa = RegexpNFA::new(&nfa);
+        let regex_nfa = NFAFragment::new(&nfa);
 
         regex_nfa.accept_state.set_accept(i as u32);
-        construct_nfa_from_regex(&nfa, &regex_nfa, &node, &regex_node_map);
-        // dbg!(&node);
+        build_nfa_from_regex_node(&nfa, &regex_nfa, &node, &named_pattern_definitions);
 
         // そのパターンの状態を持つNFAを作成
         for &state_id in &pattern_def.state_set {
-            state_root_nfa[state_id].add_transition(regex_nfa.start_state, Transition::Epsilon);
+            state_start_node[state_id].add_transition(regex_nfa.start_state, Transition::Epsilon);
         }
     }
 
-    // let mut nfa_to_state_map = HashMap::new();
-    // for state_id in 0..num_state {
-    //     traverse_nfa(state_root_nfa[state_id], |state| {
-    //         nfa_to_state_map.insert(state.index, state_id);
-    //     });
-    // }
-
-    // let global_start_state = nfa.new_state();
-    // for i in 0..num_state {
-    //     global_start_state.add_transition(state_root_nfa[i], Transition::Epsilon);
-    // }
-
-    // dbg!(nfa.accept(global_start_state, "abd"));
-    // dbg!(nfa.accept(global_start_state, "abd"));
-    // dbg!(nfa.accept(state_root_nfa[0], ""));
-    // dbg!(nfa.accept(state_root_nfa[0], "*"));
-    // dbg!(nfa.accept(state_root_nfa[1], "abd"));
-
-    // let mut dfa_to_nfa = Vec::new();
-    // let dfa = dfa_from_nfa_with_nfa_id(global_start_state, Some(&mut dfa_to_nfa));
-
-    // // dbg!(dfa.accept("abd"));
-
-    // let mut dfa_to_state = vec![0_u32; dfa.states.len()];
-    // for i in 0..dfa.states.len() {
-    //     dfa_to_state[i] = dfa_to_nfa[i]
-    //         .iter()
-    //         .map(|s| nfa_to_state_map.get(s).map(|&i| 1 << i).unwrap_or(0))
-    //         .fold(0, |a, b| a | b);
-    // }
-
-    // (dfa, dfa_to_state)
-
-    state_root_nfa.into_iter().map(DFA::from).collect()
+    state_start_node.into_iter().map(DFA::from).collect()
 }
 
-pub fn accept_bytes_with_state(
+pub fn match_bytes_in_lexer_state(
     dfa: &DFA,
     bs: &[u8],
     dfa_to_state: &[u32],
@@ -323,18 +213,14 @@ pub fn accept_bytes_with_state(
 
     for &b in bs {
         let next_state = dfa.states[state].transitions[b as usize];
-        // dbg!(state, next_state);
 
-        if next_state == !0 || (dfa_to_state[next_state] & state_id_bit) == 0 {
+        if next_state == INVALID_STATE || (dfa_to_state[next_state] & state_id_bit) == 0 {
             break;
         }
 
-        // dbg!(&dfa.states[state].accept);
-        // dbg!(&dfa.states[next_state].accept);
-
         state = next_state;
-        if dfa.states[state].accept.is_some() {
-            accepted = dfa.states[state].accept;
+        if dfa.states[state].accept_lexer_rule_id.is_some() {
+            accepted = dfa.states[state].accept_lexer_rule_id;
         }
     }
 
@@ -372,20 +258,20 @@ mod tests {
 
         let dfa = to_flex_pattern_dfa(&pattern_defs, &name_definitions);
 
-        assert_eq!(dfa[0].accept("ad"), Some(0));
-        assert_eq!(dfa[1].accept("ad"), Some(1));
-        assert_eq!(dfa[1].accept("abd"), Some(1));
-        assert_eq!(dfa[1].accept("abbbbcbcbd"), Some(1));
-        assert_eq!(dfa[1].accept("abbbbcbcbd"), Some(1));
-        assert_eq!(dfa[0].accept("wxy0zzz"), Some(2));
-        assert_eq!(dfa[1].accept("wxy1zz"), Some(2));
-        assert_eq!(dfa[0].accept("wy9zz"), Some(2));
-        assert_eq!(dfa[1].accept("wx9zz"), None);
-        assert_eq!(dfa[0].accept("wxyz"), None);
-        assert_eq!(dfa[0].accept("0"), None);
-        assert_eq!(dfa[0].accept("a"), None);
-        assert_eq!(dfa[0].accept("A"), None);
-        assert_eq!(dfa[0].accept("@"), Some(3));
+        assert_eq!(dfa[0].match_string("ad"), Some(0));
+        assert_eq!(dfa[1].match_string("ad"), Some(1));
+        assert_eq!(dfa[1].match_string("abd"), Some(1));
+        assert_eq!(dfa[1].match_string("abbbbcbcbd"), Some(1));
+        assert_eq!(dfa[1].match_string("abbbbcbcbd"), Some(1));
+        assert_eq!(dfa[0].match_string("wxy0zzz"), Some(2));
+        assert_eq!(dfa[1].match_string("wxy1zz"), Some(2));
+        assert_eq!(dfa[0].match_string("wy9zz"), Some(2));
+        assert_eq!(dfa[1].match_string("wx9zz"), None);
+        assert_eq!(dfa[0].match_string("wxyz"), None);
+        assert_eq!(dfa[0].match_string("0"), None);
+        assert_eq!(dfa[0].match_string("a"), None);
+        assert_eq!(dfa[0].match_string("A"), None);
+        assert_eq!(dfa[0].match_string("@"), Some(3));
     }
 
     #[test]
@@ -398,9 +284,9 @@ mod tests {
 
         let dfa = to_flex_pattern_dfa(&pattern_defs, &name_definitions);
 
-        assert_eq!(dfa[0].accept("x"), Some(0));
-        assert_eq!(dfa[0].accept(""), Some(0));
-        assert_eq!(dfa[0].accept("'"), Some(0));
+        assert_eq!(dfa[0].match_string("x"), Some(0));
+        assert_eq!(dfa[0].match_string(""), Some(0));
+        assert_eq!(dfa[0].match_string("'"), Some(0));
     }
 
     #[test]
@@ -408,12 +294,11 @@ mod tests {
         let pattern_defs = vec![FlexPatternDef {
             state_set: vec![0],
             pattern: r#"[\+\-\*]"#.to_string(),
-            // pattern: r#"[\*]"#.to_string(),
         }];
         let name_definitions = vec![];
 
         let dfa = to_flex_pattern_dfa(&pattern_defs, &name_definitions);
 
-        assert_eq!(dfa[0].accept("*"), Some(0));
+        assert_eq!(dfa[0].match_string("*"), Some(0));
     }
 }

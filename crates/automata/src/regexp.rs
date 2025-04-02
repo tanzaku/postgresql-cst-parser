@@ -1,24 +1,26 @@
 // const EOF: &'static str = "<<EOF>>";
-const EOF_CHARS: [char; 7] = ['<', '<', 'E', 'O', 'F', '>', '>'];
+const EOF_MARKER: [u8; 7] = [b'<', b'<', b'E', b'O', b'F', b'>', b'>'];
 
+/// Abstract Syntax Tree node for regular expression patterns.
+/// Represents different components that can appear in a regex pattern.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RegexpNode {
     Char(u8),
-    Concatenation(Vec<RegexpNode>),
     AnyOf(Vec<u8>),
     NoneOf(Vec<u8>),
+    Concatenation(Vec<RegexpNode>),
     Alternative(Vec<RegexpNode>),
-    Kleene0(Box<RegexpNode>),
-    Kleene1(Box<RegexpNode>),
+    ZeroOrMore(Box<RegexpNode>),
+    OneOrMore(Box<RegexpNode>),
     Repeat(Box<RegexpNode>, usize, usize),
-    RefAutomata(String),
+    Reference(String),
 }
 
 impl RegexpNode {
-    fn as_u8(&self) -> u8 {
+    fn as_char_value(&self) -> u8 {
         match self {
             RegexpNode::Char(c) => *c,
-            _ => panic!(),
+            _ => panic!("Called as_char_value on non-Char node"),
         }
     }
 
@@ -53,58 +55,54 @@ impl RegexpNode {
 #[derive(Debug)]
 pub struct RegexpParser {
     index: usize,
-    chars: Vec<char>,
-    parsed_nodes_stack: Vec<Vec<RegexpNode>>,
+    bytes: Vec<u8>,
+    parsing_context_stack: Vec<Vec<RegexpNode>>,
 }
 
 impl RegexpParser {
     pub fn new() -> Self {
         RegexpParser {
             index: 0,
-            chars: Vec::new(),
-            parsed_nodes_stack: vec![],
+            bytes: Vec::new(),
+            parsing_context_stack: vec![],
         }
     }
 
     fn pop_node(&mut self) -> RegexpNode {
-        self.parsed_nodes_stack.last_mut().unwrap().pop().unwrap()
+        self.parsing_context_stack
+            .last_mut()
+            .unwrap()
+            .pop()
+            .unwrap()
     }
 
-    // dolq_start		[A-Za-z\200-\377_]
-    // dolq_cont		[A-Za-z\200-\377_0-9]
-    // dolqdelim		\$({dolq_start}{dolq_cont}*)?\$
-    // dolqfailed		\${dolq_start}{dolq_cont}*
-    // dolqinside		[^$]+
-    // xeinside		[^\\']+
-    // xeescape		[\\][^0-7]
-    // xqinside		[^']+
-    fn read_escaped_byte(&mut self) -> u8 {
+    fn parse_escape_sequence_as_byte(&mut self) -> u8 {
         self.index += 1;
 
-        let c = self.chars[self.index];
+        let c = self.bytes[self.index];
         self.index += 1;
 
         match c {
-            'b' => b'\x08',
-            'f' => b'\x0c',
-            't' => b'\t',
-            'r' => b'\r',
-            'n' => b'\n',
-            'v' => b'\x0b',
-            'x' => {
+            b'b' => b'\x08',
+            b'f' => b'\x0c',
+            b't' => b'\t',
+            b'r' => b'\r',
+            b'n' => b'\n',
+            b'v' => b'\x0b',
+            b'x' => {
                 let mut v = 0;
 
-                while self.index < self.chars.len() {
-                    let c = self.chars[self.index];
+                while self.index < self.bytes.len() {
+                    let c = self.bytes[self.index];
 
                     if !c.is_ascii_hexdigit() {
                         break;
                     }
 
                     let d = match c {
-                        '0'..='9' => c as u8 - b'0',
-                        'a'..='f' => c as u8 - b'a' + 10,
-                        'A'..='F' => c as u8 - b'A' + 10,
+                        b'0'..=b'9' => c as u8 - b'0',
+                        b'a'..=b'f' => c as u8 - b'a' + 10,
+                        b'A'..=b'F' => c as u8 - b'A' + 10,
                         _ => unreachable!(),
                     };
 
@@ -114,12 +112,12 @@ impl RegexpParser {
 
                 v
             }
-            // 未指定は8進数
-            '0'..='9' => {
+            // If no format specified, treat as octal number
+            b'0'..=b'9' => {
                 let mut v = c as u8 - b'0';
 
-                while self.index < self.chars.len() {
-                    let c = self.chars[self.index];
+                while self.index < self.bytes.len() {
+                    let c = self.bytes[self.index];
 
                     if !c.is_ascii_digit() {
                         break;
@@ -135,16 +133,18 @@ impl RegexpParser {
         }
     }
 
-    fn read_escaped_node(&mut self) -> RegexpNode {
-        RegexpNode::Char(self.read_escaped_byte())
+    fn parse_escape_sequence_as_node(&mut self) -> RegexpNode {
+        RegexpNode::Char(self.parse_escape_sequence_as_byte())
     }
 
-    fn parse_character_class(&mut self) -> RegexpNode {
+    /// Parses a character class expression like [a-z0-9]
+    /// Can handle ranges, escapes and negation ([^...])
+    fn parse_character_class_to_node(&mut self) -> RegexpNode {
         let mut nodes: Vec<RegexpNode> = Vec::new();
 
         self.index += 1;
 
-        let is_not = if self.chars[self.index] == '^' {
+        let is_not = if self.bytes[self.index] == b'^' {
             self.index += 1;
             true
         } else {
@@ -152,14 +152,14 @@ impl RegexpParser {
         };
 
         let mut is_minus = false;
-        while self.index < self.chars.len() {
-            let c = self.chars[self.index];
+        while self.index < self.bytes.len() {
+            let c = self.bytes[self.index];
 
             let prev_is_minus = is_minus;
             is_minus = false;
 
             match c {
-                ']' => {
+                b']' => {
                     let bs = nodes
                         .into_iter()
                         .map(|node| match node {
@@ -177,18 +177,18 @@ impl RegexpParser {
                     self.index += 1;
                     return node;
                 }
-                '\\' => nodes.push(self.read_escaped_node()),
+                b'\\' => nodes.push(self.parse_escape_sequence_as_node()),
                 _ => {
                     self.index += 1;
-                    is_minus = c == '-';
+                    is_minus = c == b'-';
                     nodes.push(RegexpNode::Char(c as u8))
                 }
             }
 
             if prev_is_minus && nodes.len() >= 3 {
-                let last = nodes.pop().unwrap().as_u8();
+                let last = nodes.pop().unwrap().as_char_value();
                 nodes.pop();
-                let first = nodes.pop().unwrap().as_u8();
+                let first = nodes.pop().unwrap().as_char_value();
 
                 for i in first..=last {
                     nodes.push(RegexpNode::Char(i));
@@ -199,56 +199,14 @@ impl RegexpParser {
         unreachable!()
     }
 
-    // fn parse_alternative(p: &str) -> RegexpNode {
-    //     let mut stack: Vec<Vec<RegexpNode>> = vec![Vec::new()];
-    //     let chars: Vec<_> = p.chars().collect();
-    //     let mut i = 0;
-
-    //     while i < chars.len() {
-    //         let c = chars[i];
-
-    //         match c {
-    //             '(' => {
-    //                 stack.push(Vec::new());
-    //             }
-    //             ')' => {
-    //                 let nodes = stack.pop().unwrap();
-    //                 stack
-    //                     .last_mut()
-    //                     .unwrap()
-    //                     .push(RegexpNode::Alternative(nodes));
-    //             }
-    //             '|' => {
-    //                 let nodes = stack.pop().unwrap();
-    //                 stack
-    //                     .last_mut()
-    //                     .unwrap()
-    //                     .push(RegexpNode::Alternative(nodes));
-    //             }
-    //             _ => stack.push(parse_regexp(p)),
-    //         }
-
-    //         i += 1;
-    //     }
-
-    //     dbg!(&stack);
-    //     assert_eq!(stack.len(), 1);
-    //     let nodes = stack.pop().unwrap();
-    //     if nodes.len() == 1 {
-    //         nodes.into_iter().next().unwrap()
-    //     } else {
-    //         RegexpNode::Concatenation(nodes)
-    //     }
-    // }
-
-    fn parse_double_quote(&mut self) -> RegexpNode {
+    fn parse_quoted_string(&mut self) -> RegexpNode {
         let mut nodes = Vec::new();
         self.index += 1;
         loop {
-            let c = self.chars[self.index];
+            let c = self.bytes[self.index];
             self.index += 1;
 
-            if c == '"' {
+            if c == b'"' {
                 break;
             }
 
@@ -261,245 +219,95 @@ impl RegexpParser {
     fn parse_ref_or_qualifier(&mut self) -> RegexpNode {
         self.index += 1;
 
-        let mut s = String::new();
+        let mut content = Vec::new();
 
-        while self.index < self.chars.len() {
-            let c = self.chars[self.index];
+        while self.index < self.bytes.len() {
+            let c = self.bytes[self.index];
 
-            if c == '}' {
+            if c == b'}' {
                 self.index += 1;
                 break;
             }
 
-            if c == '\\' {
-                s.push(self.read_escaped_byte() as char);
+            if c == b'\\' {
+                content.push(self.parse_escape_sequence_as_byte());
             } else {
                 self.index += 1;
-                s.push(c);
+                content.push(c);
             }
         }
 
-        if let Some(i) = s.find(',') {
-            let (l, r) = s.split_at(i);
+        // If a minimum repetition count is specified
+        if let Some(i) = content.iter().position(|&b| b == b',') {
             let last = self.pop_node();
 
-            let min = l.parse().unwrap();
-            let max = r[1..].parse().unwrap();
+            let min_str = std::str::from_utf8(&content[0..i]).unwrap();
+            let max_str = std::str::from_utf8(&content[i + 1..]).unwrap();
+
+            let min = min_str.parse().unwrap();
+            let max = max_str.parse().unwrap();
             return RegexpNode::Repeat(last.into(), min, max);
         }
 
-        if s.chars().all(|c| c.is_ascii_digit()) {
+        // If this is a repetition count (all digits)
+        if content.iter().all(|&b| b.is_ascii_digit()) {
             let last = self.pop_node();
-
-            let val = s.parse().unwrap();
+            let val_str = std::str::from_utf8(&content).unwrap();
+            let val = val_str.parse().unwrap();
             return RegexpNode::Repeat(last.into(), val, val);
         }
 
-        RegexpNode::RefAutomata(s)
-
-        // self.parse_alternative();
-        // while self.index < self.chars.len() {
-        //     let c = self.chars[self.index];
-
-        //     match c {
-        //         ')' | ']' | '}' => {
-        //             self.index += 1;
-        //             break;
-        //         }
-        //         '|' => {
-        //             self.index += 1;
-        //             alt_nodes.push(RegexpNode::concat(self.parsed_nodes.clone()));
-        //             self.parsed_nodes.clear();
-        //         }
-        //         _ => {
-        //             let node = self.parse_single_node();
-        //             self.parsed_nodes.push(node);
-        //         }
-        //     }
-        // }
-
-        // let nodes = stack.pop().unwrap();
-        // let s = nodes
-        //     .into_iter()
-        //     .map(|node| match node {
-        //         RegexpNode::Char(c) => c as char,
-        //         _ => panic!(),
-        //     })
-        //     .collect::<String>();
-
-        // if let Some((min, max)) = s.split_once(',') {
-        //     let min = min.parse::<usize>().unwrap();
-        //     let max = max.parse::<usize>().unwrap();
-
-        //     let last = stack.last_mut().unwrap().pop().unwrap();
-        //     stack
-        //         .last_mut()
-        //         .unwrap()
-        //         .push(RegexpNode::Repeat(Box::new(last), min, max));
-        // } else if s.chars().all(|c| c.is_ascii_digit()) {
-        //     let n = s.parse::<usize>().unwrap();
-        //     let last = stack.last_mut().unwrap().pop().unwrap();
-        //     stack
-        //         .last_mut()
-        //         .unwrap()
-        //         .push(RegexpNode::Repeat(Box::new(last), n, n));
-        // } else {
-        //     stack.last_mut().unwrap().push(RegexpNode::RefAutomata(s));
-        // }
+        // Otherwise, treat as a reference to another pattern
+        let s = std::str::from_utf8(&content).unwrap();
+        RegexpNode::Reference(s.to_string())
     }
 
-    // fn parse_regexp(p: &str) -> RegexpNode {
-    //     let mut stack: Vec<Vec<RegexpNode>> = vec![Vec::new()];
-    //     let chars: Vec<_> = p.chars().collect();
-    //     let mut i = 0;
-
-    //     while i < chars.len() {
-    //         let c = chars[i];
-
-    //         match c {
-    //             '[' => {
-    //                 let node;
-    //                 (node, i) = parse_regexp_paren1(&chars, i);
-    //                 stack.last_mut().unwrap().push(node);
-    //             }
-    //             ']' => unreachable!(),
-    //             '(' => stack.last_mut().unwrap().push(parse_alternative(p)),
-    //             ')' => unreachable!(),
-    //             '|' => {
-    //                 let nodes = stack.pop().unwrap();
-    //                 stack
-    //                     .last_mut()
-    //                     .unwrap()
-    //                     .push(RegexpNode::Alternative(nodes));
-    //             }
-    //             '{' => {
-    //                 stack.push(Vec::new());
-    //             }
-    //             '}' => {
-    //                 let nodes = stack.pop().unwrap();
-    //                 let s = nodes
-    //                     .into_iter()
-    //                     .map(|node| match node {
-    //                         RegexpNode::Char(c) => c as char,
-    //                         _ => panic!(),
-    //                     })
-    //                     .collect::<String>();
-
-    //                 if let Some((min, max)) = s.split_once(',') {
-    //                     let min = min.parse::<usize>().unwrap();
-    //                     let max = max.parse::<usize>().unwrap();
-
-    //                     let last = stack.last_mut().unwrap().pop().unwrap();
-    //                     stack.last_mut().unwrap().push(RegexpNode::Repeat(
-    //                         Box::new(last),
-    //                         min,
-    //                         max,
-    //                     ));
-    //                 } else if s.chars().all(|c| c.is_ascii_digit()) {
-    //                     let n = s.parse::<usize>().unwrap();
-    //                     let last = stack.last_mut().unwrap().pop().unwrap();
-    //                     stack
-    //                         .last_mut()
-    //                         .unwrap()
-    //                         .push(RegexpNode::Repeat(Box::new(last), n, n));
-    //                 } else {
-    //                     stack.last_mut().unwrap().push(RegexpNode::RefAutomata(s));
-    //                 }
-    //             }
-    //             '\\' => stack.last_mut().unwrap().push(read_escaped(&chars, &mut i)),
-    //             '"' => {
-    //                 i += 1;
-    //                 while chars[i] != '"' {
-    //                     let c = chars[i];
-    //                     stack.last_mut().unwrap().push(RegexpNode::Char(c as u8));
-    //                     i += 1;
-    //                 }
-    //             }
-    //             '*' => {
-    //                 let last = stack.last_mut().unwrap().pop().unwrap();
-    //                 stack
-    //                     .last_mut()
-    //                     .unwrap()
-    //                     .push(RegexpNode::Kleene0(last.into()));
-    //             }
-    //             '+' => {
-    //                 let last = stack.last_mut().unwrap().pop().unwrap();
-    //                 stack
-    //                     .last_mut()
-    //                     .unwrap()
-    //                     .push(RegexpNode::Kleene1(last.into()));
-    //             }
-    //             '?' => {
-    //                 let last = stack.last_mut().unwrap().pop().unwrap();
-    //                 stack
-    //                     .last_mut()
-    //                     .unwrap()
-    //                     .push(RegexpNode::Repeat(Box::new(last), 0, 1));
-    //             }
-    //             _ => {
-    //                 stack.last_mut().unwrap().push(RegexpNode::Char(c as u8));
-    //             }
-    //         }
-
-    //         i += 1;
-    //     }
-
-    //     dbg!(&stack);
-    //     assert_eq!(stack.len(), 1);
-    //     let nodes = stack.pop().unwrap();
-    //     if nodes.len() == 1 {
-    //         nodes.into_iter().next().unwrap()
-    //     } else {
-    //         RegexpNode::Concatenation(nodes)
-    //     }
-    // }
-
     fn parse_group(&mut self) -> RegexpNode {
-        assert_eq!(self.chars[self.index], '(');
+        assert_eq!(self.bytes[self.index], b'(');
         self.index += 1;
 
         let node = self.parse_alternative();
 
-        assert_eq!(self.chars[self.index], ')');
+        assert_eq!(self.bytes[self.index], b')');
         self.index += 1;
 
         node
     }
 
     fn parse_single_node(&mut self) -> RegexpNode {
-        if self.chars[self.index..].starts_with(&EOF_CHARS) {
-            self.index += EOF_CHARS.len();
+        if self.bytes[self.index..].starts_with(&EOF_MARKER) {
+            self.index += EOF_MARKER.len();
             return RegexpNode::Char(0);
         }
 
-        let c = self.chars[self.index];
+        let c = self.bytes[self.index];
 
         match c {
-            '[' => self.parse_character_class(),
-            '(' => self.parse_group(),
-            '{' => self.parse_ref_or_qualifier(),
-            '\\' => self.read_escaped_node(),
-            '"' => self.parse_double_quote(),
-            '*' => {
+            b'[' => self.parse_character_class_to_node(),
+            b'(' => self.parse_group(),
+            b'{' => self.parse_ref_or_qualifier(),
+            b'\\' => self.parse_escape_sequence_as_node(),
+            b'"' => self.parse_quoted_string(),
+            b'*' => {
                 self.index += 1;
                 let last = self.pop_node();
-                RegexpNode::Kleene0(last.into())
+                RegexpNode::ZeroOrMore(last.into())
             }
-            '+' => {
+            b'+' => {
                 self.index += 1;
                 let last = self.pop_node();
-                RegexpNode::Kleene1(last.into())
+                RegexpNode::OneOrMore(last.into())
             }
-            '?' => {
+            b'?' => {
                 self.index += 1;
                 let last = self.pop_node();
                 RegexpNode::Repeat(Box::new(last), 0, 1)
             }
-            '.' => {
+            b'.' => {
                 self.index += 1;
                 RegexpNode::NoneOf(Vec::new())
             }
-            ']' | ')' | '}' => unreachable!(),
+            b']' | b')' | b'}' => unreachable!(),
             _ => {
                 self.index += 1;
                 RegexpNode::Char(c as u8)
@@ -509,29 +317,29 @@ impl RegexpParser {
 
     fn parse_alternative(&mut self) -> RegexpNode {
         let mut alt_nodes: Vec<RegexpNode> = vec![];
-        self.parsed_nodes_stack.push(vec![]);
+        self.parsing_context_stack.push(vec![]);
 
-        while self.index < self.chars.len() {
-            let c = self.chars[self.index];
+        while self.index < self.bytes.len() {
+            let c = self.bytes[self.index];
 
             match c {
-                ')' | ']' | '}' => {
+                b')' | b']' | b'}' => {
                     break;
                 }
-                '|' => {
+                b'|' => {
                     self.index += 1;
-                    let nodes = self.parsed_nodes_stack.pop().unwrap();
+                    let nodes = self.parsing_context_stack.pop().unwrap();
                     alt_nodes.push(RegexpNode::concat(nodes));
-                    self.parsed_nodes_stack.push(vec![]);
+                    self.parsing_context_stack.push(vec![]);
                 }
                 _ => {
                     let node = self.parse_single_node();
-                    self.parsed_nodes_stack.last_mut().unwrap().push(node);
+                    self.parsing_context_stack.last_mut().unwrap().push(node);
                 }
             }
         }
 
-        let nodes = self.parsed_nodes_stack.pop().unwrap();
+        let nodes = self.parsing_context_stack.pop().unwrap();
         if !nodes.is_empty() {
             alt_nodes.push(RegexpNode::concat(nodes));
         }
@@ -541,53 +349,42 @@ impl RegexpParser {
 
     pub fn parse(&mut self, p: &str) -> RegexpNode {
         self.index = 0;
-        self.chars = p.chars().collect();
+        self.bytes = p.as_bytes().to_vec();
         self.parse_alternative()
     }
 }
-
-// pub fn build_dfa(patterns: Vec<String>) -> DFA {
-//     let mut nfa = nfa::NFA::new();
-
-//     for pattern in patterns {
-//         let start = nfa.new_state();
-//         let end = nfa.new_state();
-//         nfa.add_pattern(start, end, pattern);
-//     }
-
-//     let dfa = DFA::from_nfa(&nfa);
-
-//     dfa
-// }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_simple1() {
+    fn test_whitespace_character_class_parsing() {
         let mut parser = RegexpParser::new();
         assert_eq!(
             parser.parse(r#"[ \t\n\r\f\v]"#),
-            RegexpNode::AnyOf(vec![32, 9, 10, 13, 12, 11])
+            RegexpNode::AnyOf(vec![b' ', b'\t', b'\n', b'\r', 12, 11])
         );
     }
 
     #[test]
-    fn test_simple2() {
+    fn test_negated_newline_character_class() {
         let mut parser = RegexpParser::new();
-        assert_eq!(parser.parse(r#"[^\n\r]"#), RegexpNode::NoneOf(vec![10, 13]));
+        assert_eq!(
+            parser.parse(r#"[^\n\r]"#),
+            RegexpNode::NoneOf(vec![b'\n', b'\r'])
+        );
     }
 
     #[test]
-    fn test_simple3() {
+    fn test_comment_pattern() {
         let mut parser = RegexpParser::new();
         assert_eq!(
             parser.parse(r#"("--"{non_newline}*)"#),
             RegexpNode::Concatenation(vec![
                 RegexpNode::Char(b'-'),
                 RegexpNode::Char(b'-'),
-                RegexpNode::Kleene0(Box::new(RegexpNode::RefAutomata(String::from(
+                RegexpNode::ZeroOrMore(Box::new(RegexpNode::Reference(String::from(
                     "non_newline"
                 )))),
             ])
@@ -595,7 +392,7 @@ mod tests {
     }
 
     #[test]
-    fn test_simple4() {
+    fn test_hexadecimal_character_class() {
         let mut parser = RegexpParser::new();
         assert_eq!(
             parser.parse(r#"[0-9A-Fa-f]"#),
@@ -607,7 +404,7 @@ mod tests {
     }
 
     #[test]
-    fn test_simple5() {
+    fn test_hex_literal_pattern() {
         let mut parser = RegexpParser::new();
 
         assert_eq!(
@@ -615,10 +412,10 @@ mod tests {
             RegexpNode::Concatenation(vec![
                 RegexpNode::Char(48),
                 RegexpNode::AnyOf(vec![120, 88]),
-                RegexpNode::Kleene1(
+                RegexpNode::OneOrMore(
                     RegexpNode::Concatenation(vec![
                         RegexpNode::Repeat(RegexpNode::Char(b'_').into(), 0, 1),
-                        RegexpNode::RefAutomata(String::from("hexdigit")),
+                        RegexpNode::Reference(String::from("hexdigit")),
                     ])
                     .into()
                 )
@@ -627,35 +424,35 @@ mod tests {
     }
 
     #[test]
-    fn test_simple6() {
+    fn test_exponential_notation_pattern() {
         let mut parser = RegexpParser::new();
 
         assert_eq!(
             parser.parse(r#"({decinteger}|{numeric})[Ee][-+]?{decinteger}"#),
             RegexpNode::Concatenation(vec![
                 RegexpNode::alternate(vec![
-                    RegexpNode::RefAutomata(String::from("decinteger")),
-                    RegexpNode::RefAutomata(String::from("numeric")),
+                    RegexpNode::Reference(String::from("decinteger")),
+                    RegexpNode::Reference(String::from("numeric")),
                 ]),
                 RegexpNode::AnyOf(vec![69, 101]),
                 RegexpNode::Repeat(Box::new(RegexpNode::AnyOf(vec![b'-', b'+'])), 0, 1),
-                RegexpNode::RefAutomata(String::from("decinteger")),
+                RegexpNode::Reference(String::from("decinteger")),
             ])
         );
     }
 
     #[test]
-    fn test_simple7() {
+    fn test_quoted_string_escape_pattern() {
         let mut parser = RegexpParser::new();
 
         assert_eq!(
             parser.parse(r#"[^\\']+"#),
-            RegexpNode::Kleene1(RegexpNode::NoneOf(vec![b'\\', b'\'']).into())
+            RegexpNode::OneOrMore(RegexpNode::NoneOf(vec![b'\\', b'\'']).into())
         );
     }
 
     #[test]
-    fn test_simple8() {
+    fn test_hex_escape_sequence_pattern() {
         let mut parser = RegexpParser::new();
 
         assert_eq!(
@@ -676,7 +473,7 @@ mod tests {
     }
 
     #[test]
-    fn test_simple9() {
+    fn test_identifier_character_class() {
         let mut parser = RegexpParser::new();
 
         assert_eq!(
@@ -698,29 +495,27 @@ mod tests {
     }
 
     #[test]
-    fn test_simple10() {
+    fn test_escaped_double_quote() {
         let mut parser = RegexpParser::new();
 
         assert_eq!(parser.parse(r#"\""#), RegexpNode::Char(34));
     }
 
     #[test]
-    fn test_simple11() {
+    fn test_non_quote_repetition() {
         let mut parser = RegexpParser::new();
 
         assert_eq!(
             parser.parse(r#"[^']*"#),
-            RegexpNode::Kleene0(RegexpNode::NoneOf(vec![39]).into())
+            RegexpNode::ZeroOrMore(RegexpNode::NoneOf(vec![39]).into())
         );
     }
 
     #[test]
-    fn test_simple12() {
+    fn test_escaped_operator_character_class() {
         let mut parser = RegexpParser::new();
 
         assert_eq!(
-            // parser.parse(r#"[,()\[\].;\:\+\-\*\/\%\^<>\=]"#),
-            // RegexpNode::AnyOf(vec![44, 40, 41, 91, 93, 46, 59, 58, 47, 37, 94, 60, 62, 61])
             parser.parse(r#"[\+\-\*]"#),
             RegexpNode::AnyOf(vec![b'+', b'-', b'*'])
         );

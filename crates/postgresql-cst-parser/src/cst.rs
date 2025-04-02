@@ -5,12 +5,17 @@ use cstree::{
 use crate::{
     lexer::{lex, lexer_ported::init_tokens, parser_error::ParserError, TokenKind},
     parser::{
-        end_rule_id, end_rule_kind, num_non_terminal_symbol, num_terminal_symbol,
-        rule_name_to_component_id, token_kind_to_component_id, Action, RULES,
+        end_rule_id, end_rule_kind, num_terminal_symbol, rule_name_to_component_id,
+        token_kind_to_component_id, Action, ACTION_CHECK_TABLE, ACTION_DEF_RULE_TABLE,
+        ACTION_TABLE, ACTION_TABLE_INDEX, GOTO_CHECK_TABLE, GOTO_TABLE, GOTO_TABLE_INDEX, RULES,
     },
 };
 
 use super::{lexer::Token, syntax_kind::SyntaxKind};
+
+const ERROR_ACTION_CODE: i16 = 0x7FFF;
+const DEFAULT_ACTION_CODE: i16 = 0x7FFE;
+const INVALID_GOTO_CODE: i16 = -1;
 
 struct Node {
     token: Option<Token>,
@@ -99,6 +104,34 @@ impl Parser {
     }
 }
 
+fn lookup_parser_action(state: u32, cid: u32) -> i16 {
+    let state = state as usize;
+    let cid = cid as usize;
+
+    let i = ACTION_TABLE_INDEX[state] as usize;
+    if ACTION_CHECK_TABLE[i + cid] == cid as i16 {
+        if ACTION_TABLE[i + cid] == DEFAULT_ACTION_CODE {
+            ACTION_DEF_RULE_TABLE[state]
+        } else {
+            ACTION_TABLE[i + cid]
+        }
+    } else {
+        ERROR_ACTION_CODE
+    }
+}
+
+fn lookup_goto_state(state: u32, cid: u32) -> i16 {
+    let state = state as usize;
+    let cid = cid as usize;
+
+    let i = GOTO_TABLE_INDEX[state] as usize;
+    if GOTO_CHECK_TABLE[i + cid] == cid as i16 {
+        GOTO_TABLE[i + cid]
+    } else {
+        INVALID_GOTO_CODE
+    }
+}
+
 /// Parsing a string as PostgreSQL syntax and converting it into a ResolvedNode
 pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
     let mut tokens = lex(input)?;
@@ -113,30 +146,6 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
         start_byte_pos: input.len(),
         end_byte_pos: input.len(),
     });
-
-    // Not enabled compress-parser-table feature
-    #[cfg(not(feature = "compress-parser-table"))]
-    let action_table = &crate::parser::ACTION_TABLE;
-
-    #[cfg(not(feature = "compress-parser-table"))]
-    let goto_table = &crate::parser::GOTO_TABLE;
-
-    // Enabled compress-parser-table feature
-    #[cfg(feature = "compress-parser-table")]
-    let action_table_u8 =
-        miniz_oxide::inflate::decompress_to_vec(crate::parser::ACTION_TABLE_COMPRESSED.as_ref())
-            .unwrap();
-
-    #[cfg(feature = "compress-parser-table")]
-    let goto_table_u8 =
-        miniz_oxide::inflate::decompress_to_vec(crate::parser::GOTO_TABLE_COMPRESSED.as_ref())
-            .unwrap();
-
-    #[cfg(feature = "compress-parser-table")]
-    let action_table = unsafe { action_table_u8.align_to::<i16>().1 };
-
-    #[cfg(feature = "compress-parser-table")]
-    let goto_table = unsafe { goto_table_u8.align_to::<i16>().1 };
 
     let mut stack: Vec<(u32, Node)> = Vec::new();
     let mut tokens: std::iter::Peekable<std::vec::IntoIter<Token>> = tokens.into_iter().peekable();
@@ -194,8 +203,8 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
             continue;
         }
 
-        let action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
-            0x7FFF => Action::Error,
+        let action = match lookup_parser_action(state, cid) {
+            ERROR_ACTION_CODE => Action::Error,
             v if v > 0 => Action::Shift((v - 1) as usize),
             v if v < 0 => Action::Reduce((-v - 1) as usize),
             _ => Action::Accept,
@@ -263,8 +272,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
                 };
 
                 let next_state = stack.last().unwrap().0;
-                let goto = goto_table
-                    [(next_state * num_non_terminal_symbol() + reduced_component_id) as usize];
+                let goto = lookup_goto_state(next_state, reduced_component_id);
 
                 match goto {
                     next_state if next_state >= 0 => {
@@ -310,7 +318,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
 
         last_pos = token.end_byte_pos;
 
-        // 最後のトークンは$endなので、ここで終了
+        // The last token is $end, so exit the loop here
         if tokens.peek().is_none() {
             break;
         }

@@ -19,7 +19,11 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
       - name: Run tests with features
-        run: cargo test --verbose --features compress-parser-table,regex-match
+        run: cargo test --verbose --features regex-match
+      - name: Run benchmarks
+        run: cargo bench
+      - name: Run benchmarks with features
+        run: cargo bench --features regex-match
       - name: clippy
         uses: actions-rs/clippy-check@v1
         with:

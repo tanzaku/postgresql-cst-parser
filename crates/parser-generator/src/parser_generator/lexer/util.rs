@@ -59,32 +59,13 @@ impl Lexer {
         self.yyleng = len;
     }
 
-    /// マッチしないこと考えなくていいんだっけ？
     #[cfg(not(feature = "regex-match"))]
     pub fn find_match_len(&self) -> (usize, u8) {
         use super::generated::dfa::get_dfa_table;
 
-        // let state_id = self.state as u8;
         let s = &self.input[self.index_bytes..];
 
-        // dbg!(state_id, &s[0..10.min(s.len())]);
-
         let (transition, accept) = get_dfa_table(self.state);
-        //  match state_id {
-        //     0 => (TRANSITION_TABLE_0.as_slice(), ACCEPT_TABLE_0.as_slice()),
-        //     1 => (TRANSITION_TABLE_1.as_slice(), ACCEPT_TABLE_1.as_slice()),
-        //     2 => (TRANSITION_TABLE_2.as_slice(), ACCEPT_TABLE_2.as_slice()),
-        //     3 => (TRANSITION_TABLE_3.as_slice(), ACCEPT_TABLE_3.as_slice()),
-        //     4 => (TRANSITION_TABLE_4.as_slice(), ACCEPT_TABLE_4.as_slice()),
-        //     5 => (TRANSITION_TABLE_5.as_slice(), ACCEPT_TABLE_5.as_slice()),
-        //     6 => (TRANSITION_TABLE_6.as_slice(), ACCEPT_TABLE_6.as_slice()),
-        //     7 => (TRANSITION_TABLE_7.as_slice(), ACCEPT_TABLE_7.as_slice()),
-        //     8 => (TRANSITION_TABLE_8.as_slice(), ACCEPT_TABLE_8.as_slice()),
-        //     9 => (TRANSITION_TABLE_9.as_slice(), ACCEPT_TABLE_9.as_slice()),
-        //     10 => (TRANSITION_TABLE_10.as_slice(), ACCEPT_TABLE_10.as_slice()),
-        //     11 => (TRANSITION_TABLE_11.as_slice(), ACCEPT_TABLE_11.as_slice()),
-        //     _ => unreachable!(),
-        // };
 
         let mut dfa_state_index = 0_u8;
         let mut accept_rule = accept[dfa_state_index as usize];
@@ -94,8 +75,6 @@ impl Lexer {
             let transition_index = *byte as usize;
             dfa_state_index = transition[dfa_state_index as usize][transition_index];
 
-            // 確かにエラーは 0 でもよい
-            // if dfa_state_index == 0 {
             if dfa_state_index == !0 {
                 return (longest_match, accept_rule);
             }
@@ -106,9 +85,9 @@ impl Lexer {
             }
         }
 
-        // EOFへのマッチをチェック
+        // Check for match against EOF
         if transition[dfa_state_index as usize][0] != !0 {
-            // 現状ではEOFは0としている
+            // Currently, EOF is represented by byte value 0
             dfa_state_index = transition[dfa_state_index as usize][0];
 
             if accept[dfa_state_index as usize] != !0 {

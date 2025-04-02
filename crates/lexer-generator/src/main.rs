@@ -1,8 +1,6 @@
 mod flex_file;
-// mod lexer_generator;
-mod lexer_generator_dfa;
+mod lexer_generator;
 
 fn main() {
-    // lexer_generator::generate();
-    lexer_generator_dfa::generate();
+    lexer_generator::generate();
 }
