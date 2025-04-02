@@ -13,6 +13,7 @@
 - **PostgreSQL 17 Support**: Supports the latest PostgreSQL 17 syntax.
 - **Structured CST Output**: The generated CST strictly follows the structure defined in PostgreSQL's [gram.y](https://github.com/postgres/postgres/blob/REL_17_0/src/backend/parser/gram.y) file.
 - **Utilizing `cstree`**: Uses the `cstree` crate for building syntax trees.
+**Compatible with wasm-bindgen**: Being written in Pure Rust, it can be used with wasm-bindgen for WebAssembly integration.
 - **PL/pgSQL**: Currently not supported.
 
 ## Development Motivation
@@ -141,7 +142,9 @@ Root@0..31
       Semicolon@30..31 ";"
 ```
 
-If you'd like to try this parser directly, you can experience it online [here](https://tanzaku.github.io/postgresql-cst-parser/).
+## Online Demo
+
+You can try the parser directly [here](https://tanzaku.github.io/postgresql-cst-parser/). Enter your SQL query and see the generated syntax tree in real-time.
 
 ## Implementation
 
