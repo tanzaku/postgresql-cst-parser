@@ -29,8 +29,6 @@ fn test_single_sql(c: &mut Criterion) {
     });
 }
 
-// ベンチマークグループを定義する
 criterion_group!(benches, test_all_bench, test_single_sql);
 
-// main関数を用意
 criterion_main!(benches);
