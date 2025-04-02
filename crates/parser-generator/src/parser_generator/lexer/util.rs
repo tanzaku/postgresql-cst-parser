@@ -1,13 +1,14 @@
 #![allow(dead_code)]
 
 use super::{
-    generated::{get_keyword_map, get_rules, RuleKind, State},
     Lexer, ScanReport, Yylval,
+    generated::{State, get_keyword_map},
 };
 
 impl Lexer {
     pub fn new(input: &str) -> Self {
-        let rules = get_rules();
+        #[cfg(feature = "regex-match")]
+        let rules = super::generated::get_rules();
 
         Self {
             input: input.to_string(),
@@ -28,6 +29,7 @@ impl Lexer {
             yylloc_bytes: 0,
             yylval: Yylval::Uninitialized,
 
+            #[cfg(feature = "regex-match")]
             rules,
             keyword_map: get_keyword_map(),
             reports: Vec::new(),
@@ -57,14 +59,55 @@ impl Lexer {
         self.yyleng = len;
     }
 
-    pub fn find_match_len(&self) -> (usize, RuleKind) {
+    #[cfg(not(feature = "regex-match"))]
+    pub fn find_match_len(&self) -> (usize, u8) {
+        use super::generated::dfa::get_dfa_table;
+
+        let s = &self.input[self.index_bytes..];
+
+        let (transition, accept) = get_dfa_table(self.state);
+
+        let mut dfa_state_index = 0_u8;
+        let mut accept_rule = accept[dfa_state_index as usize];
+        let mut longest_match = 0;
+
+        for (i, byte) in s.as_bytes().iter().enumerate() {
+            let transition_index = *byte as usize;
+            dfa_state_index = transition[dfa_state_index as usize][transition_index];
+
+            if dfa_state_index == !0 {
+                return (longest_match, accept_rule);
+            }
+
+            if accept[dfa_state_index as usize] != !0 {
+                accept_rule = accept[dfa_state_index as usize];
+                longest_match = i + 1;
+            }
+        }
+
+        // Check for match against EOF
+        if transition[dfa_state_index as usize][0] != !0 {
+            // Currently, EOF is represented by byte value 0
+            dfa_state_index = transition[dfa_state_index as usize][0];
+
+            if accept[dfa_state_index as usize] != !0 {
+                accept_rule = accept[dfa_state_index as usize];
+                longest_match = s.as_bytes().len();
+            }
+        }
+
+        (longest_match, accept_rule)
+    }
+
+    #[cfg(feature = "regex-match")]
+    pub fn find_match_len(&self) -> (usize, super::generated::RuleKind) {
         let rules = self.rules.iter().filter(|rule| rule.state == self.state);
 
         let s = &self.input[self.index_bytes..];
 
         let mut longest_match = 0;
         let mut eof = false;
-        let mut kind = RuleKind::INITIAL1;
+        let mut kind = super::generated::RuleKind::INITIAL1;
         for rule in rules {
             if let Some(m) = rule.pattern.find(s.as_bytes()) {
                 // treat eof as single null character

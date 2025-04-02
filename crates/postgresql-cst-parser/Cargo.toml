@@ -13,10 +13,17 @@ keywords = ["postgres", "parser", "sql"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-regex = "1.10.2"
+regex = { version = "1.10.2", optional = true }
 cstree = { version = "0.12.0", features = ["derive"] }
-miniz_oxide = "0.7.1"
 
 [features]
 default = ["remove-empty-node"]
 remove-empty-node = []
+regex-match = ["regex"]
+
+[[bench]]
+name = "test"
+harness = false
+
+[dev-dependencies]
+criterion = "0.5.1"

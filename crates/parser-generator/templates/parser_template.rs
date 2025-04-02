@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::lexer::TokenKind;
 
 pub(crate) struct Rule {
@@ -13,11 +14,14 @@ pub(crate) enum Action {
     Error,
 }
 
-#[rustfmt::skip]
-pub(crate) const ACTION_TABLE: &[u8; {action_table_size}] = &[{action_table}];
+pub(crate) const ACTION_CHECK_TABLE: &[i16; {action_check_table_size}] = &[{action_check_table}];
+pub(crate) const ACTION_TABLE: &[i16; {action_table_size}] = &[{action_table}];
+pub(crate) const ACTION_TABLE_INDEX: [u32; {action_table_index_size}] = [{action_table_index}];
+pub(crate) const ACTION_DEF_RULE_TABLE: [i16; {def_rules_size}] = [{def_rules_str}];
 
-#[rustfmt::skip]
-pub(crate) const GOTO_TABLE: &[u8; {goto_table_size}] = &[{goto_table}];
+pub(crate) const GOTO_CHECK_TABLE: [i16; {goto_check_table_size}] = [{goto_check_table}];
+pub(crate) const GOTO_TABLE: [i16; {goto_table_size}] = [{goto_table}];
+pub(crate) const GOTO_TABLE_INDEX: [u32; {goto_table_index_size}] = [{goto_table_index}];
 
 #[rustfmt::skip]
 pub(crate) const RULES: &[Rule; {num_parse_rules}] = &[{parse_rules}];

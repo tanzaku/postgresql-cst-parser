@@ -13,6 +13,7 @@
 - **PostgreSQL 17対応**: 最新のPostgreSQL 17の構文をサポートしています。
 - **構造化されたCST出力**: 生成されるCSTは、PostgreSQLの[gram.y](https://github.com/postgres/postgres/blob/REL_17_0/src/backend/parser/gram.y)ファイルで定義された構造に厳密に従います。
 - **`cstree`の利用**: 構文木の構築に`cstree`クレートを使用しています。
+- **wasm-bindgenとの併用**: Pure Rust で書かれているため、wasm-bindgen と併用できます。
 - **PL/pgSQL**: 現在はサポートされていません。
 
 ## 開発のモチベーション
@@ -141,7 +142,9 @@ Root@0..31
       Semicolon@30..31 ";"
 ```
 
-このパーサーを実際に体験してみたい場合は、[こちら](https://tanzaku.github.io/postgresql-cst-parser/)で直接試すことができます。
+## オンラインデモ
+
+[こちら](https://tanzaku.github.io/postgresql-cst-parser/)でパーサーを直接試すことができます。SQLクエリを入力して、生成された構文木をリアルタイムで確認できます。
 
 ## 実装
 
