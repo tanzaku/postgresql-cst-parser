@@ -6,7 +6,7 @@ repository = "https://github.com/tanzaku/postgresql-cst-parser"
 description = "An unofficial PostgreSQL CST parser written in Pure Rust."
 authors = ["tanzaku"]
 license-file = "../../LICENSE"
-exclude = ["tests/**", "examples/**"]
+exclude = ["tests/**", "examples/**", "benches/**"]
 categories = ["parser-implementations"]
 keywords = ["postgres", "parser", "sql"]
 
