@@ -1,0 +1,14 @@
+# CHANGELOG
+
+## [0.2.0] - 2025-04-04
+
+### Improvements
+- Significant performance enhancement
+
+## [0.1.0] - 2025-03-21
+
+### Added
+- Initial release
+- PostgreSQL 17 syntax support
+- CST generation functionality following [gram.y](https://github.com/postgres/postgres/blob/REL_17_0/src/backend/parser/gram.y) structure
+- Pure Rust implementation enabling WebAssembly compilation via wasm-bindgen
