@@ -24,7 +24,11 @@ jobs:
         run: cargo bench
       - name: Run benchmarks with features
         run: cargo bench --features regex-match
-      - name: clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clippy (automata)
+        run: cargo clippy -p automata -- -D warnings
+      - name: Clippy (lexer-generator)
+        run: cargo clippy -p lexer-generator -- -D warnings
+      - name: Clippy (parser-generator)
+        run: cargo clippy -p parser-generator -- -D warnings
+      - name: Clippy (postgresql-cst-parser)
+        run: cargo clippy -p postgresql-cst-parser -- -D warnings
