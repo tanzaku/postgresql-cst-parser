@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, hash_map::Entry};
 
 // use serde::{Deserialize, Serialize};
 
@@ -28,16 +28,16 @@ impl IdMapper {
     }
 
     pub fn insert(&mut self, c: Component) {
-        if !self.component_map.contains_key(&c) {
+        if let Entry::Vacant(e) = self.component_map.entry(c.clone()) {
             let id = ComponentId(self.components.len() as u16);
-            self.components.push(c.clone());
-            self.component_map.insert(c, id);
+            self.components.push(c);
+            e.insert(id);
         }
     }
 
     pub fn to_component_id(&self, c: &Component) -> ComponentId {
-        if let Some(&id) = self.component_map.get(&c) {
-            id.clone()
+        if let Some(&id) = self.component_map.get(c) {
+            id
         } else {
             dbg!(c);
             panic!("Unknown component");

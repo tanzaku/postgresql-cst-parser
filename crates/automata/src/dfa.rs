@@ -1,3 +1,4 @@
+#![allow(clippy::mutable_key_type)]
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::nfa::{NFAState, Transition, collect_epsilon_closure};
@@ -21,7 +22,7 @@ pub struct DFA {
     pub states: Vec<DFAState>,
 }
 
-impl<'a> DFA {
+impl DFA {
     pub fn match_bytes(&self, bs: &[u8]) -> Option<u32> {
         let mut state = 0;
 

@@ -1,3 +1,4 @@
+#![allow(clippy::mutable_key_type)]
 use std::{
     cell::{Cell, RefCell},
     collections::{BTreeMap, BTreeSet},
@@ -18,6 +19,7 @@ pub enum Transition {
 
 /// Represents a state in a Non-deterministic Finite Automaton.
 /// States are connected by transitions and can accept input.
+#[allow(clippy::mutable_key_type)]
 #[derive(Debug, Clone, Eq)]
 pub struct NFAState<'a> {
     pub state_id: usize,
@@ -37,7 +39,7 @@ impl PartialEq for NFAState<'_> {
 
 impl PartialOrd for NFAState<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.state_id.partial_cmp(&other.state_id)
+        Some(self.state_id.cmp(&other.state_id))
     }
 }
 
@@ -83,7 +85,7 @@ pub fn collect_epsilon_closure<'a>(
     let mut accepted_lexer_rule_id = None;
 
     {
-        let id = s.accept_lexer_rule_id.borrow().clone();
+        let id = *s.accept_lexer_rule_id.borrow();
         if accepted_lexer_rule_id.unwrap_or(!0) > id.unwrap_or(!0) {
             accepted_lexer_rule_id = id;
         }
@@ -95,7 +97,7 @@ pub fn collect_epsilon_closure<'a>(
                 if epsilon_closure.insert(new_state) {
                     candidate.push(new_state);
 
-                    let id = new_state.accept_lexer_rule_id.borrow().clone();
+                    let id = *new_state.accept_lexer_rule_id.borrow();
                     if accepted_lexer_rule_id.unwrap_or(!0) > id.unwrap_or(!0) {
                         accepted_lexer_rule_id = id;
                     }
@@ -172,6 +174,12 @@ impl<'a> NFA<'a> {
 
     pub fn matches_string(&self, start: &'a NFAState<'a>, s: &str) -> bool {
         self.matches_bytes(start, s.as_bytes())
+    }
+}
+
+impl Default for NFA<'_> {
+    fn default() -> Self {
+        NFA::new()
     }
 }
 

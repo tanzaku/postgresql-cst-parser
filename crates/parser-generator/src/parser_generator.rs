@@ -72,7 +72,7 @@ fn compress_action_table(
     fn find_most_common_action(
         uncompressed_action_table: &[i16],
         state_index: usize,
-        terminal_symbols: &Vec<Component>,
+        terminal_symbols: &[Component],
     ) -> i16 {
         let mut cnt: BTreeMap<i16, u16> = BTreeMap::new();
         for j in 0..terminal_symbols.len() {
@@ -116,19 +116,14 @@ fn compress_action_table(
                         ok = false;
                         break;
                     }
-                } else {
-                    if index_check[i + j] == j as i16 {
-                        if compressed_values[i + j] != a {
-                            ok = false;
-                            break;
-                        }
-                    } else if index_check[i + j] != UNUSED_ENTRY_CODE {
-                        ok = false;
-                        break;
-                    } else if offset_used[i] {
+                } else if index_check[i + j] == j as i16 {
+                    if compressed_values[i + j] != a {
                         ok = false;
                         break;
                     }
+                } else if index_check[i + j] != UNUSED_ENTRY_CODE || offset_used[i] {
+                    ok = false;
+                    break;
                 }
             }
 
@@ -154,7 +149,7 @@ fn compress_action_table(
     let max_table_index = *state_to_offset.iter().max().unwrap() as usize + terminal_symbols.len();
 
     let info = CompressedParserTable {
-        state_to_offset: state_to_offset,
+        state_to_offset,
         compressed_values: compressed_values[..max_table_index].to_vec(),
         index_check: index_check[..max_table_index].to_vec(),
     };
@@ -199,19 +194,14 @@ fn compress_goto_table(
                         ok = false;
                         break;
                     }
-                } else {
-                    if index_check[i + j] == j as i16 {
-                        if compressed_values[i + j] != a {
-                            ok = false;
-                            break;
-                        }
-                    } else if index_check[i + j] != UNUSED_ENTRY_CODE {
-                        ok = false;
-                        break;
-                    } else if offset_used[i] {
+                } else if index_check[i + j] == j as i16 {
+                    if compressed_values[i + j] != a {
                         ok = false;
                         break;
                     }
+                } else if index_check[i + j] != UNUSED_ENTRY_CODE || offset_used[i] {
+                    ok = false;
+                    break;
                 }
             }
 
@@ -236,13 +226,11 @@ fn compress_goto_table(
     let max_table_index =
         *state_to_offset.iter().max().unwrap() as usize + non_terminal_symbols.len();
 
-    let info = CompressedParserTable {
-        state_to_offset: state_to_offset,
+    CompressedParserTable {
+        state_to_offset,
         compressed_values: compressed_values[..max_table_index].to_vec(),
         index_check: index_check[..max_table_index].to_vec(),
-    };
-
-    info
+    }
 }
 
 fn generate_parser_source_code(
@@ -259,8 +247,8 @@ fn generate_parser_source_code(
             .join(",")
     }
 
-    let (action_table_info, def_rules) = compress_action_table(lalr, &terminal_symbols);
-    let goto_table_info = compress_goto_table(lalr, &non_terminal_symbols);
+    let (action_table_info, def_rules) = compress_action_table(lalr, terminal_symbols);
+    let goto_table_info = compress_goto_table(lalr, non_terminal_symbols);
 
     let terminal_symbols_with_comment = terminal_symbols
         .iter()
@@ -378,9 +366,9 @@ fn generate_parser_source_code(
 }
 
 fn generate_syntax_kinds_source_code(
-    terminal_symbols: &Vec<Component>,
-    non_terminal_symbols: &Vec<Component>,
-    comments: &Vec<Component>,
+    terminal_symbols: &[Component],
+    non_terminal_symbols: &[Component],
+    comments: &[Component],
 ) {
     let mut kinds = Vec::new();
     for c in terminal_symbols
