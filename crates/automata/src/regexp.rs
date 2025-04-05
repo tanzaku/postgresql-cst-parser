@@ -100,9 +100,9 @@ impl RegexpParser {
                     }
 
                     let d = match c {
-                        b'0'..=b'9' => c as u8 - b'0',
-                        b'a'..=b'f' => c as u8 - b'a' + 10,
-                        b'A'..=b'F' => c as u8 - b'A' + 10,
+                        b'0'..=b'9' => c - b'0',
+                        b'a'..=b'f' => c - b'a' + 10,
+                        b'A'..=b'F' => c - b'A' + 10,
                         _ => unreachable!(),
                     };
 
@@ -114,7 +114,7 @@ impl RegexpParser {
             }
             // If no format specified, treat as octal number
             b'0'..=b'9' => {
-                let mut v = c as u8 - b'0';
+                let mut v = c - b'0';
 
                 while self.index < self.bytes.len() {
                     let c = self.bytes[self.index];
@@ -123,13 +123,13 @@ impl RegexpParser {
                         break;
                     }
 
-                    v = v * 8 + (c as u8 - b'0');
+                    v = v * 8 + (c - b'0');
                     self.index += 1;
                 }
 
                 v
             }
-            _ => c as u8,
+            _ => c,
         }
     }
 
@@ -163,7 +163,7 @@ impl RegexpParser {
                     let bs = nodes
                         .into_iter()
                         .map(|node| match node {
-                            RegexpNode::Char(c) => c as u8,
+                            RegexpNode::Char(c) => c,
                             _ => panic!(),
                         })
                         .collect::<Vec<_>>();
@@ -181,7 +181,7 @@ impl RegexpParser {
                 _ => {
                     self.index += 1;
                     is_minus = c == b'-';
-                    nodes.push(RegexpNode::Char(c as u8))
+                    nodes.push(RegexpNode::Char(c))
                 }
             }
 
@@ -210,7 +210,7 @@ impl RegexpParser {
                 break;
             }
 
-            nodes.push(RegexpNode::Char(c as u8));
+            nodes.push(RegexpNode::Char(c));
         }
 
         RegexpNode::concat(nodes)
@@ -310,7 +310,7 @@ impl RegexpParser {
             b']' | b')' | b'}' => unreachable!(),
             _ => {
                 self.index += 1;
-                RegexpNode::Char(c as u8)
+                RegexpNode::Char(c)
             }
         }
     }
@@ -351,6 +351,12 @@ impl RegexpParser {
         self.index = 0;
         self.bytes = p.as_bytes().to_vec();
         self.parse_alternative()
+    }
+}
+
+impl Default for RegexpParser {
+    fn default() -> Self {
+        RegexpParser::new()
     }
 }
 

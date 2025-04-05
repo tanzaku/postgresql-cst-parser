@@ -158,7 +158,7 @@ fn is_start_whitespace(line: impl AsRef<str>) -> bool {
     line.as_ref()
         .chars()
         .next()
-        .map_or(false, |c| c.is_ascii_whitespace())
+        .is_some_and(|c| c.is_ascii_whitespace())
 }
 
 fn parse_type(bison: &mut Bison, line: &str, deq: &mut VecDeque<String>) {
@@ -181,7 +181,7 @@ fn parse_type(bison: &mut Bison, line: &str, deq: &mut VecDeque<String>) {
         }
 
         // If it starts with a space, consider it as a continuation line
-        if deq.front().map_or(false, is_start_whitespace) {
+        if deq.front().is_some_and(is_start_whitespace) {
             line = deq.pop_front().unwrap();
         } else {
             break;
@@ -213,7 +213,7 @@ fn parse_token(bison: &mut Bison, line: &str, deq: &mut VecDeque<String>) {
         // If it starts with a space, consider it as a continuation line
         if deq
             .front()
-            .map_or(false, |line| is_start_whitespace(line) || line.is_empty())
+            .is_some_and(|line| is_start_whitespace(line) || line.is_empty())
         {
             line = deq.pop_front().unwrap();
         } else {
@@ -254,7 +254,7 @@ fn parse_assoc(
         }
 
         // If it starts with a space, consider it as a continuation line
-        if deq.front().map_or(false, is_start_whitespace) {
+        if deq.front().is_some_and(is_start_whitespace) {
             line = deq.pop_front().unwrap();
         } else {
             break;
@@ -502,7 +502,7 @@ fn scan(body: String) -> Vec<BisonToken> {
             continue;
         }
 
-        eprintln!("{}", chars[i..][..100].into_iter().collect::<String>());
+        eprintln!("{}", chars[i..][..100].iter().collect::<String>());
 
         unreachable!();
     }

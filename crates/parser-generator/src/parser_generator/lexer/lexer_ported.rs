@@ -1,5 +1,5 @@
 /// Ported sources from PostgreSQL
-use super::{parser_error::ParserError, Lexer, Token, TokenKind, Yylval};
+use super::{Lexer, Token, TokenKind, Yylval, parser_error::ParserError};
 
 pub fn is_highbit_set(c: char) -> u8 {
     (c as u8) & 0x80
@@ -12,15 +12,15 @@ pub fn get_char_by_byte_pos(s: &str, byte_pos: usize) -> char {
 
 pub fn is_valid_unicode_codepoint(c: char) -> bool {
     let c = c as u32;
-    c > 0 && c <= 0x10FFFF
+    (1..=0x10FFFF).contains(&c)
 }
 
 pub fn is_utf16_surrogate_first(c: u32) -> bool {
-    c >= 0xD800 && c <= 0xDBFF
+    (0xD800..=0xDBFF).contains(&c)
 }
 
 pub fn is_utf16_surrogate_second(c: u32) -> bool {
-    c >= 0xDC00 && c <= 0xDFFF
+    (0xDC00..=0xDFFF).contains(&c)
 }
 
 pub fn surrogate_pair_to_codepoint(first: u32, second: u32) -> char {
@@ -90,7 +90,7 @@ impl Lexer {
                     self.saw_non_ascii = true;
                 }
 
-                return c;
+                c
             }
         }
     }

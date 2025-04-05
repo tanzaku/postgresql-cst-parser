@@ -25,7 +25,6 @@ pub use lexer::parser_error::ScanReport;
 /// ```
 /// use postgresql_cst_parser::{parse, syntax_kind::SyntaxKind};
 ///
-/// fn main() {
 ///     // Parse SQL query and get the syntax tree
 ///     let sql = "SELECT tbl.a as a, tbl.b from TBL tbl WHERE tbl.a > 0;";
 ///     let root = parse(sql).unwrap();
@@ -82,7 +81,6 @@ pub use lexer::parser_error::ScanReport;
 ///
 ///     println!("Number of CTEs: {}", ctes.len());
 ///     println!("Number of window functions: {}", window_funcs.len());
-/// }
 /// ```
 pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
     cst::parse(input)

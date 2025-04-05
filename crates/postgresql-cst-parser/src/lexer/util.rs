@@ -92,7 +92,7 @@ impl Lexer {
 
             if accept[dfa_state_index as usize] != !0 {
                 accept_rule = accept[dfa_state_index as usize];
-                longest_match = s.as_bytes().len();
+                longest_match = s.len();
             }
         }
 

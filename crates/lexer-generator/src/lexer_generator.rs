@@ -33,16 +33,12 @@ fn construct_actions(flex_file: &FlexFile) -> String {
 
             // If the action is |, the subsequent rule will be executed
             if rule.actions.trim() == "|" {
-                res.push(format!(
-                    r#"RuleKind::{kind}|"#,
-                    kind = format!("{}{}", s, e)
-                ));
+                res.push(format!(r#"RuleKind::{s}{e}|"#));
             } else {
                 res.push(format!(
-                    r#"RuleKind::{kind} => {{
+                    r#"RuleKind::{s}{e} => {{
                     {actions}
                 }}"#,
-                    kind = format!("{}{}", s, e),
                     actions = rule.actions
                 ));
             }
@@ -70,12 +66,13 @@ fn construct_pattern_actions_by_index(flex_file: &FlexFile) -> String {
     }
 
     // どのルールにもマッチしなかったときの値
-    res.push(format!(r#"255 => {{}}"#));
-    res.push(format!(
+    res.push(r#"255 => {{}}"#.to_string());
+    res.push(
         r#"_ => {{
             unreachable!()
         }}"#
-    ));
+        .to_string(),
+    );
 
     res.join("\n")
 }
@@ -129,7 +126,7 @@ fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> (String, bool) {
 
     // Expand {xxx} to actual regular expression patterns
     let replaced = p
-        .replace_all(&pattern, |caps: &regex::Captures| {
+        .replace_all(pattern, |caps: &regex::Captures| {
             let name = caps.get(1).unwrap().as_str();
 
             // Check if xxx in {xxx} is defined
@@ -163,13 +160,12 @@ fn construct_rule_defs(flex_file: &FlexFile) -> String {
                 Rule {{
                     state: State::{s},
                     pattern: regex::bytes::Regex::new(r#"(?-u)^({pattern})"#).unwrap(),
-                    kind: RuleKind::{rule_kind},
+                    kind: RuleKind::{s}{e},
                     eof: {eof},
                 }}"###,
                 original_pattern = rule.pattern,
                 pattern = pattern,
                 eof = eof,
-                rule_kind = format!("{}{}", s, e),
             ));
         }
     }

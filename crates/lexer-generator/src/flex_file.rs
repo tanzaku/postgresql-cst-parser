@@ -53,8 +53,8 @@ fn parse_pattern_actions(
         return None;
     }
 
-    if line.starts_with("<<EOF>>") {
-        let rest = line["<<EOF>>".len()..].to_owned();
+    if let Some(stripped) = line.strip_prefix("<<EOF>>") {
+        let rest = stripped.to_owned();
         let actions = parse_actions(rest, it);
         return Some(("<<EOF>>".to_owned(), actions));
     }
@@ -110,7 +110,7 @@ fn parse_rules(states: Vec<String>, it: &mut impl Iterator<Item = String>) -> Ve
 }
 
 fn skip_c_source(it: &mut impl Iterator<Item = String>) {
-    while let Some(line) = it.next() {
+    for line in it {
         if line == "%}" {
             break;
         }
@@ -136,8 +136,8 @@ pub fn parse_flex_file(s: impl AsRef<str>) -> FlexFile {
             continue;
         }
 
-        if line.starts_with("%x ") {
-            flex_file.all_states.push(line[3..].to_owned());
+        if let Some(rest) = line.strip_prefix("%x ") {
+            flex_file.all_states.push(rest.to_owned());
             continue;
         }
 
@@ -156,9 +156,9 @@ pub fn parse_flex_file(s: impl AsRef<str>) -> FlexFile {
 
     flex_file.rules = parse_rules(Vec::new(), &mut it);
 
-    while let Some(line) = it.next() {
+    for line in it {
         flex_file.rest_code += &line;
-        flex_file.rest_code += &"\n";
+        flex_file.rest_code += "\n";
     }
 
     flex_file

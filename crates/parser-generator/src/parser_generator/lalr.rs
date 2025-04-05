@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque, hash_map::Entry};
 
 // use serde::{Deserialize, Serialize};
 
@@ -195,7 +195,7 @@ impl Lalr {
                 .for_each(|c| terminal_components.push(c.clone()));
         }
 
-        for (name, _) in &bison.assoc {
+        for name in bison.assoc.keys() {
             let kind = TokenKind::from(name);
             terminal_components.push(Component::Terminal(kind));
         }
@@ -307,11 +307,11 @@ impl Lalr {
             nullable.insert(rule_id, false);
             first_set.insert(rule_id, HashSet::new());
 
-            for c in &self.rules[i].components {
+            for &c in &self.rules[i].components {
                 let comp = &self.id_mapper.components[c.0 as usize];
                 if let Component::Terminal(_) = comp {
-                    nullable.insert(c.clone(), false);
-                    first_set.insert(c.clone(), HashSet::from([c.clone()]));
+                    nullable.insert(c, false);
+                    first_set.insert(c, HashSet::from([c]));
                 }
             }
         }
@@ -509,7 +509,7 @@ impl Lalr {
                     continue;
                 }
 
-                let comp = self.rules[ri].components[dot_pos].clone();
+                let comp = self.rules[ri].components[dot_pos];
 
                 let item = &state_set.states[i].items[j];
                 next_states.entry(comp).or_default().push(Item {
@@ -547,13 +547,13 @@ impl Lalr {
             let get_conflicted_reduce_rule = |shift_comp: &ComponentId| -> Option<&&Item> {
                 reduce_rules
                     .iter()
-                    .find(|item| item.lookahead.contains(&shift_comp))
+                    .find(|item| item.lookahead.contains(shift_comp))
             };
 
             for e in &s.edge {
-                let key = (i, e.0.clone());
+                let key = (i, e.0);
 
-                if let Component::NonTerminal(_) = &self.id_mapper.components[e.0 .0 as usize] {
+                if let Component::NonTerminal(_) = &self.id_mapper.components[e.0.0 as usize] {
                     goto_table.insert(key, e.1);
                 } else {
                     action_table.insert(key, Action::Shift(e.1));
@@ -568,11 +568,11 @@ impl Lalr {
                         Action::Reduce(item.rule_index)
                     };
 
-                    let key = (i, terminal.clone());
+                    let key = (i, *terminal);
 
                     // not conflict
-                    if !action_table.contains_key(&key) {
-                        action_table.insert(key, reduce_action);
+                    if let Entry::Vacant(e) = action_table.entry(key) {
+                        e.insert(reduce_action);
                         continue;
                     }
 
