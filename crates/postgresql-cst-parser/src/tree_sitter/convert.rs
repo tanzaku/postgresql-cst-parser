@@ -147,7 +147,9 @@ fn walk_and_build(
                     | SyntaxKind::group_by_list
                     | SyntaxKind::sortby_list
                     | SyntaxKind::qualified_name_list
-                    | SyntaxKind::for_locking_items) => {
+                    | SyntaxKind::for_locking_items
+                    | SyntaxKind::cte_list
+                    | SyntaxKind::name_list) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -425,6 +427,24 @@ FROM
             let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::qualified_name_list);
+        }
+
+        #[test]
+        fn no_nested_cte_list() {
+            let input = "with a as (select 1), b as (select 2) select * from a, b;";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::cte_list);
+        }
+
+        #[test]
+        fn no_nested_name_list() {
+            let input = "with t (a, b) as (select 1) select * from t;";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::name_list);
         }
     }
 }
