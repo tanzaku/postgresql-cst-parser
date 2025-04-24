@@ -3,7 +3,7 @@ use crate::{lexer::Token, syntax_kind::SyntaxKind};
 use super::{Extra, Node};
 
 #[allow(dead_code)]
-pub(crate) struct LRParseState<'a> {
+pub struct LRParseState<'a> {
     pub(crate) state: u32,
     pub(crate) stack: &'a [(u32, Node)],
     pub(crate) action_table: &'a [i16],
@@ -26,7 +26,7 @@ impl<'a> LRParseState<'a> {
         }
     }
 
-    pub fn previous_extra(&self) -> Option<&Extra> {
+    pub(crate) fn previous_extra(&self) -> Option<&Extra> {
         let Some(last_extra) = self.extras.last() else {
             return None;
         };
