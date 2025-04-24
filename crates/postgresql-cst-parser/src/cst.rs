@@ -1,3 +1,11 @@
+pub(crate) mod extra;
+pub(crate) mod lr_parse_state;
+
+pub(crate) use extra::*;
+pub(crate) use lr_parse_state::*;
+
+use std::collections::HashSet;
+
 use cstree::{
     build::GreenNodeBuilder, green::GreenNode, interning::Resolver, RawSyntaxKind, Syntax,
 };
@@ -10,16 +18,23 @@ use crate::{
         rule_name_to_component_id, token_kind_to_component_id, Action, ACTION_TABLE, GOTO_TABLE,
         RULES,
     },
+    transform::{ParseTransform, ParseTransformer},
 };
 
 use super::{lexer::Token, syntax_kind::SyntaxKind};
 
-struct Node {
+pub(crate) struct Node {
     token: Option<Token>,
-    component_id: u32,
+    pub component_id: u32,
     children: Vec<Node>,
     start_byte_pos: usize,
     end_byte_pos: usize,
+}
+
+impl From<&Node> for SyntaxKind {
+    fn from(value: &Node) -> Self {
+        SyntaxKind::from_raw(RawSyntaxKind(value.component_id))
+    }
 }
 
 pub type PostgreSQLSyntax = SyntaxKind;
@@ -55,21 +70,30 @@ impl Parser {
     fn parse_rec(
         &mut self,
         node: &Node,
-        peekable: &mut std::iter::Peekable<std::vec::IntoIter<(SyntaxKind, usize, usize, &str)>>,
+        peekable: &mut std::iter::Peekable<std::vec::IntoIter<Extra>>,
+        complement_token: &HashSet<usize>,
     ) {
         if cfg!(feature = "remove-empty-node") {
-            if node.start_byte_pos == node.end_byte_pos {
+            if node.start_byte_pos == node.end_byte_pos
+                && !complement_token.contains(&node.start_byte_pos)
+            {
                 return;
             }
         }
 
-        while let Some((kind, start, _, text)) = peekable.peek() {
+        while let Some(Extra {
+            kind,
+            start_byte_pos,
+            comment,
+            ..
+        }) = peekable.peek()
+        {
             // TODO: Consider whether the presence or absence of an equals sign changes the position of comments. Determine which option is preferable
-            if *start >= node.start_byte_pos {
+            if *start_byte_pos >= node.start_byte_pos {
                 // if *start > node.start_byte_pos {
                 break;
             }
-            self.builder.token(*kind, text);
+            self.builder.token(*kind, &comment);
             peekable.next();
         }
 
@@ -80,7 +104,7 @@ impl Parser {
             self.builder.start_node(kind);
             node.children
                 .iter()
-                .for_each(|c| self.parse_rec(c, peekable));
+                .for_each(|c| self.parse_rec(c, peekable, complement_token));
             self.builder.finish_node();
         }
     }
@@ -88,18 +112,19 @@ impl Parser {
     fn parse(
         mut self,
         nodes: &Vec<&Node>,
-        extras: Vec<(SyntaxKind, usize, usize, &str)>,
+        extras: Vec<Extra>,
+        complement_token: &HashSet<usize>,
     ) -> (GreenNode, impl Resolver) {
         let mut peekable = extras.into_iter().peekable();
 
         self.builder.start_node(SyntaxKind::Root);
 
         for node in nodes {
-            self.parse_rec(node, &mut peekable);
+            self.parse_rec(node, &mut peekable, complement_token);
         }
 
-        while let Some((kind, _, _, text)) = peekable.peek() {
-            self.builder.token(*kind, text);
+        while let Some(Extra { kind, comment, .. }) = peekable.peek() {
+            self.builder.token(*kind, comment);
             peekable.next();
         }
 
@@ -184,6 +209,14 @@ fn init_tokens(tokens: &mut [Token]) {
 
 /// Parsing a string as PostgreSQL syntax and converting it into a ResolvedNode
 pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
+    parse_with_transformer(input, &[])
+}
+
+/// Parsing a string as PostgreSQL syntax and converting it into a ResolvedNode
+pub fn parse_with_transformer(
+    input: &str,
+    transformers: &[&dyn ParseTransformer],
+) -> Result<ResolvedNode, ParseError> {
     let mut tokens = lex(input);
 
     if !tokens.is_empty() {
@@ -217,12 +250,13 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
     ));
 
     let mut last_pos = 0;
-    let mut extras: Vec<(SyntaxKind, usize, usize, &str)> = Vec::new();
+    let mut extras: Vec<Extra> = Vec::new();
+    let mut complement_token = HashSet::new();
 
     loop {
         let state = stack.last().unwrap().0;
-        let token = match tokens.peek() {
-            Some(token) => token,
+        let mut token = match tokens.peek() {
+            Some(token) => token.clone(),
             None => {
                 return Err(ParseError {
                     message: "unexpected end of input".to_string(),
@@ -232,38 +266,104 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
             }
         };
 
-        let cid = token_kind_to_component_id(&token.kind);
+        let mut cid = token_kind_to_component_id(&token.kind);
 
         if matches!(token.kind, TokenKind::C_COMMENT | TokenKind::SQL_COMMENT) {
             if last_pos < token.start_byte_pos {
-                extras.push((
-                    SyntaxKind::Whitespace,
-                    last_pos,
-                    token.start_byte_pos,
-                    &input[last_pos..token.start_byte_pos],
-                ));
+                extras.push(Extra {
+                    kind: SyntaxKind::Whitespace,
+                    start_byte_pos: last_pos,
+                    end_byte_pos: token.start_byte_pos,
+                    comment: &input[last_pos..token.start_byte_pos],
+                });
             }
 
             last_pos = token.end_byte_pos;
 
             let kind = SyntaxKind::from_raw(RawSyntaxKind(cid));
-            extras.push((
+            extras.push(Extra {
                 kind,
-                token.start_byte_pos,
-                token.end_byte_pos,
-                &input[token.start_byte_pos..token.end_byte_pos],
-            ));
+                start_byte_pos: token.start_byte_pos,
+                end_byte_pos: token.end_byte_pos,
+                comment: &input[token.start_byte_pos..token.end_byte_pos],
+            });
             tokens.next();
 
             continue;
         }
 
-        let action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
+        let mut insert_dummy_token = false;
+        let mut action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
             0x7FFF => Action::Error,
             v if v > 0 => Action::Shift((v - 1) as usize),
             v if v < 0 => Action::Reduce((-v - 1) as usize),
             _ => Action::Accept,
         };
+
+        // transform
+        {
+            let lr_parse_state = LRParseState {
+                state,
+                stack: &stack,
+                action_table,
+                goto_table,
+                extras: &extras,
+                token: &token,
+            };
+
+            if let Some(parse_transform) = transformers
+                .iter()
+                .find_map(|t| t.transform(&lr_parse_state))
+            {
+                match parse_transform {
+                    ParseTransform::InsertToken(token_kind) => {
+                        let last_extra = extras.last().unwrap();
+
+                        cid = token_kind_to_component_id(&token_kind);
+                        token = Token {
+                            start_byte_pos: last_extra.end_byte_pos,
+                            end_byte_pos: last_extra.end_byte_pos,
+                            kind: token_kind,
+                            value: String::new(),
+                        };
+                        complement_token.insert(token.start_byte_pos);
+
+                        action = match action_table[(state * num_terminal_symbol() + cid) as usize]
+                        {
+                            0x7FFF => Action::Error,
+                            v if v > 0 => Action::Shift((v - 1) as usize),
+                            v if v < 0 => Action::Reduce((-v - 1) as usize),
+                            _ => Action::Accept,
+                        };
+                        insert_dummy_token = true;
+                    }
+
+                    ParseTransform::SkipToken => {
+                        // Skip tokens are treated as extras
+                        if last_pos < token.start_byte_pos {
+                            extras.push(Extra {
+                                kind: SyntaxKind::Whitespace,
+                                start_byte_pos: last_pos,
+                                end_byte_pos: token.start_byte_pos,
+                                comment: &input[last_pos..token.start_byte_pos],
+                            });
+                        }
+
+                        last_pos = token.end_byte_pos;
+
+                        let kind = SyntaxKind::from_raw(RawSyntaxKind(cid));
+                        extras.push(Extra {
+                            kind,
+                            start_byte_pos: token.start_byte_pos,
+                            end_byte_pos: token.end_byte_pos,
+                            comment: &input[token.start_byte_pos..token.end_byte_pos],
+                        });
+                        tokens.next();
+                        continue;
+                    }
+                }
+            }
+        }
 
         match action {
             Action::Shift(next_state) => {
@@ -276,18 +376,20 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                 };
 
                 if last_pos < token.start_byte_pos {
-                    extras.push((
-                        SyntaxKind::Whitespace,
-                        last_pos,
-                        token.start_byte_pos,
-                        &input[last_pos..token.start_byte_pos],
-                    ));
+                    extras.push(Extra {
+                        kind: SyntaxKind::Whitespace,
+                        start_byte_pos: last_pos,
+                        end_byte_pos: token.start_byte_pos,
+                        comment: &input[last_pos..token.start_byte_pos],
+                    });
                 }
 
                 last_pos = token.end_byte_pos;
 
                 stack.push((next_state as u32, node));
-                tokens.next();
+                if !insert_dummy_token {
+                    tokens.next();
+                }
             }
             Action::Reduce(rule_index) => {
                 let rule = &RULES[rule_index];
@@ -308,7 +410,7 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
                             // Adopt the larger of the end position of the previous token or the end of the space.
                             extras
                                 .last()
-                                .map(|e| e.2)
+                                .map(|e| e.end_byte_pos)
                                 .unwrap_or_default()
                                 .max(stack.last().unwrap().1.end_byte_pos)
                         });
@@ -364,12 +466,12 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
 
     while let Some(token) = tokens.next() {
         if last_pos < token.start_byte_pos {
-            extras.push((
-                SyntaxKind::Whitespace,
-                last_pos,
-                token.start_byte_pos,
-                &input[last_pos..token.start_byte_pos],
-            ));
+            extras.push(Extra {
+                kind: SyntaxKind::Whitespace,
+                start_byte_pos: last_pos,
+                end_byte_pos: token.start_byte_pos,
+                comment: &input[last_pos..token.start_byte_pos],
+            });
         }
 
         last_pos = token.end_byte_pos;
@@ -381,19 +483,19 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
 
         let cid = token_kind_to_component_id(&token.kind);
         let kind = SyntaxKind::from_raw(RawSyntaxKind(cid));
-        extras.push((
+        extras.push(Extra {
             kind,
-            token.start_byte_pos,
-            token.end_byte_pos,
-            &input[token.start_byte_pos..token.end_byte_pos],
-        ));
+            start_byte_pos: token.start_byte_pos,
+            end_byte_pos: token.end_byte_pos,
+            comment: &input[token.start_byte_pos..token.end_byte_pos],
+        });
     }
 
     let parser = Parser {
         builder: GreenNodeBuilder::new(),
     };
     let root: Vec<&Node> = stack[1..].iter().map(|s| &s.1).collect();
-    let (ast, resolver) = parser.parse(&root, extras);
+    let (ast, resolver) = parser.parse(&root, extras, &complement_token);
 
     Ok(SyntaxNode::new_root_with_resolver(ast, resolver))
 }

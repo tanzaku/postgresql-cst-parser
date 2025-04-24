@@ -1,4 +1,4 @@
-use postgresql_cst_parser::parse;
+use postgresql_cst_parser::parse_2way;
 
 #[test]
 fn test_all() -> Result<(), std::io::Error> {
@@ -20,7 +20,7 @@ fn test_all() -> Result<(), std::io::Error> {
                 .join(format!("{}.txt", file_stem));
 
             let content = std::fs::read_to_string(path)?;
-            let tree = parse(&content).unwrap();
+            let tree = parse_2way(&content).unwrap();
             std::fs::write(dst_path, format!("{:#?}", tree))?;
         }
     }
