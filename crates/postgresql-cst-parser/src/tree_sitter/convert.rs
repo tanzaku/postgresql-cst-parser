@@ -151,7 +151,10 @@ fn walk_and_build(
                     | SyntaxKind::cte_list
                     | SyntaxKind::name_list
                     | SyntaxKind::set_clause_list
-                    | SyntaxKind::set_target_list) => {
+                    | SyntaxKind::set_target_list
+                    | SyntaxKind::insert_column_list
+                    | SyntaxKind::index_params
+                    | SyntaxKind::values_clause) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -465,6 +468,33 @@ FROM
             let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::set_target_list);
+        }
+
+        #[test]
+        fn no_nested_insert_column_list() {
+            let input = "insert into t (a, b, c) values (1, 2, 3);";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::insert_column_list);
+        }
+
+        #[test]
+        fn no_nested_index_params() {
+            let input = "insert into t (a, b, c) values (1, 2, 3) on conflict (a, b) do nothing;";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::index_params);
+        }
+
+        #[test]
+        fn no_nested_values_clause() {
+            let input = "values (1,2,3), (4,5,6), (7,8,9);";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::values_clause);
         }
     }
 }
