@@ -195,7 +195,6 @@ fn walk_and_build(
                     | SyntaxKind::stmtmulti
                     | SyntaxKind::toplevel_stmt
                     | SyntaxKind::stmt
-                    | SyntaxKind::select_no_parens
                     | SyntaxKind::simple_select
                     | SyntaxKind::select_clause
                     | SyntaxKind::opt_select_limit
