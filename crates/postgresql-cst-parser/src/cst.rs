@@ -4,8 +4,6 @@ pub(crate) mod lr_parse_state;
 pub(crate) use extra::*;
 pub(crate) use lr_parse_state::*;
 
-use std::collections::HashSet;
-
 use cstree::{
     build::GreenNodeBuilder, green::GreenNode, interning::Resolver, RawSyntaxKind, Syntax,
 };
@@ -66,17 +64,24 @@ pub struct ParseError {
     pub end_byte_pos: usize,
 }
 
+/// ノードがトークンを含むか否かを判定する
+/// トークンを含まないノードは削除し、ダミートークンを含む補完されたノードは残すために使用する
+fn contains_token(node: &Node) -> bool {
+    if node.token.is_some() {
+        return true;
+    }
+
+    node.children.iter().any(contains_token)
+}
+
 impl Parser {
     fn parse_rec(
         &mut self,
         node: &Node,
         peekable: &mut std::iter::Peekable<std::vec::IntoIter<Extra>>,
-        complement_token: &HashSet<usize>,
     ) {
         if cfg!(feature = "remove-empty-node") {
-            if node.start_byte_pos == node.end_byte_pos
-                && !complement_token.contains(&node.start_byte_pos)
-            {
+            if node.start_byte_pos == node.end_byte_pos && !contains_token(node) {
                 return;
             }
         }
@@ -104,23 +109,18 @@ impl Parser {
             self.builder.start_node(kind);
             node.children
                 .iter()
-                .for_each(|c| self.parse_rec(c, peekable, complement_token));
+                .for_each(|c| self.parse_rec(c, peekable));
             self.builder.finish_node();
         }
     }
 
-    fn parse(
-        mut self,
-        nodes: &Vec<&Node>,
-        extras: Vec<Extra>,
-        complement_token: &HashSet<usize>,
-    ) -> (GreenNode, impl Resolver) {
+    fn parse(mut self, nodes: &Vec<&Node>, extras: Vec<Extra>) -> (GreenNode, impl Resolver) {
         let mut peekable = extras.into_iter().peekable();
 
         self.builder.start_node(SyntaxKind::Root);
 
         for node in nodes {
-            self.parse_rec(node, &mut peekable, complement_token);
+            self.parse_rec(node, &mut peekable);
         }
 
         while let Some(Extra { kind, comment, .. }) = peekable.peek() {
@@ -235,8 +235,43 @@ pub fn parse_with_transformer(
     let action_table = unsafe { action_table_u8.align_to::<i16>().1 };
     let goto_table = unsafe { goto_table_u8.align_to::<i16>().1 };
 
+    struct TokenQueue {
+        tokens: std::iter::Peekable<std::vec::IntoIter<Token>>,
+        dummy_token: Option<Token>,
+    }
+
+    impl TokenQueue {
+        fn new(tokens: Vec<Token>) -> Self {
+            Self {
+                tokens: tokens.into_iter().peekable(),
+                dummy_token: None,
+            }
+        }
+
+        fn next(&mut self) -> Option<Token> {
+            if self.dummy_token.is_some() {
+                let dummy_token = self.dummy_token.take();
+                dummy_token
+            } else {
+                self.tokens.next()
+            }
+        }
+
+        fn peek(&mut self) -> Option<&Token> {
+            self.dummy_token.as_ref().or_else(|| self.tokens.peek())
+        }
+
+        fn insert_dummy_token(&mut self, token: Token) {
+            if self.dummy_token.is_some() {
+                panic!();
+            }
+
+            self.dummy_token = Some(token);
+        }
+    }
+
     let mut stack: Vec<(u32, Node)> = Vec::new();
-    let mut tokens: std::iter::Peekable<std::vec::IntoIter<Token>> = tokens.into_iter().peekable();
+    let mut tokens = TokenQueue::new(tokens);
 
     stack.push((
         0,
@@ -251,7 +286,6 @@ pub fn parse_with_transformer(
 
     let mut last_pos = 0;
     let mut extras: Vec<Extra> = Vec::new();
-    let mut complement_token = HashSet::new();
 
     loop {
         let state = stack.last().unwrap().0;
@@ -292,7 +326,6 @@ pub fn parse_with_transformer(
             continue;
         }
 
-        let mut insert_dummy_token = false;
         let mut action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
             0x7FFF => Action::Error,
             v if v > 0 => Action::Shift((v - 1) as usize),
@@ -301,7 +334,7 @@ pub fn parse_with_transformer(
         };
 
         // transform
-        {
+        if action == Action::Error {
             let lr_parse_state = LRParseState {
                 state,
                 stack: &stack,
@@ -326,7 +359,6 @@ pub fn parse_with_transformer(
                             kind: token_kind,
                             value: String::new(),
                         };
-                        complement_token.insert(token.start_byte_pos);
 
                         action = match action_table[(state * num_terminal_symbol() + cid) as usize]
                         {
@@ -335,7 +367,7 @@ pub fn parse_with_transformer(
                             v if v < 0 => Action::Reduce((-v - 1) as usize),
                             _ => Action::Accept,
                         };
-                        insert_dummy_token = true;
+                        tokens.insert_dummy_token(token.clone());
                     }
 
                     ParseTransform::SkipToken => {
@@ -387,9 +419,7 @@ pub fn parse_with_transformer(
                 last_pos = token.end_byte_pos;
 
                 stack.push((next_state as u32, node));
-                if !insert_dummy_token {
-                    tokens.next();
-                }
+                tokens.next();
             }
             Action::Reduce(rule_index) => {
                 let rule = &RULES[rule_index];
@@ -495,7 +525,7 @@ pub fn parse_with_transformer(
         builder: GreenNodeBuilder::new(),
     };
     let root: Vec<&Node> = stack[1..].iter().map(|s| &s.1).collect();
-    let (ast, resolver) = parser.parse(&root, extras, &complement_token);
+    let (ast, resolver) = parser.parse(&root, extras);
 
     Ok(SyntaxNode::new_root_with_resolver(ast, resolver))
 }

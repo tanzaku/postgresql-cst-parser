@@ -1,12 +1,12 @@
-Root@0..269
+Root@0..281
   Whitespace@0..1 "\n"
   SQL_COMMENT@1..46 "-- バインド変数 ..."
   Whitespace@46..47 "\n"
-  parse_toplevel@47..268
-    stmtmulti@47..268
-      stmtmulti@47..266
-        stmtmulti@47..204
-          stmtmulti@47..149
+  parse_toplevel@47..280
+    stmtmulti@47..280
+      stmtmulti@47..278
+        stmtmulti@47..216
+          stmtmulti@47..161
             stmtmulti@47..66
               toplevel_stmt@47..66
                 stmt@47..66
@@ -34,22 +34,16 @@ Root@0..269
                                   AexprConst@66..66
                                     Sconst@66..66
                                       SCONST@66..66 ""
-                        into_clause@66..66
-                        from_clause@66..66
-                        where_clause@66..66
-                        group_clause@66..66
-                        having_clause@66..66
-                        window_clause@66..66
             Whitespace@66..67 "\n"
             Semicolon@67..68 ";"
             Whitespace@68..70 "\n\n"
             SQL_COMMENT@70..112 "-- 置換文字列の ..."
             Whitespace@112..113 "\n"
-            toplevel_stmt@113..149
-              stmt@113..149
-                SelectStmt@113..149
-                  select_no_parens@113..149
-                    simple_select@113..149
+            toplevel_stmt@113..161
+              stmt@113..161
+                SelectStmt@113..161
+                  select_no_parens@113..161
+                    simple_select@113..161
                       SELECT@113..119 "select"
                       Whitespace@119..121 "\n\t"
                       opt_target_list@121..122
@@ -57,104 +51,108 @@ Root@0..269
                           target_el@121..122
                             Star@121..122 "*"
                       Whitespace@122..123 "\n"
-                      from_clause@123..149
+                      from_clause@123..161
                         FROM@123..127 "from"
                         Whitespace@127..129 "\n\t"
                         C_COMMENT@129..137 "/*#tbl*/"
-                        from_list@137..149
-                          from_list@137..137
-                            table_ref@137..137
-                              relation_expr@137..137
-                                qualified_name@137..137
-                                  ColId@137..137
-                                    IDENT@137..137 ""
-                              opt_alias_clause@137..137
-                          Whitespace@137..138 "\n"
-                          Comma@138..139 ","
-                          Whitespace@139..140 "\t"
-                          C_COMMENT@140..149 "/*#tbl2*/"
-                          table_ref@149..149
-                            relation_expr@149..149
-                              qualified_name@149..149
-                                ColId@149..149
-                                  IDENT@149..149 ""
-                            opt_alias_clause@149..149
-                      where_clause@149..149
-                      group_clause@149..149
-                      having_clause@149..149
-                      window_clause@149..149
-          Whitespace@149..150 "\n"
-          Semicolon@150..151 ";"
-          Whitespace@151..153 "\n\n"
-          SQL_COMMENT@153..183 "-- 先頭に余計な ..."
-          Whitespace@183..184 "\n"
-          toplevel_stmt@184..204
-            stmt@184..204
-              SelectStmt@184..204
-                select_no_parens@184..204
-                  simple_select@184..204
-                    SELECT@184..190 "select"
-                    Whitespace@190..191 "\n"
-                    Comma@191..192 ","
-                    Whitespace@192..193 "\t"
-                    opt_target_list@193..194
-                      target_list@193..194
-                        target_el@193..194
-                          Star@193..194 "*"
-                    Whitespace@194..195 "\n"
-                    from_clause@195..204
-                      FROM@195..199 "from"
-                      Whitespace@199..201 "\n\t"
-                      from_list@201..204
-                        table_ref@201..204
-                          relation_expr@201..204
-                            qualified_name@201..204
-                              ColId@201..204
-                                IDENT@201..204 "TBL"
-        Whitespace@204..205 "\n"
-        Semicolon@205..206 ";"
-        Whitespace@206..208 "\n\n"
-        SQL_COMMENT@208..232 "-- 先頭に余計なand"
-        Whitespace@232..233 "\n"
-        toplevel_stmt@233..266
-          stmt@233..266
-            SelectStmt@233..266
-              select_no_parens@233..266
-                simple_select@233..266
-                  SELECT@233..239 "select"
-                  Whitespace@239..241 "\n\t"
-                  opt_target_list@241..242
-                    target_list@241..242
-                      target_el@241..242
-                        Star@241..242 "*"
-                  Whitespace@242..243 "\n"
-                  from_clause@243..252
-                    FROM@243..247 "from"
-                    Whitespace@247..249 "\n\t"
-                    from_list@249..252
-                      table_ref@249..252
-                        relation_expr@249..252
-                          qualified_name@249..252
-                            ColId@249..252
-                              IDENT@249..252 "TBL"
-                  Whitespace@252..253 "\n"
-                  where_clause@253..266
-                    WHERE@253..258 "where"
-                    Whitespace@258..259 "\n"
-                    AND@259..262 "and"
-                    Whitespace@262..263 " "
-                    a_expr@263..266
-                      a_expr@263..264
-                        c_expr@263..264
-                          AexprConst@263..264
-                            Iconst@263..264
-                              ICONST@263..264 "1"
-                      Equals@264..265 "="
-                      a_expr@265..266
-                        c_expr@265..266
-                          AexprConst@265..266
-                            Iconst@265..266
-                              ICONST@265..266 "1"
-      Whitespace@266..267 "\n"
-      Semicolon@267..268 ";"
-  Whitespace@268..269 "\n"
+                        from_list@137..161
+                          from_list@137..149
+                            from_list@137..137
+                              table_ref@137..137
+                                relation_expr@137..137
+                                  qualified_name@137..137
+                                    ColId@137..137
+                                      IDENT@137..137 ""
+                            Whitespace@137..138 "\n"
+                            Comma@138..139 ","
+                            Whitespace@139..140 "\t"
+                            C_COMMENT@140..149 "/*#tbl2*/"
+                            table_ref@149..149
+                              relation_expr@149..149
+                                qualified_name@149..149
+                                  ColId@149..149
+                                    IDENT@149..149 ""
+                          Whitespace@149..150 "\n"
+                          Comma@150..151 ","
+                          Whitespace@151..152 "\t"
+                          C_COMMENT@152..161 "/*$tbl3*/"
+                          table_ref@161..161
+                            relation_expr@161..161
+                              qualified_name@161..161
+                                ColId@161..161
+                                  IDENT@161..161 ""
+          Whitespace@161..162 "\n"
+          Semicolon@162..163 ";"
+          Whitespace@163..165 "\n\n"
+          SQL_COMMENT@165..195 "-- 先頭に余計な ..."
+          Whitespace@195..196 "\n"
+          toplevel_stmt@196..216
+            stmt@196..216
+              SelectStmt@196..216
+                select_no_parens@196..216
+                  simple_select@196..216
+                    SELECT@196..202 "select"
+                    Whitespace@202..203 "\n"
+                    Comma@203..204 ","
+                    Whitespace@204..205 "\t"
+                    opt_target_list@205..206
+                      target_list@205..206
+                        target_el@205..206
+                          Star@205..206 "*"
+                    Whitespace@206..207 "\n"
+                    from_clause@207..216
+                      FROM@207..211 "from"
+                      Whitespace@211..213 "\n\t"
+                      from_list@213..216
+                        table_ref@213..216
+                          relation_expr@213..216
+                            qualified_name@213..216
+                              ColId@213..216
+                                IDENT@213..216 "TBL"
+        Whitespace@216..217 "\n"
+        Semicolon@217..218 ";"
+        Whitespace@218..220 "\n\n"
+        SQL_COMMENT@220..244 "-- 先頭に余計なand"
+        Whitespace@244..245 "\n"
+        toplevel_stmt@245..278
+          stmt@245..278
+            SelectStmt@245..278
+              select_no_parens@245..278
+                simple_select@245..278
+                  SELECT@245..251 "select"
+                  Whitespace@251..253 "\n\t"
+                  opt_target_list@253..254
+                    target_list@253..254
+                      target_el@253..254
+                        Star@253..254 "*"
+                  Whitespace@254..255 "\n"
+                  from_clause@255..264
+                    FROM@255..259 "from"
+                    Whitespace@259..261 "\n\t"
+                    from_list@261..264
+                      table_ref@261..264
+                        relation_expr@261..264
+                          qualified_name@261..264
+                            ColId@261..264
+                              IDENT@261..264 "TBL"
+                  Whitespace@264..265 "\n"
+                  where_clause@265..278
+                    WHERE@265..270 "where"
+                    Whitespace@270..271 "\n"
+                    AND@271..274 "and"
+                    Whitespace@274..275 " "
+                    a_expr@275..278
+                      a_expr@275..276
+                        c_expr@275..276
+                          AexprConst@275..276
+                            Iconst@275..276
+                              ICONST@275..276 "1"
+                      Equals@276..277 "="
+                      a_expr@277..278
+                        c_expr@277..278
+                          AexprConst@277..278
+                            Iconst@277..278
+                              ICONST@277..278 "1"
+      Whitespace@278..279 "\n"
+      Semicolon@279..280 ";"
+  Whitespace@280..281 "\n"

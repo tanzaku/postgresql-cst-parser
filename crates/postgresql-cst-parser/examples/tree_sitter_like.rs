@@ -1,4 +1,4 @@
-use postgresql_cst_parser::{tree_sitter::TreeCursor, ts_parse};
+use postgresql_cst_parser::tree_sitter::{self, TreeCursor};
 
 fn main() {
     let src = r#"
@@ -18,7 +18,7 @@ select
 
 "#;
 
-    let tree = ts_parse(&src).unwrap();
+    let tree = tree_sitter::parse(&src).unwrap();
     let root = tree.root_node();
     let mut cursor = root.walk();
 

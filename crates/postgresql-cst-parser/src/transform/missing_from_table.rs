@@ -9,6 +9,7 @@ pub struct ComplementMissingFromTableTransformer;
 
 fn is_replacement_string_comment(comment: &str) -> bool {
     comment.starts_with("/*#") && comment.ends_with("*/")
+        || comment.starts_with("/*$") && comment.ends_with("*/")
 }
 
 fn is_missing_replacement_string_comment<'a>(lr_parse_state: &LRParseState<'a>) -> bool {

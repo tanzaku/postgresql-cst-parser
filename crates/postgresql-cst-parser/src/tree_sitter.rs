@@ -22,6 +22,12 @@ pub fn parse(input: &str) -> Result<Tree, cst::ParseError> {
     Ok(Tree::new(input, root, range_map))
 }
 
+pub fn parse_2way(input: &str) -> Result<Tree, cst::ParseError> {
+    let parsed = crate::parse_2way(input)?;
+    let (root, range_map) = get_ts_tree_and_range_map(input, &parsed);
+    Ok(Tree::new(input, root, range_map))
+}
+
 pub struct Tree {
     src: String,
     root: ResolvedNode,

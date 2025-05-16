@@ -28,6 +28,7 @@ use transform::ParseTransformer;
 use transform::SkipExtraComma;
 use transform::SkipExtraOperator;
 pub use tree_sitter::parse as ts_parse;
+pub use tree_sitter::parse_2way as ts_parse_2way;
 
 pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
     cst::parse(input)
@@ -55,4 +56,18 @@ pub fn parse_2way_with_transformers(
     transformers: &[&dyn ParseTransformer],
 ) -> Result<ResolvedNode, ParseError> {
     parse_with_transformer(input, transformers)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::parse_2way;
+
+    #[test]
+    fn test() {
+        let s = r#"select /*param*/ as A
+from /*#foo*/
+;
+"#;
+        assert!(parse_2way(s).is_ok());
+    }
 }
