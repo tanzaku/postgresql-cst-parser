@@ -47,4 +47,8 @@ impl<'a> LRParseState<'a> {
     pub fn last_syntax_kind(&self) -> Option<SyntaxKind> {
         self.stack.last().map(|(_, node)| node.into())
     }
+
+    pub fn iter_syntax_kind_rev(&'a self) -> impl Iterator<Item = SyntaxKind> + 'a {
+        self.stack.iter().rev().map(|(_, node)| node.into())
+    }
 }

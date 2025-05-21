@@ -70,4 +70,28 @@ from /*#foo*/
 "#;
         assert!(parse_2way(s).is_ok());
     }
+
+    #[test]
+    fn test_2way_error_recovery_distinct_on() {
+        let s = r#"select distinct on (col1) , t.* from tbl t;
+;
+"#;
+        assert!(parse_2way(s).is_ok());
+    }
+
+    #[test]
+    fn test_2way_error_recovery_distinct() {
+        let s = r#"select distinct , t.* from tbl t;
+;
+"#;
+        assert!(parse_2way(s).is_ok());
+    }
+
+    #[test]
+    fn test_2way_error_recovery_all() {
+        let s = r#"select all , t.* from tbl t;
+;
+"#;
+        assert!(parse_2way(s).is_ok());
+    }
 }
