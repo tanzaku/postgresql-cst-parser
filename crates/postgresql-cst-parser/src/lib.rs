@@ -1,6 +1,7 @@
 #![allow(non_camel_case_types)]
 
 mod lexer;
+pub use lexer::{lex, Token, TokenKind};
 
 mod parser;
 
