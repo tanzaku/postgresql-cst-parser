@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   build:
+    if: github.repository == 'tanzaku/postgresql-cst-parser'
     runs-on: ubuntu-latest
 
     steps:
@@ -43,6 +44,7 @@ jobs:
           path: ./docs
 
   deploy:
+    if: github.repository == 'tanzaku/postgresql-cst-parser'
     needs: build
     environment:
       name: github-pages
