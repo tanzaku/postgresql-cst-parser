@@ -1,0 +1,79 @@
+Root@0..134
+  parse_toplevel@0..133
+    stmtmulti@0..133
+      stmtmulti@0..132
+        toplevel_stmt@0..132
+          stmt@0..132
+            SelectStmt@0..132
+              select_no_parens@0..132
+                simple_select@0..132
+                  SELECT@0..6 "SELECT"
+                  Whitespace@6..7 " "
+                  opt_target_list@7..8
+                    target_list@7..8
+                      target_el@7..8
+                        Star@7..8 "*"
+                  Whitespace@8..12 "\n   "
+                  from_clause@12..132
+                    FROM@12..16 "FROM"
+                    Whitespace@16..22 "\n     "
+                    from_list@22..132
+                      table_ref@22..132
+                        json_table@22..126
+                          JSON_TABLE@22..32 "JSON_TABLE"
+                          LParen@32..33 "("
+                          Whitespace@33..41 "\n       "
+                          json_value_expr@41..59
+                            a_expr@41..59
+                              c_expr@41..59
+                                AexprConst@41..59
+                                  Sconst@41..59
+                                    SCONST@41..59 "'[ {\"c1\": null} ]'"
+                          Comma@59..60 ","
+                          Whitespace@60..68 "\n       "
+                          a_expr@68..74
+                            c_expr@68..74
+                              AexprConst@68..74
+                                Sconst@68..74
+                                  SCONST@68..74 "'$[*]'"
+                          Whitespace@74..75 " "
+                          COLUMNS@75..82 "COLUMNS"
+                          LParen@82..83 "("
+                          Whitespace@83..84 " "
+                          json_table_column_definition_list@84..117
+                            json_table_column_definition@84..117
+                              ColId@84..86
+                                IDENT@84..86 "c1"
+                              Whitespace@86..87 " "
+                              Typename@87..90
+                                SimpleTypename@87..90
+                                  Numeric@87..90
+                                    INT_P@87..90 "INT"
+                              Whitespace@90..91 " "
+                              json_table_column_path_clause_opt@91..102
+                                PATH@91..95 "PATH"
+                                Whitespace@95..96 " "
+                                Sconst@96..102
+                                  SCONST@96..102 "'$.c1'"
+                              Whitespace@102..103 " "
+                              json_behavior_clause_opt@103..117
+                                json_behavior@103..108
+                                  json_behavior_type@103..108
+                                    ERROR_P@103..108 "ERROR"
+                                Whitespace@108..109 " "
+                                ON@109..111 "ON"
+                                Whitespace@111..112 " "
+                                ERROR_P@112..117 "ERROR"
+                          Whitespace@117..118 " "
+                          RParen@118..119 ")"
+                          Whitespace@119..125 "\n     "
+                          RParen@125..126 ")"
+                        Whitespace@126..127 " "
+                        opt_alias_clause@127..132
+                          alias_clause@127..132
+                            AS@127..129 "as"
+                            Whitespace@129..130 " "
+                            ColId@130..132
+                              IDENT@130..132 "jt"
+      Semicolon@132..133 ";"
+  Whitespace@133..134 "\n"

@@ -6,8 +6,6 @@ use super::{Extra, Node};
 pub struct LRParseState<'a> {
     pub(crate) state: u32,
     pub(crate) stack: &'a [(u32, Node)],
-    pub(crate) action_table: &'a [i16],
-    pub(crate) goto_table: &'a [i16],
     pub(crate) extras: &'a [Extra<'a>],
     pub(crate) token: &'a Token,
 }

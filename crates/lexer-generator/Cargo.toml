@@ -1,7 +1,8 @@
 [package]
 name = "lexer-generator"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+exclude.workspace = true
 
 [package.metadata.release]
 release = false
@@ -13,3 +14,4 @@ regex = "1.10.2"
 bincode = "1.3.3"
 cstree = { version = "0.12.0", features = ["derive"] }
 serde = { version = "1.0.195", features = ["derive"] }
+automata = { path = "../automata" }

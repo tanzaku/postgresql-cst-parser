@@ -108,4 +108,8 @@ SELECT /*$c*/0 as a, -- d
 b b -- f
 ,       c -- g
 ; -- h
+select +-1;
+select カラム;
+select E'\U0001F600';
+SELECT e'\uD83D\uDC31';
 SELECT 1*-1 as あ;

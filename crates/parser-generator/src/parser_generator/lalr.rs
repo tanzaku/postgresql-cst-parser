@@ -1,6 +1,6 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque, hash_map::Entry};
 
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize};
 
 use crate::parser_generator::{
     bison::{Action, AssocDirective, Component},
@@ -12,14 +12,16 @@ use super::{
     id_mapper::IdMapper,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+// #[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct LalrRule {
     pub name_id: ComponentId,
     pub components: Vec<ComponentId>,
     pub reduce_priority: Option<Assoc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+// #[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Lalr {
     pub id_mapper: IdMapper,
 
@@ -42,7 +44,8 @@ pub struct Lalr {
     pub all_terminal: Vec<ComponentId>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+// #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Item {
     pub rule_index: usize,
     pub dot_pos: usize,
@@ -81,7 +84,8 @@ impl Item {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+// #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct State {
     pub items: Vec<Item>,
     pub edge: BTreeSet<(ComponentId, usize)>,
@@ -89,7 +93,7 @@ pub struct State {
 }
 
 impl State {
-    // LALR用の差分。先読み記号を無視する
+    // Difference for LALR: ignore lookahead symbols
     fn equals_without_lookahead(&self, other: &State) -> bool {
         if self.items.len() != other.items.len() {
             return false;
@@ -101,7 +105,7 @@ impl State {
             .all(|(l, r)| l.rule_index == r.rule_index && l.dot_pos == r.dot_pos)
     }
 
-    // LALR用の差分。先読み記号を無視する
+    // Difference for LR: Distinguish lookahead symbols
     fn equals(&self, other: &State) -> bool {
         if self.items.len() != other.items.len() {
             return false;
@@ -120,7 +124,8 @@ impl State {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+// #[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct StateSet {
     pub states: Vec<State>,
     pub need_update: HashSet<usize>,
@@ -141,7 +146,7 @@ impl StateSet {
         {
             self.states[from_index].edge.insert((comp, i));
 
-            // 先読み記号まで含めて同一ならスキップ
+            // Skip if it's identical including lookahead symbols
             if state.equals(&self.states[i]) {
                 return;
             }
@@ -190,7 +195,7 @@ impl Lalr {
                 .for_each(|c| terminal_components.push(c.clone()));
         }
 
-        for (name, _) in &bison.assoc {
+        for name in bison.assoc.keys() {
             let kind = TokenKind::from(name);
             terminal_components.push(Component::Terminal(kind));
         }
@@ -302,11 +307,11 @@ impl Lalr {
             nullable.insert(rule_id, false);
             first_set.insert(rule_id, HashSet::new());
 
-            for c in &self.rules[i].components {
+            for &c in &self.rules[i].components {
                 let comp = &self.id_mapper.components[c.0 as usize];
                 if let Component::Terminal(_) = comp {
-                    nullable.insert(c.clone(), false);
-                    first_set.insert(c.clone(), HashSet::from([c.clone()]));
+                    nullable.insert(c, false);
+                    first_set.insert(c, HashSet::from([c]));
                 }
             }
         }
@@ -375,13 +380,13 @@ impl Lalr {
             .collect();
     }
 
-    // TODO closureをテストする
+    // TODO: Test the closure function
     fn closure(&mut self, state: &mut State) {
         let mut in_deq = vec![false; state.items.len()];
 
         let prev_item_len = state.items.len();
 
-        // LR(1)アイテム集合の単一状態の変化がなくなるまで繰り返す
+        // Repeat until there are no more changes in the LR(1) item set for a single state
         let mut deq = VecDeque::from_iter(0..state.items.len());
         while let Some(j) = deq.pop_front() {
             in_deq[j] = false;
@@ -396,7 +401,7 @@ impl Lalr {
                 continue;
             }
 
-            // ドットの次の要素が非終端記号の場合には、その非終端記号を左辺に持つ全ての規則について、非終端記号の先頭にドットおるアイテムを追加する。
+            // If the element after the dot is a non-terminal symbol, add an item with the dot at the beginning of all rules that have that non-terminal symbol on the left-hand side.
             let component_id = self.rules[rule_index].components[dot_pos];
             if let Component::Terminal(_) = &self.id_mapper.components[component_id.0 as usize] {
                 continue;
@@ -405,7 +410,7 @@ impl Lalr {
             let mut lookaheads = self.first_set_after[rule_index][dot_pos + 1].clone();
             let nullable = self.nullable[rule_index][dot_pos + 1];
 
-            // その際の先読み記号は、first_set(非終端記号の続き + lookahead)で求まる
+            // The lookahead symbols are determined by first_set(continuation of non-terminal + lookahead)
             if nullable {
                 state.items[j]
                     .lookahead
@@ -416,17 +421,17 @@ impl Lalr {
             self.rule_indices_by_name_id[component_id.0 as usize]
                 .iter()
                 .for_each(|&new_item_index| {
-                    // 追加予定のアイテムが既に存在するかチェックする
+                    // Check if the item to be added already exists
                     let j: Option<&usize> = state.item_indices.get(&new_item_index);
 
                     if let Some(&j) = j {
-                        // あれば先読み記号のみ追加
+                        // If it exists, only add lookahead symbols
                         if state.items[j].insert_lookaheads(&lookaheads) && !in_deq[j] {
                             deq.push_back(j);
                             in_deq[j] = true;
                         }
                     } else {
-                        // なければ追加
+                        // If it doesn't exist, add it
                         let new_item = Item {
                             rule_index: new_item_index,
                             dot_pos: 0,
@@ -445,11 +450,11 @@ impl Lalr {
         }
     }
 
-    /// 構文解析表を作成する
-    /// 1. LR(1)項集合の作成
+    /// Create a syntax analysis table
+    /// 1. Create LR(1) item sets
     pub fn build_lalr1_parse_table(&mut self) {
-        // bisonでは明示的に指定しない場合、最初のルールが起点のルールになる
-        // PostgreSQLの場合、明示的に指定していないため、最初のルールを起点とする
+        // In bison, if not explicitly specified, the first rule becomes the starting rule
+        // In the case of PostgreSQL, it's not explicitly specified, so we use the first rule as the starting point
         let start_rule_index = self.rules.len();
         let start_component_id = self.rules[0].name_id;
 
@@ -494,8 +499,8 @@ impl Lalr {
 
             // dbg!(i, state_set.states.len());
 
-            // ドットを進めた状態を作る
-            // ドットを進める状態を、次の記号でグループ化
+            // Create states by advancing the dot
+            // Group the states where the dot is advanced by the next symbol
             let mut next_states: BTreeMap<ComponentId, Vec<_>> = BTreeMap::new();
             for j in 0..state_set.states[i].items.len() {
                 let dot_pos = state_set.states[i].items[j].dot_pos;
@@ -504,7 +509,7 @@ impl Lalr {
                     continue;
                 }
 
-                let comp = self.rules[ri].components[dot_pos].clone();
+                let comp = self.rules[ri].components[dot_pos];
 
                 let item = &state_set.states[i].items[j];
                 next_states.entry(comp).or_default().push(Item {
@@ -528,7 +533,7 @@ impl Lalr {
 
         dbg!(state_set.states.len());
 
-        // 構文解析表を構築
+        // Build the syntax analysis table
         let mut action_table: HashMap<(usize, ComponentId), Action> = HashMap::new();
         let mut goto_table: HashMap<(usize, ComponentId), usize> = HashMap::new();
 
@@ -542,13 +547,13 @@ impl Lalr {
             let get_conflicted_reduce_rule = |shift_comp: &ComponentId| -> Option<&&Item> {
                 reduce_rules
                     .iter()
-                    .find(|item| item.lookahead.contains(&shift_comp))
+                    .find(|item| item.lookahead.contains(shift_comp))
             };
 
             for e in &s.edge {
-                let key = (i, e.0.clone());
+                let key = (i, e.0);
 
-                if let Component::NonTerminal(_) = &self.id_mapper.components[e.0 .0 as usize] {
+                if let Component::NonTerminal(_) = &self.id_mapper.components[e.0.0 as usize] {
                     goto_table.insert(key, e.1);
                 } else {
                     action_table.insert(key, Action::Shift(e.1));
@@ -563,11 +568,11 @@ impl Lalr {
                         Action::Reduce(item.rule_index)
                     };
 
-                    let key = (i, terminal.clone());
+                    let key = (i, *terminal);
 
                     // not conflict
-                    if !action_table.contains_key(&key) {
-                        action_table.insert(key, reduce_action);
+                    if let Entry::Vacant(e) = action_table.entry(key) {
+                        e.insert(reduce_action);
                         continue;
                     }
 
@@ -577,29 +582,29 @@ impl Lalr {
 
                     match (reduce, shift) {
                         (Some(reduce), Some(shift)) if reduce.priority < shift.priority => {
-                            // shiftを採用
+                            // adopt shift
                         }
                         (Some(reduce), Some(shift)) if reduce.priority > shift.priority => {
-                            // reduceを採用
+                            // adopt reduce
                             action_table.insert(key, reduce_action);
                         }
                         (Some(_), Some(shift)) => {
                             match shift.directive {
                                 AssocDirective::NonAssoc => {
-                                    // このケースはparse error
+                                    // This case is a parse error
                                     action_table.insert(key, Action::Error);
                                 }
                                 AssocDirective::Left => {
-                                    // reduceを採用
+                                    // adopt reduce
                                     action_table.insert(key, reduce_action);
                                 }
                                 AssocDirective::Right => {
-                                    // shiftを採用
+                                    // adopt shift
                                 }
                             }
                         }
                         _ => {
-                            // いずれかに優先度がなければshift優先らしい
+                            // If either one doesn't have a priority, shift seems to be preferred
                         }
                     }
                 }
