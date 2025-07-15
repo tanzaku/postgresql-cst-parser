@@ -133,7 +133,7 @@ fn extract_rule_pattern(flex_file: &FlexFile, pattern: &str) -> (String, bool) {
             if let Some(def) = flex_file.definitions.iter().find(|def| def.name == name) {
                 let pattern = remove_unnecessary_quote(&def.def);
                 let (rep, _) = extract_rule_pattern(flex_file, &pattern);
-                format!("({})", rep)
+                format!("({rep})")
             } else {
                 format!("{{{name}}}")
             }
