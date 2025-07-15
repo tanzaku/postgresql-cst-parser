@@ -76,10 +76,11 @@ impl Parser {
         node: &Node,
         peekable: &mut std::iter::Peekable<std::vec::IntoIter<Extra>>,
     ) {
-        if cfg!(feature = "remove-empty-node") {
-            if node.start_byte_pos == node.end_byte_pos && !contains_token(node) {
-                return;
-            }
+        if cfg!(feature = "remove-empty-node")
+            && node.start_byte_pos == node.end_byte_pos
+            && !contains_token(node)
+        {
+            return;
         }
 
         while let Some(Extra {
@@ -94,7 +95,7 @@ impl Parser {
                 // if *start > node.start_byte_pos {
                 break;
             }
-            self.builder.token(*kind, &comment);
+            self.builder.token(*kind, comment);
             peekable.next();
         }
 
@@ -197,8 +198,7 @@ pub fn parse_with_transformer(
 
         fn next(&mut self) -> Option<Token> {
             if self.dummy_token.is_some() {
-                let dummy_token = self.dummy_token.take();
-                dummy_token
+                self.dummy_token.take()
             } else {
                 self.tokens.next()
             }

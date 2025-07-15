@@ -12,7 +12,7 @@ use crate::{cst, syntax_kind::SyntaxKind, NodeOrToken, ParserError, ResolvedNode
 
 impl Display for SyntaxKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 

@@ -38,7 +38,7 @@ impl ParseTransformer for ComplementMissingSampleValueTransformer {
             return None;
         }
 
-        if !Self::is_missing_bind_variable(&lr_parse_state) {
+        if !Self::is_missing_bind_variable(lr_parse_state) {
             return None;
         }
 

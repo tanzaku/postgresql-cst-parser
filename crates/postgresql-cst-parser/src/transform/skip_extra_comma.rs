@@ -39,7 +39,7 @@ impl SkipExtraComma {
 
 impl ParseTransformer for SkipExtraComma {
     fn transform<'a>(&self, lr_parse_state: &LRParseState<'a>) -> Option<ParseTransform> {
-        if !Self::allow_extra_comma(&lr_parse_state) {
+        if !Self::allow_extra_comma(lr_parse_state) {
             return None;
         }
 

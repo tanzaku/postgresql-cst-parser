@@ -41,11 +41,7 @@ fn is_from_table<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
                 .nth_back(1)
                 .map(|(_, node)| SyntaxKind::from_raw(RawSyntaxKind(node.component_id)));
 
-            if prev2_kind == Some(SyntaxKind::from_list) {
-                true
-            } else {
-                false
-            }
+            prev2_kind == Some(SyntaxKind::from_list)
         }
         _ => false,
     }
@@ -67,7 +63,7 @@ impl ParseTransformer for ComplementMissingFromTableTransformer {
             return None;
         }
 
-        if !is_missing_from_replacement_value(&lr_parse_state) {
+        if !is_missing_from_replacement_value(lr_parse_state) {
             return None;
         }
 
