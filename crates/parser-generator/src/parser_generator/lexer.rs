@@ -89,7 +89,7 @@ impl TokenKind {
     #[allow(dead_code)]
     pub fn to_id(&self) -> String {
         match self {
-            TokenKind::RAW(s) => format!("'{}'", s),
+            TokenKind::RAW(s) => format!("'{s}'"),
             TokenKind::IDENT => "IDENT".to_string(),
             TokenKind::KEYWORD(s) => s.to_string(),
             TokenKind::C_COMMENT => "C_COMMENT".to_string(),

@@ -292,7 +292,7 @@ fn generate_parser_source_code(
                     Component::Terminal(TokenKind::RAW(s)) =>
                         format!(r#"RAW(s) if s == "{}""#, s.trim_matches('\'')),
                     Component::Terminal(TokenKind::KEYWORD(s)) =>
-                        format!(r#"KEYWORD(s) if s == "{}""#, s),
+                        format!(r#"KEYWORD(s) if s == "{s}""#),
                     Component::Terminal(s) => s.to_id(),
                     _ => unreachable!(),
                 },
