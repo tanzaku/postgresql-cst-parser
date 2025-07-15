@@ -17,11 +17,11 @@ fn test_all() -> Result<(), std::io::Error> {
                 .parent()
                 .unwrap()
                 .join("dst")
-                .join(format!("{}.txt", file_stem));
+                .join(format!("{file_stem}.txt"));
 
             let content = std::fs::read_to_string(path)?;
             let tree = parse_2way(&content).unwrap();
-            std::fs::write(dst_path, format!("{:#?}", tree))?;
+            std::fs::write(dst_path, format!("{tree:#?}"))?;
         }
     }
 

@@ -5,8 +5,7 @@ pub fn assert_exists(root: &ResolvedNode, kind: SyntaxKind) {
     let exists = root.descendants().any(|node| node.kind() == kind);
     assert!(
         exists,
-        "Expected at least one node of kind {:?}, but none was found.",
-        kind
+        "Expected at least one node of kind {kind:?}, but none was found."
     )
 }
 
@@ -15,8 +14,7 @@ pub fn assert_not_exists(root: &ResolvedNode, kind: SyntaxKind) {
     let exists = root.descendants().any(|node| node.kind() == kind);
     assert!(
         !exists,
-        "Expected no nodes of kind {:?}, but at least one was found.",
-        kind
+        "Expected no nodes of kind {kind:?}, but at least one was found."
     )
 }
 
@@ -28,8 +26,7 @@ pub fn assert_node_count(root: &ResolvedNode, kind: SyntaxKind, expected_count: 
         .count();
     assert_eq!(
         actual_count, expected_count,
-        "Expected {} nodes of kind {:?}, but found {}.",
-        expected_count, kind, actual_count
+        "Expected {expected_count} nodes of kind {kind:?}, but found {actual_count}."
     )
 }
 
@@ -42,9 +39,7 @@ pub fn assert_no_direct_nested_kind(root: &ResolvedNode, kind: SyntaxKind) {
         if let Some(parent) = node.parent() {
             assert!(
                 !(node.kind() == kind && parent.kind() == kind),
-                "Found a `{:?}` node that directly contains another {:?} node as a child.",
-                parent,
-                kind
+                "Found a `{parent:?}` node that directly contains another {kind:?} node as a child."
             )
         }
     }

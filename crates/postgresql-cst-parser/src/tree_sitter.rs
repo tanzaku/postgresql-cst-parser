@@ -293,8 +293,7 @@ mod tests {
                 tokens.push((cursor.node().text(), cursor.node().range()));
             }
 
-            if cursor.goto_first_child() {
-            } else if cursor.goto_next_sibling() {
+            if cursor.goto_first_child() || cursor.goto_next_sibling() {
             } else {
                 loop {
                     if !cursor.goto_parent() {

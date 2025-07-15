@@ -12,7 +12,7 @@ fn main() {
         .map(|node| node.text().to_string())
         .collect();
 
-    println!("Column references: {:?}", column_refs); // ["tbl.a", "tbl.b", "tbl.a"]
+    println!("Column references: {column_refs:?}"); // ["tbl.a", "tbl.b", "tbl.a"]
 
     // Example 2: Find the WHERE condition
     if let Some(where_clause) = root
