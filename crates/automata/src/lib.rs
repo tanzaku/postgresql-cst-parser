@@ -127,7 +127,7 @@ pub fn build_nfa_from_regex_node<'a>(
         RegexpNode::Reference(name) => {
             let regexp_node = named_pattern_definitions
                 .get(name)
-                .unwrap_or_else(|| panic!("Referenced pattern '{}' not found", name));
+                .unwrap_or_else(|| panic!("Referenced pattern '{name}' not found"));
 
             let node_nfa @ NFAFragment {
                 start_state: node_start,
