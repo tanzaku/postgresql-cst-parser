@@ -1,8 +1,12 @@
 use cstree::{RawSyntaxKind, Syntax};
 
-use crate::{lexer::TokenKind, syntax_kind::SyntaxKind};
+use crate::{
+    cst::{lookup_parser_action, ERROR_ACTION_CODE},
+    lexer::TokenKind,
+    syntax_kind::SyntaxKind,
+};
 
-use super::{num_terminal_symbol, LRParseState, ParseTransform, ParseTransformer};
+use super::{LRParseState, ParseTransform, ParseTransformer};
 
 /// Complete missing replacement string sample values ​​(FROM clause only)
 pub struct ComplementMissingFromTableTransformer;
@@ -37,11 +41,7 @@ fn is_from_table<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
                 .nth_back(1)
                 .map(|(_, node)| SyntaxKind::from_raw(RawSyntaxKind(node.component_id)));
 
-            if prev2_kind == Some(SyntaxKind::from_list) {
-                true
-            } else {
-                false
-            }
+            prev2_kind == Some(SyntaxKind::from_list)
         }
         _ => false,
     }
@@ -50,11 +50,8 @@ fn is_from_table<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
 fn is_missing_from_replacement_value<'a>(lr_parse_state: &LRParseState<'a>) -> bool {
     if is_from_table(lr_parse_state) {
         // Check if IDENT is in SHIFT enabled state
-        let action_index =
-            (lr_parse_state.state * num_terminal_symbol()) as usize + SyntaxKind::IDENT as usize;
-
-        let a = lr_parse_state.action_table[action_index];
-        a != 0x7FFF
+        let a = lookup_parser_action(lr_parse_state.state, SyntaxKind::IDENT as u32);
+        a != ERROR_ACTION_CODE
     } else {
         false
     }
@@ -66,7 +63,7 @@ impl ParseTransformer for ComplementMissingFromTableTransformer {
             return None;
         }
 
-        if !is_missing_from_replacement_value(&lr_parse_state) {
+        if !is_missing_from_replacement_value(lr_parse_state) {
             return None;
         }
 

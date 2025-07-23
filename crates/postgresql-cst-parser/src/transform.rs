@@ -8,7 +8,7 @@ pub use missing_sample_value::*;
 pub use skip_extra_comma::*;
 pub use skip_extra_operator::*;
 
-use crate::{cst::LRParseState, lexer::TokenKind, parser::num_terminal_symbol};
+use crate::{cst::LRParseState, lexer::TokenKind};
 
 pub enum ParseTransform {
     InsertToken(TokenKind),

@@ -1,23 +1,15 @@
 #![allow(dead_code)]
 
-use regex::bytes::Match;
-
 use super::{
-    generated::{get_keyword_map, RuleKind, State},
-    {Lexer, Rule, TokenKind, Yylval},
+    Lexer, ScanReport, Yylval,
+    generated::{State, get_keyword_map},
 };
 
-pub fn yyerror(msg: &str) {
-    eprintln!("{msg}");
-    panic!();
-}
-
-pub fn get_char_by_byte_pos(s: &str, byte_pos: usize) -> char {
-    s.as_bytes()[byte_pos] as char
-}
-
 impl Lexer {
-    pub fn new(input: &str, rules: Vec<Rule>) -> Self {
+    pub fn new(input: &str) -> Self {
+        #[cfg(feature = "regex-match")]
+        let rules = super::generated::get_rules();
+
         Self {
             input: input.to_string(),
             index_bytes: 0,
@@ -30,12 +22,17 @@ impl Lexer {
             yylloc_stack: vec![],
             literal: String::new(),
             dolqstart: "".to_string(),
+            warn_on_first_escape: false,
+            saw_non_ascii: false,
+            utf16_first_part: 0,
 
             yylloc_bytes: 0,
             yylval: Yylval::Uninitialized,
 
+            #[cfg(feature = "regex-match")]
             rules,
             keyword_map: get_keyword_map(),
+            reports: Vec::new(),
         }
     }
 
@@ -62,108 +59,82 @@ impl Lexer {
         self.yyleng = len;
     }
 
-    pub fn set_yylloc(&mut self) {
-        self.yylloc_bytes = self.index_bytes;
-    }
+    #[cfg(not(feature = "regex-match"))]
+    pub fn find_match_len(&self) -> (usize, u8) {
+        use super::generated::dfa::get_dfa_table;
 
-    pub fn set_yyllocend(&mut self) {
-        self.yyllocend_bytes = self.index_bytes + self.yyleng;
-    }
+        let s = &self.input[self.index_bytes..];
 
-    pub fn addlitchar(&mut self, ychar: char) {
-        // /* enlarge buffer if needed */
-        // if ((yyextra->literallen + 1) >= yyextra->literalalloc)
-        // {
-        // 	yyextra->literalalloc *= 2;
-        // 	yyextra->literalbuf = (char *) repalloc(yyextra->literalbuf,
-        // 											yyextra->literalalloc);
-        // }
-        // /* append new data */
-        // yyextra->literalbuf[yyextra->literallen] = ychar;
-        // yyextra->literallen += 1;
-        self.literal.push(ychar);
-    }
+        let (transition, accept) = get_dfa_table(self.state);
 
-    pub fn addlit(&mut self, yyleng: usize) {
-        // /* enlarge buffer if needed */
-        // if ((yyextra->literallen + yleng) >= yyextra->literalalloc)
-        // {
-        //     yyextra->literalalloc = pg_nextpower2_32(yyextra->literallen + yleng + 1);
-        //     yyextra->literalbuf = (char *) repalloc(yyextra->literalbuf,
-        //                                             yyextra->literalalloc);
-        // }
-        // /* append new data */
-        // memcpy(yyextra->literalbuf + yyextra->literallen, ytext, yleng);
-        // yyextra->literallen += yleng;
-        self.literal += &self.input[self.index_bytes..][..yyleng];
-    }
+        let mut dfa_state_index = 0_u8;
+        let mut accept_rule = accept[dfa_state_index as usize];
+        let mut longest_match = 0;
 
-    pub fn push_yylloc(&mut self) {
-        self.yylloc_stack.push(self.yylloc_bytes);
-    }
+        for (i, byte) in s.as_bytes().iter().enumerate() {
+            let transition_index = *byte as usize;
+            dfa_state_index = transition[dfa_state_index as usize][transition_index];
 
-    pub fn pop_yylloc(&mut self) {
-        self.yylloc_bytes = self.yylloc_stack.pop().unwrap();
-    }
-
-    pub fn process_integer_literal(&mut self, radix: usize) -> Option<TokenKind> {
-        let yytext_original = self.yytext();
-        let mut yytext = yytext_original.as_str();
-        let mut neg = false;
-
-        match yytext.bytes().next() {
-            Some(b'-') => {
-                neg = true;
-                yytext = &yytext[1..];
+            if dfa_state_index == !0 {
+                return (longest_match, accept_rule);
             }
-            Some(b'+') => {
-                yytext = &yytext[1..];
+
+            if accept[dfa_state_index as usize] != !0 {
+                accept_rule = accept[dfa_state_index as usize];
+                longest_match = i + 1;
             }
-            _ => (),
         }
 
-        let res_parse_as_i32 = match radix {
-            8 => i32::from_str_radix(&yytext[2..], 8),
-            10 => yytext.parse::<i32>(),
-            16 => i32::from_str_radix(&yytext[2..], 16),
-            _ => unreachable!(),
-        };
+        // Check for match against EOF
+        if transition[dfa_state_index as usize][0] != !0 {
+            // Currently, EOF is represented by byte value 0
+            dfa_state_index = transition[dfa_state_index as usize][0];
 
-        let ok = res_parse_as_i32
-            .as_ref()
-            .map(|res| !neg || *res != i32::MIN)
-            .unwrap_or_default();
-
-        if ok {
-            let res = res_parse_as_i32.unwrap();
-            self.yylval = Yylval::I(if neg { -res } else { res });
-            Some(TokenKind::ICONST)
-        } else {
-            self.yylval = Yylval::Str(yytext_original);
-            Some(TokenKind::FCONST)
+            if accept[dfa_state_index as usize] != !0 {
+                accept_rule = accept[dfa_state_index as usize];
+                longest_match = s.len();
+            }
         }
+
+        (longest_match, accept_rule)
     }
 
-    pub fn downcase_truncate_identifier(&self, yyleng: usize, _warn: bool) -> String {
-        self.yytext()[..yyleng].to_ascii_lowercase()
-    }
-
-    pub fn find_match(&self) -> (Match, RuleKind) {
+    #[cfg(feature = "regex-match")]
+    pub fn find_match_len(&self) -> (usize, super::generated::RuleKind) {
         let rules = self.rules.iter().filter(|rule| rule.state == self.state);
 
         let s = &self.input[self.index_bytes..];
 
-        let mut longest_match: Option<Match> = None;
-        let mut kind = RuleKind::INITIAL1;
+        let mut longest_match = 0;
+        let mut eof = false;
+        let mut kind = super::generated::RuleKind::INITIAL1;
         for rule in rules {
             if let Some(m) = rule.pattern.find(s.as_bytes()) {
-                if longest_match.map_or(-1, |m| m.len() as i64) < m.len() as i64 {
-                    longest_match = Some(m);
+                // treat eof as single null character
+                let match_len = if rule.eof { 1 } else { m.len() };
+
+                if longest_match < match_len {
+                    longest_match = match_len;
+                    eof = rule.eof;
                     kind = rule.kind;
                 }
             }
         }
 
-        (longest_match.unwrap(), kind)
+        // The match length is treated as 1 in the case of EOF to ensure that the state handling EOF is properly selected.
+        // Unlike C, strings are not null-terminated, so it's more convenient for subsequent processing to treat the match length as 0, therefore in the case of EOF, it's treated as 0.
+        if eof {
+            (0, kind)
+        } else {
+            (longest_match, kind)
+        }
+    }
+
+    pub fn add_warning(&mut self, report: ScanReport) {
+        self.reports.push(report);
+    }
+
+    pub fn lexer_errposition(&self) -> usize {
+        self.index_bytes
     }
 }

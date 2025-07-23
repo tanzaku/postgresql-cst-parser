@@ -13,7 +13,7 @@ impl SkipExtraOperator {
 
 impl ParseTransformer for SkipExtraOperator {
     fn transform<'a>(&self, lr_parse_state: &LRParseState<'a>) -> Option<ParseTransform> {
-        if !Self::allow_extra_operator(&lr_parse_state) {
+        if !Self::allow_extra_operator(lr_parse_state) {
             return None;
         }
 

@@ -261,8 +261,8 @@ FROM
 	A
 ,	B"#;
 
-        let root = cst::parse(&original).unwrap();
-        let (new_root, _) = get_ts_tree_and_range_map(&original, &root);
+        let root = cst::parse(original).unwrap();
+        let (new_root, _) = get_ts_tree_and_range_map(original, &root);
 
         let whitespace_removed: String = original.split_whitespace().collect();
         // Lossless property of the CST is broken.
@@ -355,7 +355,7 @@ FROM
         fn no_nested_from_list() {
             let input = "select * from t1, t2;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::from_list);
         }
@@ -365,7 +365,7 @@ FROM
             let input =
                 "select t.a, t.b.c, t1.*, a[1], a[4][5], a[2:5], a[3].b, a[3][4].b, a[3:5].b;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::indirection);
         }
@@ -374,7 +374,7 @@ FROM
         fn no_nested_expr_list() {
             let input = "select a from t where a in (1,2,3);";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::expr_list);
         }
@@ -383,7 +383,7 @@ FROM
         fn no_nested_func_arg_list() {
             let input = "select func(1, 2, func2(3, 4), 5);";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::func_arg_list);
         }
@@ -392,7 +392,7 @@ FROM
         fn no_nested_when_clause_list() {
             let input = "select case when a then b when c then d when e then f else g end;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::when_clause_list);
         }
@@ -401,7 +401,7 @@ FROM
         fn no_nested_sortby_list() {
             let input = "select * from t order by a, b, c;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::sortby_list);
         }
@@ -410,7 +410,7 @@ FROM
         fn no_nested_groupby_list() {
             let input = "select a, b, c from t group by a, b, c;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::group_by_list);
         }
@@ -419,7 +419,7 @@ FROM
         fn no_nested_for_locking_items() {
             let input = "select * from t1, t2 for update of t1 for update of t2;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::for_locking_items);
         }
@@ -428,7 +428,7 @@ FROM
         fn no_nested_qualified_name_list() {
             let input = "select a from t for update of t.a, t.b;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::qualified_name_list);
         }
@@ -437,7 +437,7 @@ FROM
         fn no_nested_cte_list() {
             let input = "with a as (select 1), b as (select 2) select * from a, b;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::cte_list);
         }
@@ -446,7 +446,7 @@ FROM
         fn no_nested_name_list() {
             let input = "with t (a, b) as (select 1) select * from t;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::name_list);
         }
@@ -455,7 +455,7 @@ FROM
         fn no_nested_set_clause_list() {
             let input = "update t set a = 1, b = 2, c = 3;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::set_clause_list);
         }
@@ -464,7 +464,7 @@ FROM
         fn no_nested_set_target_list() {
             let input = "update t set (a, b, c) = (1, 2, 3) where id = 1;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::set_target_list);
         }
@@ -473,7 +473,7 @@ FROM
         fn no_nested_insert_column_list() {
             let input = "insert into t (a, b, c) values (1, 2, 3);";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::insert_column_list);
         }
@@ -482,7 +482,7 @@ FROM
         fn no_nested_index_params() {
             let input = "insert into t (a, b, c) values (1, 2, 3) on conflict (a, b) do nothing;";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::index_params);
         }
@@ -491,7 +491,7 @@ FROM
         fn no_nested_values_clause() {
             let input = "values (1,2,3), (4,5,6), (7,8,9);";
             let root = cst::parse(input).unwrap();
-            let (new_root, _) = get_ts_tree_and_range_map(&input, &root);
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::values_clause);
         }

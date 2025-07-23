@@ -1,6 +1,10 @@
-use crate::{cst::Extra, lexer::TokenKind, syntax_kind::SyntaxKind};
+use crate::{
+    cst::{lookup_parser_action, Extra, ERROR_ACTION_CODE},
+    lexer::TokenKind,
+    syntax_kind::SyntaxKind,
+};
 
-use super::{num_terminal_symbol, LRParseState, ParseTransform, ParseTransformer};
+use super::{LRParseState, ParseTransform, ParseTransformer};
 
 /// Complete missing bind variable sample values
 pub struct ComplementMissingSampleValueTransformer;
@@ -23,11 +27,8 @@ impl ComplementMissingSampleValueTransformer {
             return false;
         }
 
-        let action_index =
-            (lr_parse_state.state * num_terminal_symbol()) as usize + SyntaxKind::SCONST as usize;
-
-        let a = lr_parse_state.action_table[action_index];
-        a != 0x7FFF
+        let a = lookup_parser_action(lr_parse_state.state, SyntaxKind::SCONST as u32);
+        a != ERROR_ACTION_CODE
     }
 }
 
@@ -37,7 +38,7 @@ impl ParseTransformer for ComplementMissingSampleValueTransformer {
             return None;
         }
 
-        if !Self::is_missing_bind_variable(&lr_parse_state) {
+        if !Self::is_missing_bind_variable(lr_parse_state) {
             return None;
         }
 

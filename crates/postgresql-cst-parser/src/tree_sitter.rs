@@ -8,21 +8,21 @@ use std::{collections::HashMap, fmt::Display, rc::Rc, str};
 
 use cstree::text::TextRange;
 
-use crate::{cst, syntax_kind::SyntaxKind, NodeOrToken, ResolvedNode};
+use crate::{cst, syntax_kind::SyntaxKind, NodeOrToken, ParserError, ResolvedNode};
 
 impl Display for SyntaxKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
-pub fn parse(input: &str) -> Result<Tree, cst::ParseError> {
+pub fn parse(input: &str) -> Result<Tree, ParserError> {
     let parsed = cst::parse(input)?;
     let (root, range_map) = get_ts_tree_and_range_map(input, &parsed);
     Ok(Tree::new(input, root, range_map))
 }
 
-pub fn parse_2way(input: &str) -> Result<Tree, cst::ParseError> {
+pub fn parse_2way(input: &str) -> Result<Tree, ParserError> {
     let parsed = crate::parse_2way(input)?;
     let (root, range_map) = get_ts_tree_and_range_map(input, &parsed);
     Ok(Tree::new(input, root, range_map))
@@ -293,8 +293,7 @@ mod tests {
                 tokens.push((cursor.node().text(), cursor.node().range()));
             }
 
-            if cursor.goto_first_child() {
-            } else if cursor.goto_next_sibling() {
+            if cursor.goto_first_child() || cursor.goto_next_sibling() {
             } else {
                 loop {
                     if !cursor.goto_parent() {

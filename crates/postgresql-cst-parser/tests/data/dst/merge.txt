@@ -63,9 +63,10 @@ Root@0..318
               merge_when_list@73..316
                 merge_when_list@73..166
                   merge_when_clause@73..166
-                    WHEN@73..77 "WHEN"
-                    Whitespace@77..78 " "
-                    MATCHED@78..85 "MATCHED"
+                    merge_when_tgt_matched@73..85
+                      WHEN@73..77 "WHEN"
+                      Whitespace@77..78 " "
+                      MATCHED@78..85 "MATCHED"
                     Whitespace@85..86 " "
                     THEN@86..90 "THEN"
                     Whitespace@90..99 "\n        "
@@ -116,11 +117,12 @@ Root@0..318
                                           IDENT@158..166 "quantity"
                 Whitespace@166..171 "\n    "
                 merge_when_clause@171..316
-                  WHEN@171..175 "WHEN"
-                  Whitespace@175..176 " "
-                  NOT@176..179 "NOT"
-                  Whitespace@179..180 " "
-                  MATCHED@180..187 "MATCHED"
+                  merge_when_tgt_not_matched@171..187
+                    WHEN@171..175 "WHEN"
+                    Whitespace@175..176 " "
+                    NOT@176..179 "NOT"
+                    Whitespace@179..180 " "
+                    MATCHED@180..187 "MATCHED"
                   Whitespace@187..188 " "
                   THEN@188..192 "THEN"
                   Whitespace@192..201 "\n        "

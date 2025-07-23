@@ -7,19 +7,22 @@ pub(crate) use lr_parse_state::*;
 use cstree::{
     build::GreenNodeBuilder, green::GreenNode, interning::Resolver, RawSyntaxKind, Syntax,
 };
-use miniz_oxide::inflate::decompress_to_vec;
 
 use crate::{
-    lexer::{lex, TokenKind},
+    lexer::{lex, lexer_ported::init_tokens, parser_error::ParserError, TokenKind},
     parser::{
-        end_rule_id, end_rule_kind, num_non_terminal_symbol, num_terminal_symbol,
-        rule_name_to_component_id, token_kind_to_component_id, Action, ACTION_TABLE, GOTO_TABLE,
-        RULES,
+        end_rule_id, end_rule_kind, num_terminal_symbol, rule_name_to_component_id,
+        token_kind_to_component_id, Action, ACTION_CHECK_TABLE, ACTION_DEF_RULE_TABLE,
+        ACTION_TABLE, ACTION_TABLE_INDEX, GOTO_CHECK_TABLE, GOTO_TABLE, GOTO_TABLE_INDEX, RULES,
     },
     transform::{ParseTransform, ParseTransformer},
 };
 
 use super::{lexer::Token, syntax_kind::SyntaxKind};
+
+pub(crate) const ERROR_ACTION_CODE: i16 = 0x7FFF;
+pub(crate) const DEFAULT_ACTION_CODE: i16 = 0x7FFE;
+pub(crate) const INVALID_GOTO_CODE: i16 = -1;
 
 pub(crate) struct Node {
     token: Option<Token>,
@@ -57,13 +60,6 @@ struct Parser {
     builder: GreenNodeBuilder<'static, 'static, PostgreSQLSyntax>,
 }
 
-#[derive(Debug)]
-pub struct ParseError {
-    pub message: String,
-    pub start_byte_pos: usize,
-    pub end_byte_pos: usize,
-}
-
 /// ノードがトークンを含むか否かを判定する
 /// トークンを含まないノードは削除し、ダミートークンを含む補完されたノードは残すために使用する
 fn contains_token(node: &Node) -> bool {
@@ -80,10 +76,11 @@ impl Parser {
         node: &Node,
         peekable: &mut std::iter::Peekable<std::vec::IntoIter<Extra>>,
     ) {
-        if cfg!(feature = "remove-empty-node") {
-            if node.start_byte_pos == node.end_byte_pos && !contains_token(node) {
-                return;
-            }
+        if cfg!(feature = "remove-empty-node")
+            && node.start_byte_pos == node.end_byte_pos
+            && !contains_token(node)
+        {
+            return;
         }
 
         while let Some(Extra {
@@ -98,7 +95,7 @@ impl Parser {
                 // if *start > node.start_byte_pos {
                 break;
             }
-            self.builder.token(*kind, &comment);
+            self.builder.token(*kind, comment);
             peekable.next();
         }
 
@@ -135,80 +132,36 @@ impl Parser {
     }
 }
 
-/// The logic for converting tokens in PostgreSQL's parser.c
-/// ref: https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/parser/parser.c#L195
-fn init_tokens(tokens: &mut [Token]) {
-    fn next_token_index(tokens: &[Token], i: usize) -> Option<usize> {
-        for (j, token) in tokens.iter().enumerate().skip(i + 1) {
-            match token.kind {
-                TokenKind::C_COMMENT | TokenKind::SQL_COMMENT => continue,
-                _ => return Some(j),
-            }
-        }
-        None
-    }
+pub(crate) fn lookup_parser_action(state: u32, cid: u32) -> i16 {
+    let state = state as usize;
+    let cid = cid as usize;
 
-    for i in 0..tokens.len() - 1 {
-        match &tokens[i].kind {
-            TokenKind::KEYWORD(k) if k == "FORMAT" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    if tokens[j].kind == TokenKind::KEYWORD("JSON".to_string()) {
-                        tokens[i].kind = TokenKind::KEYWORD("FORMAT_LA".to_string());
-                    }
-                }
-            }
-            TokenKind::KEYWORD(k) if k == "NOT" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    match &tokens[j].kind {
-                        TokenKind::KEYWORD(k)
-                            if matches!(
-                                k.as_str(),
-                                "BETWEEN" | "IN_P" | "LIKE" | "ILIKE" | "SIMILAR"
-                            ) =>
-                        {
-                            tokens[i].kind = TokenKind::KEYWORD("NOT_LA".to_string());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            TokenKind::KEYWORD(k) if k == "NULLS_P" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    match &tokens[j].kind {
-                        TokenKind::KEYWORD(k) if matches!(k.as_str(), "FIRST_P" | "LAST_P") => {
-                            tokens[i].kind = TokenKind::KEYWORD("NULLS_LA".to_string());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            TokenKind::KEYWORD(k) if k == "WITH" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    match &tokens[j].kind {
-                        TokenKind::KEYWORD(k) if matches!(k.as_str(), "TIME" | "ORDINALITY") => {
-                            tokens[i].kind = TokenKind::KEYWORD("WITH_LA".to_string());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            TokenKind::KEYWORD(k) if k == "WITHOUT" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    match &tokens[j].kind {
-                        TokenKind::KEYWORD(k) if matches!(k.as_str(), "TIME") => {
-                            tokens[i].kind = TokenKind::KEYWORD("WITHOUT_LA".to_string());
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            _ => (),
+    let i = ACTION_TABLE_INDEX[state] as usize;
+    if ACTION_CHECK_TABLE[i + cid] == cid as i16 {
+        if ACTION_TABLE[i + cid] == DEFAULT_ACTION_CODE {
+            ACTION_DEF_RULE_TABLE[state]
+        } else {
+            ACTION_TABLE[i + cid]
         }
+    } else {
+        ERROR_ACTION_CODE
+    }
+}
+
+pub(crate) fn lookup_goto_state(state: u32, cid: u32) -> i16 {
+    let state = state as usize;
+    let cid = cid as usize;
+
+    let i = GOTO_TABLE_INDEX[state] as usize;
+    if GOTO_CHECK_TABLE[i + cid] == cid as i16 {
+        GOTO_TABLE[i + cid]
+    } else {
+        INVALID_GOTO_CODE
     }
 }
 
 /// Parsing a string as PostgreSQL syntax and converting it into a ResolvedNode
-pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
+pub fn parse(input: &str) -> Result<ResolvedNode, ParserError> {
     parse_with_transformer(input, &[])
 }
 
@@ -216,8 +169,8 @@ pub fn parse(input: &str) -> Result<ResolvedNode, ParseError> {
 pub fn parse_with_transformer(
     input: &str,
     transformers: &[&dyn ParseTransformer],
-) -> Result<ResolvedNode, ParseError> {
-    let mut tokens = lex(input);
+) -> Result<ResolvedNode, ParserError> {
+    let mut tokens = lex(input)?;
 
     if !tokens.is_empty() {
         init_tokens(&mut tokens);
@@ -229,11 +182,6 @@ pub fn parse_with_transformer(
         start_byte_pos: input.len(),
         end_byte_pos: input.len(),
     });
-
-    let action_table_u8 = decompress_to_vec(ACTION_TABLE.as_ref()).unwrap();
-    let goto_table_u8 = decompress_to_vec(GOTO_TABLE.as_ref()).unwrap();
-    let action_table = unsafe { action_table_u8.align_to::<i16>().1 };
-    let goto_table = unsafe { goto_table_u8.align_to::<i16>().1 };
 
     struct TokenQueue {
         tokens: std::iter::Peekable<std::vec::IntoIter<Token>>,
@@ -250,8 +198,7 @@ pub fn parse_with_transformer(
 
         fn next(&mut self) -> Option<Token> {
             if self.dummy_token.is_some() {
-                let dummy_token = self.dummy_token.take();
-                dummy_token
+                self.dummy_token.take()
             } else {
                 self.tokens.next()
             }
@@ -292,7 +239,7 @@ pub fn parse_with_transformer(
         let mut token = match tokens.peek() {
             Some(token) => token.clone(),
             None => {
-                return Err(ParseError {
+                return Err(ParserError::ParseError {
                     message: "unexpected end of input".to_string(),
                     start_byte_pos: input.len(),
                     end_byte_pos: input.len(),
@@ -326,7 +273,7 @@ pub fn parse_with_transformer(
             continue;
         }
 
-        let mut action = match action_table[(state * num_terminal_symbol() + cid) as usize] {
+        let mut action = match lookup_parser_action(state, cid) {
             0x7FFF => Action::Error,
             v if v > 0 => Action::Shift((v - 1) as usize),
             v if v < 0 => Action::Reduce((-v - 1) as usize),
@@ -338,8 +285,6 @@ pub fn parse_with_transformer(
             let lr_parse_state = LRParseState {
                 state,
                 stack: &stack,
-                action_table,
-                goto_table,
                 extras: &extras,
                 token: &token,
             };
@@ -360,8 +305,7 @@ pub fn parse_with_transformer(
                             value: String::new(),
                         };
 
-                        action = match action_table[(state * num_terminal_symbol() + cid) as usize]
-                        {
+                        action = match lookup_parser_action(state, cid) {
                             0x7FFF => Action::Error,
                             v if v > 0 => Action::Shift((v - 1) as usize),
                             v if v < 0 => Action::Reduce((-v - 1) as usize),
@@ -459,15 +403,14 @@ pub fn parse_with_transformer(
                 };
 
                 let next_state = stack.last().unwrap().0;
-                let goto = goto_table
-                    [(next_state * num_non_terminal_symbol() + reduced_component_id) as usize];
+                let goto = lookup_goto_state(next_state, reduced_component_id);
 
                 match goto {
                     next_state if next_state >= 0 => {
                         stack.push((next_state as u32, node));
                     }
                     _ => {
-                        return Err(ParseError {
+                        return Err(ParserError::ParseError {
                             message: format!(
                                 "syntax error at byte position {}",
                                 token.start_byte_pos
@@ -482,7 +425,7 @@ pub fn parse_with_transformer(
                 break;
             }
             Action::Error => {
-                return Err(ParseError {
+                return Err(ParserError::ParseError {
                     message: format!(
                         "Action::Error: syntax error at byte position {}",
                         token.start_byte_pos
@@ -506,7 +449,7 @@ pub fn parse_with_transformer(
 
         last_pos = token.end_byte_pos;
 
-        // 最後のトークンは$endなので、ここで終了
+        // The last token is $end, so exit the loop here
         if tokens.peek().is_none() {
             break;
         }
