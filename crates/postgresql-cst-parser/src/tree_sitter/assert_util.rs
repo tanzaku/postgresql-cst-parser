@@ -45,6 +45,26 @@ pub fn assert_no_direct_nested_kind(root: &ResolvedNode, kind: SyntaxKind) {
     }
 }
 
+/// Asserts that there is at least one directly nested node of the specified `SyntaxKind`.
+/// In other words, there must be a node of `kind` that has another `kind` node as its immediate child.
+pub fn assert_direct_nested_kind(root: &ResolvedNode, kind: SyntaxKind) {
+    let has_direct_nesting = root
+        .descendants()
+        .filter(|node| node.kind() == kind)
+        .any(|node| {
+            if let Some(parent) = node.parent() {
+                node.kind() == kind && parent.kind() == kind
+            } else {
+                false
+            }
+        });
+
+    assert!(
+        has_direct_nesting,
+        "Expected at least one directly nested {kind:?} node, but none was found."
+    );
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -117,5 +137,24 @@ mod tests {
         let root = cst::parse(input).unwrap();
 
         assert_no_direct_nested_kind(&root, SyntaxKind::target_list);
+    }
+
+    #[test]
+    fn test_direct_nested_kind_passes() {
+        let input = "select a,b,c;";
+        let root = cst::parse(input).unwrap();
+
+        assert_direct_nested_kind(&root, SyntaxKind::target_list);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Expected at least one directly nested SelectStmt node, but none was found."
+    )]
+    fn test_direct_nested_kind_fails() {
+        let input = "select a;";
+        let root = cst::parse(input).unwrap();
+
+        assert_direct_nested_kind(&root, SyntaxKind::SelectStmt);
     }
 }
