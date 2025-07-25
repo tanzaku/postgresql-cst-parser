@@ -154,7 +154,8 @@ fn walk_and_build(
                     | SyntaxKind::set_target_list
                     | SyntaxKind::insert_column_list
                     | SyntaxKind::index_params
-                    | SyntaxKind::values_clause) => {
+                    | SyntaxKind::values_clause
+                    | SyntaxKind::TableFuncElementList) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -494,6 +495,15 @@ FROM
             let (new_root, _) = get_ts_tree_and_range_map(input, &root);
 
             assert_no_direct_nested_kind(&new_root, SyntaxKind::values_clause);
+        }
+
+        #[test]
+        fn no_nested_table_func_element_list() {
+            let input = "select * from unnest(a) as (x int, y text);";
+            let root = cst::parse(input).unwrap();
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
+
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::TableFuncElementList);
         }
     }
 }
