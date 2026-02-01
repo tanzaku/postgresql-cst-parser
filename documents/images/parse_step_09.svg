@@ -1,0 +1,22 @@
+<svg viewBox="0 0 620 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- 白背景 -->
+  <rect x="0" y="0" width="620" height="120" fill="#ffffff"/>
+  <!-- 状態スタック -->
+  <rect x="20" y="50" width="40" height="40" fill="#d4edda" stroke="#333"/>
+  <rect x="60" y="50" width="40" height="40" fill="#d4edda" stroke="#333"/>
+  <text x="40" y="75" text-anchor="middle" font-size="14" fill="#333">0</text>
+  <text x="80" y="75" text-anchor="middle" font-size="14" fill="#333">2</text>
+  <text x="60" y="30" text-anchor="middle" font-size="12" fill="#666">状態スタック</text>
+  <!-- 記号スタック -->
+  <rect x="120" y="50" width="40" height="40" fill="#cce5ff" stroke="#333"/>
+  <rect x="160" y="50" width="40" height="40" fill="#cce5ff" stroke="#333"/>
+  <text x="140" y="75" text-anchor="middle" font-size="14" fill="#333">$</text>
+  <text x="180" y="75" text-anchor="middle" font-size="12" fill="#333">main</text>
+  <text x="160" y="30" text-anchor="middle" font-size="12" fill="#666">記号スタック</text>
+  <!-- 入力 -->
+  <rect x="280" y="50" width="60" height="40" fill="#c3e6cb" stroke="#28a745" stroke-width="2"/>
+  <text x="310" y="75" text-anchor="middle" font-size="11" fill="#28a745">（空）</text>
+  <text x="310" y="30" text-anchor="middle" font-size="12" fill="#666">入力</text>
+  <!-- ACTION -->
+  <text x="450" y="75" text-anchor="middle" font-size="14" fill="#28a745" font-weight="bold">accept</text>
+</svg>
