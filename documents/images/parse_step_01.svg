@@ -1,0 +1,24 @@
+<svg viewBox="0 0 620 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- 白背景 -->
+  <rect x="0" y="0" width="620" height="120" fill="#ffffff"/>
+  <!-- 状態スタック -->
+  <rect x="20" y="50" width="60" height="40" fill="#d4edda" stroke="#333"/>
+  <text x="50" y="75" text-anchor="middle" font-size="14" fill="#333">0</text>
+  <text x="50" y="30" text-anchor="middle" font-size="12" fill="#666">状態スタック</text>
+  <!-- 記号スタック -->
+  <rect x="100" y="50" width="60" height="40" fill="#cce5ff" stroke="#333"/>
+  <text x="130" y="75" text-anchor="middle" font-size="14" fill="#333">$</text>
+  <text x="130" y="30" text-anchor="middle" font-size="12" fill="#666">記号スタック</text>
+  <!-- 入力 -->
+  <rect x="250" y="50" width="50" height="40" fill="#fff3cd" stroke="#333"/>
+  <rect x="300" y="50" width="30" height="40" fill="#ffffff" stroke="#333"/>
+  <rect x="330" y="50" width="50" height="40" fill="#ffffff" stroke="#333"/>
+  <rect x="380" y="50" width="30" height="40" fill="#ffffff" stroke="#333"/>
+  <text x="275" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">DIGIT</text>
+  <text x="315" y="75" text-anchor="middle" font-size="14" fill="#333">+</text>
+  <text x="355" y="75" text-anchor="middle" font-size="12" fill="#333">DIGIT</text>
+  <text x="395" y="75" text-anchor="middle" font-size="14" fill="#333">$</text>
+  <text x="320" y="30" text-anchor="middle" font-size="12" fill="#666">入力（先読み: DIGIT）</text>
+  <!-- ACTION -->
+  <text x="520" y="75" text-anchor="middle" font-size="12" fill="#333">ACTION[0, DIGIT] = s1</text>
+</svg>

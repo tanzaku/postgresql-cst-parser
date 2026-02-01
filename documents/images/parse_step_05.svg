@@ -1,0 +1,30 @@
+<svg viewBox="0 0 620 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- 白背景 -->
+  <rect x="0" y="0" width="620" height="120" fill="#ffffff"/>
+  <!-- 状態スタック -->
+  <rect x="20" y="50" width="25" height="40" fill="#d4edda" stroke="#333"/>
+  <rect x="45" y="50" width="25" height="40" fill="#d4edda" stroke="#333"/>
+  <rect x="70" y="50" width="25" height="40" fill="#d4edda" stroke="#333"/>
+  <rect x="95" y="50" width="25" height="40" fill="#d4edda" stroke="#333"/>
+  <text x="32" y="75" text-anchor="middle" font-size="11" fill="#333">0</text>
+  <text x="57" y="75" text-anchor="middle" font-size="11" fill="#333">3</text>
+  <text x="82" y="75" text-anchor="middle" font-size="11" fill="#333">4</text>
+  <text x="107" y="75" text-anchor="middle" font-size="11" fill="#333">1</text>
+  <text x="70" y="30" text-anchor="middle" font-size="12" fill="#666">状態スタック</text>
+  <!-- 記号スタック -->
+  <rect x="140" y="50" width="25" height="40" fill="#cce5ff" stroke="#333"/>
+  <rect x="165" y="50" width="35" height="40" fill="#cce5ff" stroke="#333"/>
+  <rect x="200" y="50" width="25" height="40" fill="#cce5ff" stroke="#333"/>
+  <rect x="225" y="50" width="40" height="40" fill="#cce5ff" stroke="#333"/>
+  <text x="152" y="75" text-anchor="middle" font-size="11" fill="#333">$</text>
+  <text x="182" y="75" text-anchor="middle" font-size="10" fill="#333">expr</text>
+  <text x="212" y="75" text-anchor="middle" font-size="11" fill="#333">+</text>
+  <text x="245" y="75" text-anchor="middle" font-size="9" fill="#333">DIGIT</text>
+  <text x="190" y="30" text-anchor="middle" font-size="12" fill="#666">記号スタック</text>
+  <!-- 入力 -->
+  <rect x="320" y="50" width="30" height="40" fill="#fff3cd" stroke="#333"/>
+  <text x="335" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">$</text>
+  <text x="335" y="30" text-anchor="middle" font-size="12" fill="#666">入力（先読み: $）</text>
+  <!-- ACTION -->
+  <text x="480" y="75" text-anchor="middle" font-size="12" fill="#333">ACTION[1, $] = r2</text>
+</svg>
