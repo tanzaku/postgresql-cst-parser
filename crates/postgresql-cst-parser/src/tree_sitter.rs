@@ -47,7 +47,7 @@ impl Tree {
         }
     }
 
-    pub fn root_node(&self) -> Node {
+    pub fn root_node(&self) -> Node<'_> {
         Node {
             input: &self.src,
             range_map: Rc::clone(&self.range_map),

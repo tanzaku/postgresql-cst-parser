@@ -39,7 +39,7 @@ impl PartialEq for NFAState<'_> {
 
 impl PartialOrd for NFAState<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.state_id.cmp(&other.state_id))
+        Some(self.cmp(other))
     }
 }
 

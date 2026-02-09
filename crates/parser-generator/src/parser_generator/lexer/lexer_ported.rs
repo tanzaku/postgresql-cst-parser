@@ -162,10 +162,10 @@ pub fn init_tokens(tokens: &mut [Token]) {
     for i in 0..tokens.len() - 1 {
         match &tokens[i].kind {
             TokenKind::KEYWORD(k) if k == "FORMAT" => {
-                if let Some(j) = next_token_index(tokens, i) {
-                    if tokens[j].kind == TokenKind::KEYWORD("JSON".to_string()) {
-                        tokens[i].kind = TokenKind::KEYWORD("FORMAT_LA".to_string());
-                    }
+                if let Some(j) = next_token_index(tokens, i)
+                    && tokens[j].kind == TokenKind::KEYWORD("JSON".to_string())
+                {
+                    tokens[i].kind = TokenKind::KEYWORD("FORMAT_LA".to_string());
                 }
             }
             TokenKind::KEYWORD(k) if k == "NOT" => {

@@ -16,7 +16,7 @@ impl<'a> LRParseState<'a> {
         matches!(self.extras.last(), Some(e) if e.end_byte_pos != self.token.start_byte_pos && e.kind == SyntaxKind::C_COMMENT)
     }
 
-    pub(crate) fn previous_extra(&self) -> Option<&Extra> {
+    pub(crate) fn previous_extra(&self) -> Option<&Extra<'_>> {
         let last_extra = self.extras.last()?;
 
         let stack_end_byte_pos = self
