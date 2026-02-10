@@ -155,7 +155,8 @@ fn walk_and_build(
                     | SyntaxKind::insert_column_list
                     | SyntaxKind::index_params
                     | SyntaxKind::values_clause
-                    | SyntaxKind::TableFuncElementList) => {
+                    | SyntaxKind::TableFuncElementList
+                    | SyntaxKind::array_expr_list) => {
                         if parent_kind == child_kind {
                             // [Node: Flatten]
                             //
@@ -525,6 +526,16 @@ FROM
 
             let (new_root, _) = get_ts_tree_and_range_map(input, &root);
             assert_no_direct_nested_kind(&new_root, SyntaxKind::TableFuncElementList);
+        }
+
+        #[test]
+        fn no_nested_array_expr_list() {
+            let input = "select array[[1,2],[3,4]];";
+            let root = cst::parse(input).unwrap();
+            assert_direct_nested_kind(&root, SyntaxKind::array_expr_list);
+
+            let (new_root, _) = get_ts_tree_and_range_map(input, &root);
+            assert_no_direct_nested_kind(&new_root, SyntaxKind::array_expr_list);
         }
     }
 }
