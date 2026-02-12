@@ -43,6 +43,12 @@ jobs:
         with:
           path: ./docs
 
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: ./.github/actions/slack-notify
+        with:
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
   deploy:
     if: github.repository == 'tanzaku/postgresql-cst-parser'
     needs: build
@@ -55,3 +61,9 @@ jobs:
         if: ${{ !env.ACT }}
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: ./.github/actions/slack-notify
+        with:
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
